@@ -117,6 +117,10 @@ const saturation = (hex) => {
 
 // ---------- mapping ----------
 
+// The least contrast between primary and secondary text (Claude's own dark
+// theme has about 2.4), so its thinking reads as quieter than its answers
+const TEXT_GAP = 1.5
+
 const isLightColor = (hex) => luminance(hex) > 0.4
 const isDarkColor = (hex) => luminance(hex) < 0.12
 
@@ -290,9 +294,10 @@ const paletteOf = (theme, mode) => {
 const fix = (p, mode) => {
   const light = mode === 'light'
   const notes = {}
+  const theme = { ...p } // the theme's own colors, for the notes
   const set = (key, value, why) => {
     if (value.toLowerCase() !== p[key].toLowerCase()) {
-      notes[key] = `${why} (was ${p[key]})`
+      notes[key] = `${why} (was ${theme[key]})`
       p[key] = value
     }
   }
@@ -309,6 +314,36 @@ const fix = (p, mode) => {
       ),
       light ? 'darkened for AA' : 'lightened for AA',
     )
+  // Claude draws its thinking in the secondary color, so keep it at least
+  // TEXT_GAP from the text: dim the secondary while it stays AA, and only
+  // then lift the text (themes whose text is dim to begin with, like Min)
+  let text = p.text
+  let secondary = p.textSecondary
+  for (let i = 0; i < 120 && contrast(text, secondary) < TEXT_GAP; i += 1) {
+    const dimmer = mix(secondary, p.canvas, 0.02)
+    if (contrast(dimmer, p.canvas) >= 4.5 && contrast(dimmer, p.frame) >= 4.5)
+      secondary = dimmer
+    else text = mix(text, light ? '#000000' : '#ffffff', 0.02)
+  }
+  set('textSecondary', secondary, 'dimmed to stand apart from the text')
+  set(
+    'text',
+    text,
+    light ? 'darkened to stand apart' : 'lightened to stand apart',
+  )
+  // Muted text no brighter than the secondary
+  let muted = p.textMuted
+  for (
+    let i = 0;
+    i < 120 && contrast(muted, p.canvas) > contrast(secondary, p.canvas) + 0.05;
+    i += 1
+  ) {
+    const dimmer = mix(muted, p.canvas, 0.02)
+    if (contrast(dimmer, p.canvas) < 4.5 || contrast(dimmer, p.frame) < 4.5)
+      break
+    muted = dimmer
+  }
+  set('textMuted', muted, 'dimmed below the secondary text')
   // Last resort if the text still can't read on it: move it toward the canvas
   let selected = p.selected
   for (let i = 0; i < 25 && contrast(p.text, selected) < 4.5; i += 1)

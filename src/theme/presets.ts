@@ -96,7 +96,7 @@ const HAND_TUNED: Theme[] = [
       raised: '#f5ebc4',
       pressed: '#ebdbb2', // bg1
       text: '#3c3836', // fg
-      textSecondary: '#504945', // fg2
+      textSecondary: '#59524d', // fg2; dimmed to stand apart from the text (was #504945)
       textMuted: '#665c54', // fg3
       line: '#7c6f64', // fg4
       accent: '#af3a03', // orange
@@ -120,9 +120,9 @@ const HAND_TUNED: Theme[] = [
       canvas: '#eff1f5', // base
       raised: '#e9ecf1',
       pressed: '#dce0e8', // crust
-      text: '#4c4f69', // text
-      textSecondary: '#5c5f77', // subtext1
-      textMuted: '#5f6279', // subtext0, darkened for AA
+      text: '#4a4d67', // text; nudged to stand apart from the secondary (was #4c4f69)
+      textSecondary: '#65687e', // subtext1; dimmed to stand apart from the text (was #5c5f77)
+      textMuted: '#65687d', // subtext0, darkened for AA; dimmed below the secondary (was #5f6279)
       line: '#8c8fa1', // overlay2
       accent: '#8839ef', // mauve
       accentHover: '#7287fd', // lavender
@@ -146,7 +146,7 @@ const HAND_TUNED: Theme[] = [
       raised: '#3e3d32',
       pressed: '#49483e',
       text: '#f8f8f2',
-      textSecondary: '#cfcfc2',
+      textSecondary: '#ccccbf', // dimmed to stand apart from the text (was #cfcfc2)
       textMuted: '#a59f85',
       line: '#75715e',
       accent: '#fd971f', // orange
@@ -171,7 +171,7 @@ const HAND_TUNED: Theme[] = [
       raised: '#343746',
       pressed: '#44475a', // current line
       text: '#f8f8f2', // foreground
-      textSecondary: '#d6d7e1',
+      textSecondary: '#cacbd5', // dimmed to stand apart from the text (was #d6d7e1)
       textMuted: '#a4a9cc', // comment, lightened for AA
       line: '#6272a4', // comment
       accent: '#bd93f9', // purple
@@ -196,7 +196,7 @@ const HAND_TUNED: Theme[] = [
       raised: '#3b4252', // nord1
       pressed: '#434c5e', // nord2
       text: '#eceff4', // nord6
-      textSecondary: '#d8dee9', // nord4
+      textSecondary: '#bdc3ce', // nord4; dimmed to stand apart from the text (was #d8dee9)
       textMuted: '#a7b1c2',
       line: '#4c566a', // nord3
       accent: '#88c0d0', // nord8
@@ -221,7 +221,7 @@ const HAND_TUNED: Theme[] = [
       raised: '#32302f', // bg0_s
       pressed: '#3c3836', // bg1
       text: '#ebdbb2', // fg
-      textSecondary: '#d5c4a1', // fg2
+      textSecondary: '#c3b295', // fg2; dimmed to stand apart from the text (was #d5c4a1)
       textMuted: '#a89984', // fg4
       line: '#665c54', // bg3
       accent: '#fe8019', // orange
@@ -246,7 +246,7 @@ const HAND_TUNED: Theme[] = [
       raised: '#313244', // surface0
       pressed: '#45475a', // surface1
       text: '#cdd6f4', // text
-      textSecondary: '#bac2de', // subtext1
+      textSecondary: '#a5adc8', // subtext1; dimmed to stand apart from the text (was #bac2de)
       textMuted: '#a6adc8', // subtext0
       line: '#6c7086', // overlay0
       accent: '#cba6f7', // mauve
@@ -271,7 +271,7 @@ const HAND_TUNED: Theme[] = [
       raised: '#24283b',
       pressed: '#292e42',
       text: '#c0caf5',
-      textSecondary: '#a9b1d6',
+      textSecondary: '#9da5c9', // dimmed to stand apart from the text (was #a9b1d6)
       textMuted: '#8b91b0', // lightened for AA
       line: '#3b4261',
       accent: '#7aa2f7', // blue

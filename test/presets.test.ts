@@ -95,12 +95,15 @@ describe('presets', () => {
   )
 
   // Claude draws its thinking and labels in the secondary color, so it must
-  // read as dimmer than the text (0.05 of slack for near-equal shades)
+  // read as clearly dimmer than the text: at least 1.5:1 from it (Claude's
+  // own dark theme has about 2.4:1), with muted no brighter than secondary
+  // (0.05 of slack for near-equal shades)
   it.each(allPresets().map((t) => [t.name, t] as const))(
     '%s dims secondary and muted text below the primary',
     (_name, { palette: p }) => {
       const onCanvas = (key: keyof typeof p) => contrast(p[key], p.canvas)
       expect(onCanvas('textSecondary')).toBeLessThan(onCanvas('text'))
+      expect(contrast(p.text, p.textSecondary)).toBeGreaterThanOrEqual(1.5)
       expect(onCanvas('textMuted')).toBeLessThanOrEqual(
         onCanvas('textSecondary') + 0.05,
       )

@@ -99,9 +99,9 @@ export const CODE_THEME_PRESETS: Theme[] = [
       raised: '#f7f7f7',
       pressed: '#ebebeb',
       text: '#393a34',
-      textSecondary: '#4e4f47',
+      textSecondary: '#55564f', // dimmed to stand apart from the text (was #4e4f47)
       textMuted: '#70706d', // darkened for AA (was #8f908c)
-      line: '#4e4f47',
+      line: '#55564f',
       accent: '#1c6b48',
       accentHover: '#195e3f',
       onAccent: '#ffffff',
@@ -148,7 +148,7 @@ export const CODE_THEME_PRESETS: Theme[] = [
       canvas: '#faf4ed',
       raised: '#fffaf3',
       pressed: '#f4efea',
-      text: '#575279',
+      text: '#534e75', // darkened to stand apart (was #575279)
       textSecondary: '#6f6c87', // darkened for AA (was #797593)
       textMuted: '#6f6c87', // darkened for AA (was #797593)
       line: '#6f6c87',
@@ -199,9 +199,9 @@ export const CODE_THEME_PRESETS: Theme[] = [
       raised: '#1f2428',
       pressed: '#282e34',
       text: '#e1e4e8',
-      textSecondary: '#d1d5da',
+      textSecondary: '#b6babf', // dimmed to stand apart from the text (was #d1d5da)
       textMuted: '#959da5',
-      line: '#d1d5da',
+      line: '#b6babf',
       accent: '#79b8ff',
       accentHover: '#c8e1ff',
       onAccent: '#24292e',
@@ -324,9 +324,9 @@ export const CODE_THEME_PRESETS: Theme[] = [
       raised: '#181818',
       pressed: '#242424',
       text: '#cecabe',
-      textSecondary: '#bfbaaa',
+      textSecondary: '#aaa595', // dimmed to stand apart from the text (was #bfbaaa)
       textMuted: '#858480',
-      line: '#bfbaaa',
+      line: '#aaa595',
       accent: '#4d9375',
       accentHover: '#62a086',
       onAccent: '#121212',
@@ -348,7 +348,7 @@ export const CODE_THEME_PRESETS: Theme[] = [
       canvas: '#1f1f1f',
       raised: '#2a2a2a',
       pressed: '#262626',
-      text: '#9a9a9a', // lightened for AA (was #888888)
+      text: '#a8a8a8', // lightened to stand apart (was #888888)
       textSecondary: '#878787', // lightened for AA (was #727272)
       textMuted: '#878787', // lightened for AA (was #727272)
       line: '#878787',
