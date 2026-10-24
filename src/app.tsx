@@ -83,9 +83,9 @@ const headerView = (dispatch: Dispatcher<Msg>) => (
       <img
         src={`${import.meta.env.BASE_URL}logo.svg`}
         alt=''
-        width={24}
-        height={24}
-        className='h-[24px] w-[24px] shrink-0'
+        width={32}
+        height={32}
+        className='h-[32px] w-[32px] shrink-0'
       />
       <span className='flex min-w-0 items-baseline gap-[10px]'>
         <h1 className='shrink-0 text-base font-semibold tracking-tight'>
