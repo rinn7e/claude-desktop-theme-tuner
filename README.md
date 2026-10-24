@@ -11,6 +11,7 @@
 <p align="center">
   <a href="https://github.com/rinn7e/claude-desktop-theme-tuner/actions/workflows/pages.yml"><img src="https://github.com/rinn7e/claude-desktop-theme-tuner/actions/workflows/pages.yml/badge.svg" alt="Pages deploy"></a>
   <a href="https://rinn7e.com/claude-desktop-theme-tuner/"><img src="https://img.shields.io/badge/open%20the%20app-rinn7e.com-18181b" alt="Open the app"></a>
+  <a href="https://www.youtube.com/watch?v=DfnZwI23iNM"><img src="https://img.shields.io/badge/demo-YouTube-ff0000?logo=youtube&logoColor=white" alt="Demo on YouTube"></a>
   <a href="https://github.com/sponsors/rinn7e"><img src="https://img.shields.io/github/sponsors/rinn7e?label=sponsors&logo=githubsponsors&color=db2777" alt="GitHub Sponsors"></a>
   <a href="LICENSE"><img src="https://img.shields.io/github/license/rinn7e/claude-desktop-theme-tuner" alt="License: MIT"></a>
 </p>
@@ -21,6 +22,8 @@ own theme, and the app follows your OS between them. Tested against Claude
 desktop 3.6556.2 on macOS (the version is shown in the app's title bar).
 
 **Open the app: [rinn7e.com/claude-desktop-theme-tuner](https://rinn7e.com/claude-desktop-theme-tuner/)**
+
+**Watch how to use it (1 minute): [YouTube](https://www.youtube.com/watch?v=DfnZwI23iNM)**
 
 <p align="center">
   <img src="doc/screenshot.png" alt="The tuner: customizer and snippet on the left, light and dark previews of the Claude app on the right">
