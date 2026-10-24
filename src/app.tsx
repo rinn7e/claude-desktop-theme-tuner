@@ -1,0 +1,491 @@
+/*
+ * Copyright (C) 2026 Moremi Vannak
+ * SPDX-License-Identifier: MIT
+ */
+import React, { useEffect, useState } from 'react'
+import { type Dispatcher } from 'tea-cup-fp'
+
+import { codeView } from './code-view'
+import { claudeMockView } from './preview/claude-mock'
+import { contrast, isHex } from './theme/color'
+import {
+  CONTRAST_CHECKS,
+  type Mode,
+  PALETTE_GROUPS,
+  type PaletteKey,
+  type Theme,
+} from './theme/palette'
+import { PRESETS, STOCK } from './theme/presets'
+import { type CopyTarget, type Model, type Msg } from './type'
+import { isEdited, slotOf, textFor } from './update'
+
+export interface AppProps {
+  model: Model
+  dispatch: Dispatcher<Msg>
+}
+
+const MODES: { mode: Mode; label: string }[] = [
+  { mode: 'light', label: 'Light mode' },
+  { mode: 'dark', label: 'Dark mode' },
+]
+
+const LABELS: Record<PaletteKey, string> = Object.fromEntries(
+  PALETTE_GROUPS.flatMap((g) => g.keys.map((k) => [k.key, k.label])),
+) as Record<PaletteKey, string>
+
+// A hex field that keeps what is typed until it is a full color, so a
+// half-typed value is never thrown away or sent
+const HexInput = ({
+  value,
+  onChange,
+}: {
+  value: string
+  onChange: (hex: string) => void
+}) => {
+  const [draft, setDraft] = useState(value)
+  useEffect(() => setDraft(value), [value])
+  return (
+    <input
+      type='text'
+      spellCheck={false}
+      aria-label='Hex color'
+      value={draft}
+      onChange={(e) => {
+        const next = e.target.value.trim()
+        setDraft(next)
+        if (isHex(next)) onChange(next)
+      }}
+      onBlur={() => setDraft(value)}
+      className={`w-[5.5rem] rounded-md border bg-ui-field px-[8px] py-[4px] font-mono text-xs uppercase outline-none focus:border-ui-brand ${
+        isHex(draft) ? 'border-ui-line' : 'border-ui-bad'
+      }`}
+    />
+  )
+}
+
+const headerView = () => (
+  <header className='flex flex-col items-center gap-[4px] pt-[22px] text-center'>
+    <h1 className='text-lg font-semibold tracking-tight'>
+      Claude Desktop Theme Tuner
+    </h1>
+    <p className='text-xs text-ui-ink-faint'>
+      Pick a theme, tune its colors, copy the snippet.
+    </p>
+  </header>
+)
+
+const modeTabsView = (model: Model, dispatch: Dispatcher<Msg>) => (
+  <div className='grid grid-cols-2 gap-[4px] rounded-lg bg-ui-field p-[4px]'>
+    {MODES.map(({ mode, label }) => {
+      const active = model.editing === mode
+      const slot = model[mode]
+      return (
+        <button
+          key={mode}
+          type='button'
+          onClick={() => dispatch({ _tag: 'SelectMode', mode })}
+          className={`flex flex-col items-center gap-[2px] rounded-md px-[10px] py-[6px] text-sm transition-colors ${
+            active
+              ? 'bg-ui-panel font-medium shadow-sm'
+              : 'text-ui-ink-muted hover:text-ui-ink'
+          }`}
+        >
+          {label}
+          <span className='text-[0.6875rem] text-ui-ink-faint'>
+            {slot.enabled ? slot.theme.name : 'Stock'}
+          </span>
+        </button>
+      )
+    })}
+  </div>
+)
+
+const slotToggleView = (model: Model, dispatch: Dispatcher<Msg>) => {
+  const slot = slotOf(model)
+  return (
+    <label className='flex cursor-pointer items-center justify-between gap-[12px] rounded-lg border border-ui-line px-[12px] py-[10px]'>
+      <span className='flex flex-col gap-[2px]'>
+        <span className='text-sm font-medium'>Theme {model.editing} mode</span>
+        <span className='text-xs text-ui-ink-faint'>
+          {slot.enabled
+            ? 'The snippet recolors it.'
+            : 'Left as Claude ships it.'}
+        </span>
+      </span>
+      <input
+        type='checkbox'
+        checked={slot.enabled}
+        onChange={() => dispatch({ _tag: 'ToggleSlot', mode: model.editing })}
+        className='h-[18px] w-[18px] accent-ui-brand'
+      />
+    </label>
+  )
+}
+
+const swatchStripView = (theme: Theme) => (
+  <span className='flex h-[22px] overflow-hidden rounded-md ring-1 ring-black/10'>
+    {(['frame', 'canvas', 'raised', 'text', 'accent', 'selected'] as const).map(
+      (k) => (
+        <span
+          key={k}
+          className='flex-1'
+          style={{ background: theme.palette[k] }}
+        />
+      ),
+    )}
+  </span>
+)
+
+const presetsView = (model: Model, dispatch: Dispatcher<Msg>) => {
+  const slot = slotOf(model)
+  const presets = PRESETS.filter((t) => t.mode === model.editing)
+  return (
+    <section className='flex flex-col gap-[8px]'>
+      <h2 className='text-xs font-semibold tracking-wide text-ui-ink-faint uppercase'>
+        Presets
+      </h2>
+      <div className='grid grid-cols-2 gap-[8px]'>
+        {presets.map((t) => {
+          const active = slot.enabled && slot.theme.id === t.id
+          return (
+            <button
+              key={t.id}
+              type='button'
+              onClick={() => dispatch({ _tag: 'PickPreset', id: t.id })}
+              className={`flex flex-col gap-[6px] rounded-lg border p-[8px] text-left text-xs transition-colors ${
+                active
+                  ? 'border-ui-brand ring-1 ring-ui-brand'
+                  : 'border-ui-line hover:border-ui-ink-faint'
+              }`}
+            >
+              {swatchStripView(t)}
+              <span className='font-medium'>{t.name}</span>
+            </button>
+          )
+        })}
+      </div>
+    </section>
+  )
+}
+
+const colorRowView = (
+  key: PaletteKey,
+  label: string,
+  note: string,
+  value: string,
+  dispatch: Dispatcher<Msg>,
+) => (
+  <div
+    key={key}
+    className='grid grid-cols-[2rem_5.5rem_1fr] items-center gap-[8px]'
+  >
+    <input
+      type='color'
+      aria-label={label}
+      value={value}
+      onChange={(e) =>
+        dispatch({ _tag: 'SetColor', key, value: e.target.value })
+      }
+      className='h-[28px] w-[32px] cursor-pointer rounded-md border border-ui-line bg-transparent p-0'
+    />
+    <HexInput
+      value={value}
+      onChange={(hex) => dispatch({ _tag: 'SetColor', key, value: hex })}
+    />
+    <span className='flex min-w-0 flex-col'>
+      <span className='text-sm'>{label}</span>
+      <span className='truncate text-[0.6875rem] text-ui-ink-faint'>
+        {note}
+      </span>
+    </span>
+  </div>
+)
+
+const colorsView = (model: Model, dispatch: Dispatcher<Msg>) => {
+  const slot = slotOf(model)
+  const edited = isEdited(slot)
+  return (
+    <section className='flex flex-col gap-[14px]'>
+      <div className='flex items-center justify-between'>
+        <h2 className='text-xs font-semibold tracking-wide text-ui-ink-faint uppercase'>
+          Colors
+        </h2>
+        {edited ? (
+          <button
+            type='button'
+            onClick={() => dispatch({ _tag: 'ResetSlot' })}
+            className='text-xs text-ui-brand hover:underline'
+          >
+            Reset to {slot.theme.name}
+          </button>
+        ) : null}
+      </div>
+      {PALETTE_GROUPS.map((g) => (
+        <div key={g.title} className='flex flex-col gap-[8px]'>
+          <h3 className='text-xs font-medium text-ui-ink-muted'>{g.title}</h3>
+          {g.keys.map(({ key, label, note }) =>
+            colorRowView(key, label, note, slot.theme.palette[key], dispatch),
+          )}
+        </div>
+      ))}
+    </section>
+  )
+}
+
+const contrastView = (model: Model) => {
+  const { palette } = slotOf(model).theme
+  return (
+    <section className='flex flex-col gap-[8px]'>
+      <h2 className='text-xs font-semibold tracking-wide text-ui-ink-faint uppercase'>
+        Readability (WCAG)
+      </h2>
+      <div className='flex flex-col gap-[4px]'>
+        {CONTRAST_CHECKS.map(({ fg, bg, min }) => {
+          const ratio = contrast(palette[fg], palette[bg])
+          const ok = ratio >= min
+          return (
+            <div
+              key={`${fg}-${bg}`}
+              className='flex items-center justify-between gap-[8px] text-xs'
+            >
+              <span className='flex items-center gap-[6px] text-ui-ink-muted'>
+                <span
+                  className='flex h-[18px] w-[26px] items-center justify-center rounded text-[0.625rem] font-semibold ring-1 ring-black/10'
+                  style={{ background: palette[bg], color: palette[fg] }}
+                >
+                  Aa
+                </span>
+                {LABELS[fg]} on {LABELS[bg].toLowerCase()}
+              </span>
+              <span
+                className={`font-mono ${ok ? 'text-ui-good' : 'text-ui-bad'}`}
+              >
+                {ratio.toFixed(1)} {ok ? 'AA' : `below ${min}`}
+              </span>
+            </div>
+          )
+        })}
+      </div>
+    </section>
+  )
+}
+
+// The "How to apply" dialog, over a backdrop; closes on the backdrop, the
+// Close button or Escape
+const helpDialogView = (model: Model, dispatch: Dispatcher<Msg>) =>
+  model.helpOpen ? (
+    <div
+      className='fixed inset-0 z-10 flex items-center justify-center bg-black/40 p-[16px]'
+      onClick={() => dispatch({ _tag: 'CloseHelp' })}
+    >
+      <div
+        role='dialog'
+        aria-modal='true'
+        aria-labelledby='help-title'
+        className='flex max-h-full w-full max-w-[34rem] flex-col gap-[14px] overflow-y-auto rounded-xl bg-ui-panel p-[22px] shadow-2xl ring-1 ring-ui-line'
+        onClick={(e) => e.stopPropagation()}
+        onKeyDown={(e) => {
+          if (e.key === 'Escape') dispatch({ _tag: 'CloseHelp' })
+        }}
+      >
+        <div className='flex items-center justify-between'>
+          <h2 id='help-title' className='text-base font-semibold'>
+            How to apply the theme
+          </h2>
+          <button
+            type='button'
+            autoFocus
+            onClick={() => dispatch({ _tag: 'CloseHelp' })}
+            className='rounded-md px-[8px] py-[2px] text-sm text-ui-ink-faint hover:text-ui-ink'
+          >
+            Close
+          </button>
+        </div>
+        <ol className='flex list-decimal flex-col gap-[8px] pl-[20px] text-sm text-ui-ink-muted'>
+          <li>
+            Turn on Developer Mode once: create{' '}
+            <code className='font-mono text-ui-ink wrap-anywhere'>
+              ~/Library/Application Support/Claude/developer_settings.json
+            </code>{' '}
+            containing{' '}
+            <code className='font-mono text-ui-ink wrap-anywhere'>
+              {'{ "allowDevTools": true }'}
+            </code>
+            , then quit and reopen Claude.
+          </li>
+          <li>
+            Copy the theme snippet here, and read it first: it only adds a
+            style.
+          </li>
+          <li>In Claude, right-click anywhere and choose Inspect Element.</li>
+          <li>
+            In DevTools open Sources, then Snippets, then + New snippet. Paste
+            it, press Cmd+S to keep it, then Cmd+Enter to run it.
+          </li>
+          <li>
+            The theme lasts until Claude restarts. After a restart: right-click,
+            Inspect Element, and run the saved snippet again.
+          </li>
+        </ol>
+        <div className='flex flex-col gap-[6px] rounded-lg bg-ui-field p-[12px] text-xs text-ui-ink-muted'>
+          <span>
+            <b className='text-ui-ink'>Undo it:</b> run the Revert code in the
+            Console, or restart Claude.
+          </span>
+          <span>
+            <b className='text-ui-ink'>An update left parts white?</b> Run the
+            Diagnostic the same way, with DevTools undocked. It copies a report
+            of the app's new color variables.
+          </span>
+        </div>
+      </div>
+    </div>
+  ) : null
+
+const CODE_TABS: { target: CopyTarget; label: string; note: string }[] = [
+  {
+    target: 'theme',
+    label: 'Theme snippet',
+    note: 'Adds one <style> element with the CSS below. Nothing else runs.',
+  },
+  {
+    target: 'diagnose',
+    label: 'Diagnostic',
+    note: 'Reads the page and copies a JSON report of its colors. Changes nothing.',
+  },
+  {
+    target: 'revert',
+    label: 'Revert',
+    note: 'Removes the theme until you run the snippet again.',
+  },
+]
+
+// The exact code each Copy button copies, shown before anyone runs it
+const codePanelView = (model: Model, dispatch: Dispatcher<Msg>) => {
+  const tab = CODE_TABS.find((t) => t.target === model.shown) ?? CODE_TABS[0]
+  return (
+    <section className='flex max-h-[32rem] flex-col border-t border-ui-line bg-ui-panel lg:max-h-none lg:min-h-0 lg:flex-1'>
+      <div className='flex flex-wrap items-center justify-between gap-[12px] px-[20px] pt-[12px]'>
+        <div className='flex gap-[4px] rounded-lg bg-ui-field p-[3px]'>
+          {CODE_TABS.map(({ target, label }) => (
+            <button
+              key={target}
+              type='button'
+              onClick={() => dispatch({ _tag: 'ShowCode', target })}
+              className={`rounded-md px-[10px] py-[4px] text-xs transition-colors ${
+                model.shown === target
+                  ? 'bg-ui-panel font-medium shadow-sm'
+                  : 'text-ui-ink-muted hover:text-ui-ink'
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+        <div className='flex items-center gap-[8px]'>
+          <button
+            type='button'
+            onClick={() => dispatch({ _tag: 'OpenHelp' })}
+            className='rounded-lg border border-ui-line px-[12px] py-[6px] text-xs hover:border-ui-ink-faint'
+          >
+            How to apply
+          </button>
+          <button
+            type='button'
+            onClick={() => dispatch({ _tag: 'Copy', target: tab.target })}
+            className='rounded-lg bg-ui-brand px-[14px] py-[6px] text-xs font-semibold text-ui-brand-ink hover:opacity-90'
+          >
+            {model.copied === tab.target ? 'Copied!' : 'Copy'}
+          </button>
+        </div>
+      </div>
+      <p className='px-[20px] py-[8px] text-xs text-ui-ink-faint'>
+        {model.copyFailed === tab.target ? (
+          <span className='text-ui-bad'>
+            The browser blocked copying: select the code below and copy it.
+          </span>
+        ) : (
+          tab.note
+        )}
+      </p>
+      {codeView(textFor(model, tab.target))}
+    </section>
+  )
+}
+
+const customizerView = (model: Model, dispatch: Dispatcher<Msg>) => (
+  <div className='flex flex-col gap-[20px] px-[20px] pb-[20px] lg:min-h-0 lg:flex-1 lg:overflow-y-auto'>
+    {headerView()}
+    {modeTabsView(model, dispatch)}
+    {slotToggleView(model, dispatch)}
+    {presetsView(model, dispatch)}
+    {colorsView(model, dispatch)}
+    {contrastView(model)}
+  </div>
+)
+
+const creditView = (theme: Theme) =>
+  theme.credit ? (
+    <span>
+      Colors from{' '}
+      <a
+        href={theme.credit.url}
+        target='_blank'
+        rel='noreferrer'
+        className='underline hover:text-ui-ink'
+      >
+        {theme.credit.name}
+      </a>{' '}
+      ({theme.credit.license})
+    </span>
+  ) : (
+    <span>{theme.name}</span>
+  )
+
+const previewView = (model: Model, dispatch: Dispatcher<Msg>) => {
+  const slot = slotOf(model)
+  const palette = slot.enabled ? slot.theme.palette : STOCK[model.editing]
+  return (
+    <section className='flex flex-col items-center gap-[16px] p-[16px] lg:min-h-0 lg:overflow-auto lg:p-[28px]'>
+      <div className='flex rounded-full bg-ui-panel p-[3px] ring-1 ring-ui-line'>
+        {MODES.map(({ mode, label }) => (
+          <button
+            key={mode}
+            type='button'
+            onClick={() => dispatch({ _tag: 'SelectMode', mode })}
+            className={`rounded-full px-[14px] py-[4px] text-xs transition-colors ${
+              model.editing === mode
+                ? 'bg-ui-brand text-ui-brand-ink'
+                : 'text-ui-ink-muted hover:text-ui-ink'
+            }`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+      {/* The mock keeps its desktop proportions; narrow screens scroll it sideways */}
+      <div className='flex w-full flex-1 items-center justify-center-safe overflow-x-auto'>
+        {claudeMockView(palette)}
+      </div>
+      <p className='text-center text-xs text-ui-ink-faint'>
+        {slot.enabled
+          ? creditView(slot.theme)
+          : `${model.editing === 'light' ? 'Light' : 'Dark'} mode stays stock (shown approximately)`}
+        {' · '}a mock of the Claude desktop app, painted with the variables the
+        snippet sets
+      </p>
+    </section>
+  )
+}
+
+// Two halves: the customizer over the code it produces, and the preview
+export const App = ({ model, dispatch }: AppProps) => (
+  <div className='grid min-h-full grid-cols-1 lg:h-full lg:grid-cols-2'>
+    <aside className='flex flex-col border-ui-line bg-ui-panel lg:min-h-0 lg:border-r'>
+      {customizerView(model, dispatch)}
+      {codePanelView(model, dispatch)}
+    </aside>
+    {previewView(model, dispatch)}
+    {helpDialogView(model, dispatch)}
+  </div>
+)

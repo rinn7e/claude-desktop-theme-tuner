@@ -1,0 +1,122 @@
+/*
+ * Copyright (C) 2026 Moremi Vannak
+ * SPDX-License-Identifier: MIT
+ */
+
+@import 'tailwindcss';
+
+/* The tuner's own UI: neutral, so the themes it previews stand out. Follows
+ * the OS light or dark mode. */
+:root {
+  --color-page: #f4f4f5;
+  --color-panel: #ffffff;
+  --color-field: #f4f4f5;
+  --color-line: #e4e4e7;
+  --color-ink: #18181b;
+  --color-ink-muted: #52525b;
+  --color-ink-faint: #71717a;
+  --color-brand: #4f46e5;
+  --color-brand-ink: #ffffff;
+  --color-good: #15803d;
+  --color-bad: #b91c1c;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-page: #09090b;
+    --color-panel: #18181b;
+    --color-field: #27272a;
+    --color-line: #27272a;
+    --color-ink: #fafafa;
+    --color-ink-muted: #d4d4d8;
+    --color-ink-faint: #a1a1aa;
+    --color-brand: #818cf8;
+    --color-brand-ink: #09090b;
+    --color-good: #4ade80;
+    --color-bad: #f87171;
+    color-scheme: dark;
+  }
+}
+
+@theme {
+  --color-ui-page: var(--color-page);
+  --color-ui-panel: var(--color-panel);
+  --color-ui-field: var(--color-field);
+  --color-ui-line: var(--color-line);
+  --color-ui-ink: var(--color-ink);
+  --color-ui-ink-muted: var(--color-ink-muted);
+  --color-ui-ink-faint: var(--color-ink-faint);
+  --color-ui-brand: var(--color-brand);
+  --color-ui-brand-ink: var(--color-brand-ink);
+  --color-ui-good: var(--color-good);
+  --color-ui-bad: var(--color-bad);
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--color-page);
+  color: var(--color-ink);
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    sans-serif;
+}
+
+/* Code highlighting (highlight.js classes), light and dark */
+:root {
+  --code-bg: #fafafa;
+  --code-ink: #24292f;
+  --code-comment: #6e7781;
+  --code-keyword: #cf222e;
+  --code-string: #0a3069;
+  --code-name: #8250df;
+  --code-number: #0550ae;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --code-bg: #0d0d10;
+    --code-ink: #e6edf3;
+    --code-comment: #8b949e;
+    --code-keyword: #ff7b72;
+    --code-string: #a5d6ff;
+    --code-name: #d2a8ff;
+    --code-number: #79c0ff;
+  }
+}
+
+.hljs {
+  background: var(--code-bg);
+  color: var(--code-ink);
+}
+.hljs-comment {
+  color: var(--code-comment);
+  font-style: italic;
+}
+.hljs-keyword,
+.hljs-literal {
+  color: var(--code-keyword);
+}
+.hljs-string,
+.hljs-regexp {
+  color: var(--code-string);
+}
+.hljs-title,
+.hljs-title.function_,
+.hljs-built_in {
+  color: var(--code-name);
+}
+.hljs-number,
+.hljs-variable,
+.hljs-property,
+.hljs-attr {
+  color: var(--code-number);
+}

@@ -1,0 +1,85 @@
+# Claude Desktop Theme Tuner
+
+Pick a color theme for the Claude desktop app, tune its colors with a live
+preview, and copy it as a DevTools snippet. Light and dark mode each get their
+own theme, and the app follows your OS between them.
+
+<p align="center">
+  <img src="doc/screenshot.png" alt="The tuner: customizer and snippet on the left, a preview of the Claude app on the right">
+</p>
+
+- **Presets:** Solarized Light and Dark, GitHub Light, Gruvbox Light and Dark,
+  Catppuccin Latte and Mocha, Monokai, Dracula, Nord, Tokyo Night, One Dark and
+  Groovy Lambda Black.
+- **Tuning:** every color of a theme has a picker, with WCAG contrast checks for
+  the text and accent pairs. Edits are kept in your browser.
+- **Preview:** a mock of the Claude app, painted with the same variables the
+  snippet sets.
+- **Readable output:** the snippet is shown in full before you copy it. It adds
+  one `<style>` element and nothing else, and its CSS reads as plain CSS.
+
+## Apply a theme
+
+The app's **How to apply** button walks through it:
+
+1. Turn on Developer Mode once: create
+   `~/Library/Application Support/Claude/developer_settings.json` containing
+   `{ "allowDevTools": true }`, then quit and reopen Claude.
+2. Copy the theme snippet.
+3. In Claude, right-click anywhere and choose **Inspect Element**.
+4. In DevTools open **Sources**, then **Snippets**, then **+ New snippet**.
+   Paste it, press Cmd+S to keep it, then Cmd+Enter to run it.
+
+The theme lasts until Claude restarts; after that, run the saved snippet again.
+The **Revert** tab has the one-line command that removes it.
+
+## When a Claude update breaks the theme
+
+Updates rename or add color variables, and the surfaces using them go back to
+stock. Run the **Diagnostic** code the same way, with DevTools undocked (docked
+DevTools narrows the window, which collapses the sidebar). It copies a JSON
+report to the clipboard: what paints each area, the color variables in use, the
+rules behind each sidebar, and every surface still white or gray. Map the new
+names in `src/theme/tokens.ts`.
+
+## How it works
+
+Claude's UI takes its colors from CSS variables: the design system's `--cds-*`,
+claude.ai's older `--bg-*` and `--text-*` (HSL triples), and the Code tab
+frame's `--df-*`. A theme is 13 semantic colors, and everything else is derived
+from them.
+
+| File                           | Role                                                                 |
+| ------------------------------ | -------------------------------------------------------------------- |
+| `src/theme/palette.ts`         | the semantic colors, their labels and the contrast pairs             |
+| `src/theme/presets.ts`         | the preset themes, and approximate stock colors for an unthemed mode |
+| `src/theme/tokens.ts`          | maps a palette onto every Claude variable the snippet sets           |
+| `src/theme/css.ts`             | writes those variables under the light and dark selectors            |
+| `src/theme/snippet.ts`         | wraps the CSS into the paste-able script                             |
+| `src/preview/claude-mock.tsx`  | the preview, painted with the same variables                         |
+| `snippets/diagnose.snippet.js` | the diagnostic shown in the Diagnostic tab                           |
+
+Two quirks shape the CSS, both explained where they are handled in the code:
+the frame re-sets its variables on its own sidebar and cards, so they are set
+there too, and with macOS vibrancy the docked sidebar mixes a white tint over a
+transparent window, which the snippet pins with `!important`.
+
+## Development
+
+Node.js 24+ and pnpm:
+
+```bash
+pnpm install
+pnpm run dev
+```
+
+Checks: `pnpm run check`, `pnpm run lint`, `pnpm run format:check`,
+`pnpm run test`. `pnpm run build` writes a static site to `dist/`. Follow the
+[code convention](doc/code-convention.md).
+
+## Credits and license
+
+MIT, see [LICENSE](LICENSE). Overriding the app's own variables is the approach
+of [Clay](https://github.com/maximebories/claude-desktop-clay-theme) by Maxime
+Bories (MIT, see [LICENSE-clay](LICENSE-clay)). Each preset credits the color
+scheme it follows, in `src/theme/presets.ts` and in the app.
