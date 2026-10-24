@@ -2,14 +2,15 @@
  * Copyright (C) 2026 Moremi Vannak
  * SPDX-License-Identifier: MIT
  */
+import { CODE_THEME_PRESETS } from './code-themes'
 import { type Palette, type Theme } from './palette'
 
 // Each preset maps a color scheme onto the palette roles. Surfaces and accents
 // are the scheme's own colors; text and accent shades are adjusted only where
 // the scheme's own fall below WCAG AA (4.5:1) as UI text (test/presets.test.ts).
 
-// Listed after the Claude presets (see ALL_PRESETS)
-export const PRESETS: Theme[] = [
+// Hand-tuned presets; the other code themes are generated (code-themes.ts)
+const HAND_TUNED: Theme[] = [
   {
     id: 'solarized-light',
     name: 'Solarized Light',
@@ -281,12 +282,14 @@ export const PRESETS: Theme[] = [
     },
   },
   {
+    // Named like Claude's code theme; the id stays 'one-dark' so setups saved
+    // before the rename still find it
     id: 'one-dark',
-    name: 'One Dark',
+    name: 'One Dark Pro',
     mode: 'dark',
     credit: {
-      name: 'One Dark (Atom)',
-      url: 'https://github.com/atom/atom/tree/master/packages/one-dark-ui',
+      name: 'One Dark Pro by Binaryify, after Atom One Dark',
+      url: 'https://github.com/Binaryify/OneDark-Pro',
       license: 'MIT',
     },
     palette: {
@@ -334,6 +337,51 @@ export const PRESETS: Theme[] = [
 
 export const presetById = (id: string): Theme | undefined =>
   allPresets().find((t) => t.id === id)
+
+// The order of Claude's "Code appearance" lists (Claude 3.6556.2), so each
+// app theme sits where its code theme does; presets Claude has no code theme
+// for (Gruvbox, Groovy Lambda Black) come after
+const CLAUDE_ORDER = [
+  'claude-light',
+  'github-light',
+  'pierre-light',
+  'vs-code-light',
+  'one-light',
+  'catppuccin-latte',
+  'solarized-light',
+  'vitesse-light',
+  'min-light',
+  'rose-pine-dawn',
+  'slack-ochin',
+  'claude-dark',
+  'github-dark',
+  'github-dark-dimmed',
+  'pierre-dark',
+  'vs-code-dark',
+  'one-dark',
+  'dracula',
+  'dracula-soft',
+  'catppuccin-mocha',
+  'nord',
+  'solarized-dark',
+  'vitesse-dark',
+  'min-dark',
+  'monokai',
+  'tokyo-night',
+  'night-owl',
+  'rose-pine',
+  'ayu-dark',
+  'slack-dark',
+]
+const rank = (theme: Theme): number => {
+  const at = CLAUDE_ORDER.indexOf(theme.id)
+  return at === -1 ? CLAUDE_ORDER.length : at
+}
+
+// Every preset after the Claude ones, in Claude's order
+export const PRESETS: Theme[] = [...HAND_TUNED, ...CODE_THEME_PRESETS].sort(
+  (a, b) => rank(a) - rank(b),
+)
 
 // Every preset, the Claude ones first in each mode's list
 export const allPresets = (): Theme[] => [...CLAUDE_PRESETS, ...PRESETS]

@@ -17,7 +17,8 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test": "vitest run"
+    "test": "vitest run",
+    "code-themes": "node scripts/code-themes.mjs && prettier --write src/theme/code-themes.ts"
   },
   "dependencies": {
     "fp-ts": "^2.16.0",

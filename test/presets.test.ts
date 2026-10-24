@@ -44,6 +44,56 @@ describe('presets', () => {
     }
   })
 
+  // Claude's "Code appearance" lists in 3.6556.2, in order
+  const CLAUDE_CODE_THEMES = {
+    light: [
+      'Claude Light',
+      'GitHub Light',
+      'Pierre Light',
+      'VS Code Light',
+      'One Light',
+      'Catppuccin Latte',
+      'Solarized Light',
+      'Vitesse Light',
+      'Min Light',
+      'Rosé Pine Dawn',
+      'Slack Ochin',
+    ],
+    dark: [
+      'Claude Dark',
+      'GitHub Dark',
+      'GitHub Dark Dimmed',
+      'Pierre Dark',
+      'VS Code Dark',
+      'One Dark Pro',
+      'Dracula',
+      'Dracula Soft',
+      'Catppuccin Mocha',
+      'Nord',
+      'Solarized Dark',
+      'Vitesse Dark',
+      'Min Dark',
+      'Monokai',
+      'Tokyo Night',
+      'Night Owl',
+      'Rosé Pine',
+      'Ayu Dark',
+      'Slack Dark',
+    ],
+  }
+
+  it.each(['light', 'dark'] as const)(
+    "match every %s code theme in Claude, in Claude's order",
+    (mode) => {
+      const names = allPresets()
+        .filter((t) => t.mode === mode)
+        .map((t) => t.name)
+      expect(names.slice(0, CLAUDE_CODE_THEMES[mode].length)).toEqual(
+        CLAUDE_CODE_THEMES[mode],
+      )
+    },
+  )
+
   it('cover both modes', () => {
     expect(PRESETS.some((t) => t.mode === 'light')).toBe(true)
     expect(PRESETS.some((t) => t.mode === 'dark')).toBe(true)
