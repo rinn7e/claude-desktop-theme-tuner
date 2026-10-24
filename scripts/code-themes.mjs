@@ -175,14 +175,15 @@ const paletteOf = (theme, mode) => {
         'quickInput.background',
       ],
       canvas,
-      (hex) => sameMode(hex) && hex.toLowerCase() !== canvas.toLowerCase(),
+      // Cards must stand out from the canvas, however slightly
+      (hex) => sameMode(hex) && contrast(hex, canvas) >= 1.03,
     ) ?? mix(canvas, frame, 0.5)
   const pressed =
     pick(
       c,
       ['list.hoverBackground', 'toolbar.hoverBackground'],
       frame,
-      sameMode,
+      (hex) => sameMode(hex) && contrast(hex, frame) >= 1.08,
     ) ?? shade(raised, 0.05)
 
   const text =
@@ -238,8 +239,19 @@ const paletteOf = (theme, mode) => {
         'editor.selectionBackground',
       ],
       frame,
-      (hex) => sameMode(hex) || contrast(text, hex) >= 4.5,
-    ) ?? mix(frame, accent, 0.18)
+      // Visible on our frame (minimal themes like Vitesse select with a gray
+      // meant for a white sidebar, which vanishes on a shaded one) and
+      // readable under the text, so it needn't be faded for AA
+      (hex) => contrast(text, hex) >= 4.5 && contrast(hex, frame) >= 1.15,
+    ) ??
+    // Otherwise an accent tint of the frame, as strong as the text allows,
+    // or a plain shade of it
+    [0.18, 0.14, 0.1]
+      .map((amount) => mix(frame, accent, amount))
+      .find(
+        (hex) => contrast(text, hex) >= 4.5 && contrast(hex, frame) >= 1.1,
+      ) ??
+    shade(frame, 0.1)
   const wash =
     pick(
       c,
@@ -275,13 +287,20 @@ const fix = (p, mode) => {
       p[key] = value
     }
   }
+  // Primary text also sits on the selected row; nudging the text keeps the
+  // selection visible (Min Dark's dim text would otherwise fade it away)
   for (const key of ['text', 'textSecondary', 'textMuted'])
     set(
       key,
-      readable(p[key], [p.canvas, p.frame], 4.5, !light),
+      readable(
+        p[key],
+        key === 'text' ? [p.canvas, p.frame, p.selected] : [p.canvas, p.frame],
+        4.5,
+        !light,
+      ),
       light ? 'darkened for AA' : 'lightened for AA',
     )
-  // The selected row must keep text readable: move it toward the frame
+  // Last resort if the text still can't read on it: move it toward the canvas
   let selected = p.selected
   for (let i = 0; i < 25 && contrast(p.text, selected) < 4.5; i += 1)
     selected = mix(selected, p.canvas, 0.08)
