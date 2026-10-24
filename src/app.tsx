@@ -104,7 +104,7 @@ const modeHeaderView = (
 // A global option (not per mode): adds its code to the snippet
 const optionView = (
   label: string,
-  note: string,
+  note: React.ReactNode,
   checked: boolean,
   onChange: () => void,
 ) => (
@@ -129,7 +129,20 @@ const optionsView = (model: Model, dispatch: Dispatcher<Msg>) => (
     </h2>
     {optionView(
       'Reduce motion',
-      "Stops Claude's looping animations, like the shimmer on its working text, which keep the GPU busy while Claude works. Measured about half the GPU load.",
+      <>
+        Stops Claude's looping animations, like the shimmer on its working text,
+        which keep the GPU busy while Claude works. Measured about half the GPU
+        load. See{' '}
+        <a
+          href='https://github.com/anthropics/claude-code/issues/94003'
+          target='_blank'
+          rel='noreferrer'
+          className='underline hover:text-ui-ink'
+        >
+          anthropics/claude-code#94003
+        </a>
+        .
+      </>,
       model.reduceMotion,
       () => dispatch({ _tag: 'ToggleReduceMotion' }),
     )}
