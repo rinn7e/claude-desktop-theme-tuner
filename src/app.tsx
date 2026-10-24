@@ -136,20 +136,18 @@ const optionsView = (model: Model, dispatch: Dispatcher<Msg>) => (
   </section>
 )
 
-const swatchStripView = (theme: Theme) => (
-  <span className='flex h-[22px] overflow-hidden rounded-md ring-1 ring-black/10'>
-    {(['frame', 'canvas', 'raised', 'text', 'accent', 'selected'] as const).map(
-      (k) => (
-        <span
-          key={k}
-          className='flex-1'
-          style={{ background: theme.palette[k] }}
-        />
-      ),
-    )}
+// A preset in miniature: its canvas, frame, text and accent
+const swatchView = (theme: Theme) => (
+  <span className='flex h-[14px] w-[40px] shrink-0 overflow-hidden rounded-full ring-1 ring-black/10'>
+    {(['canvas', 'frame', 'text', 'accent'] as const).map((k) => (
+      <span
+        key={k}
+        className='flex-1'
+        style={{ background: theme.palette[k] }}
+      />
+    ))}
   </span>
 )
-
 const sectionTitle = (title: string) => (
   <h2 className='text-xs font-semibold tracking-wide text-ui-ink-faint uppercase'>
     {title}
@@ -161,7 +159,7 @@ const presetsView = (model: Model, dispatch: Dispatcher<Msg>, mode: Mode) => {
   return (
     <section className='flex flex-col gap-[8px]'>
       {sectionTitle('Presets')}
-      <div className='grid grid-cols-2 gap-[8px]'>
+      <div className='flex flex-wrap gap-[6px]'>
         {PRESETS.filter((t) => t.mode === mode).map((t) => {
           const active = slot.enabled && slot.theme.id === t.id
           return (
@@ -169,14 +167,15 @@ const presetsView = (model: Model, dispatch: Dispatcher<Msg>, mode: Mode) => {
               key={t.id}
               type='button'
               onClick={() => dispatch({ _tag: 'PickPreset', id: t.id })}
-              className={`flex min-w-0 flex-col gap-[6px] rounded-lg border p-[8px] text-left text-xs transition-colors ${
+              aria-pressed={active}
+              className={`flex items-center gap-[6px] rounded-full border py-[4px] pr-[10px] pl-[5px] text-xs transition-colors ${
                 active
-                  ? 'border-ui-brand ring-1 ring-ui-brand'
+                  ? 'border-ui-brand bg-ui-field font-medium ring-1 ring-ui-brand'
                   : 'border-ui-line hover:border-ui-ink-faint'
               }`}
             >
-              {swatchStripView(t)}
-              <span className='truncate font-medium'>{t.name}</span>
+              {swatchView(t)}
+              {t.name}
             </button>
           )
         })}
