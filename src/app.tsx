@@ -224,7 +224,10 @@ const colorRowView = (
     />
     <span className='flex min-w-0 flex-col'>
       <span className='truncate text-sm'>{label}</span>
-      <span className='truncate text-[0.6875rem] text-ui-ink-faint'>
+      <span
+        className='truncate text-[0.6875rem] text-ui-ink-faint'
+        title={note}
+      >
         {note}
       </span>
     </span>
@@ -234,7 +237,7 @@ const colorRowView = (
 const colorsView = (model: Model, dispatch: Dispatcher<Msg>, mode: Mode) => {
   const slot = model[mode]
   return (
-    <section className='flex flex-col gap-[14px]'>
+    <section className='@container flex flex-col gap-[14px]'>
       <div className='flex items-center justify-between gap-[8px]'>
         {sectionTitle('Colors')}
         {isEdited(slot) ? (
@@ -247,21 +250,25 @@ const colorsView = (model: Model, dispatch: Dispatcher<Msg>, mode: Mode) => {
           </button>
         ) : null}
       </div>
-      {PALETTE_GROUPS.map((g) => (
-        <div key={g.title} className='flex flex-col gap-[8px]'>
-          <h3 className='text-xs font-medium text-ui-ink-muted'>{g.title}</h3>
-          {g.keys.map(({ key, label, note }) =>
-            colorRowView(
-              dispatch,
-              mode,
-              key,
-              label,
-              note,
-              slot.theme.palette[key],
-            ),
-          )}
-        </div>
-      ))}
+      {/* Each group is a column of its own, two side by side (Surfaces next to
+          Text, Accent next to Lists), one on narrow screens */}
+      <div className='grid grid-cols-1 gap-x-[16px] gap-y-[18px] @md:grid-cols-2'>
+        {PALETTE_GROUPS.map((g) => (
+          <div key={g.title} className='flex min-w-0 flex-col gap-[8px]'>
+            <h3 className='text-xs font-medium text-ui-ink-muted'>{g.title}</h3>
+            {g.keys.map(({ key, label, note }) =>
+              colorRowView(
+                dispatch,
+                mode,
+                key,
+                label,
+                note,
+                slot.theme.palette[key],
+              ),
+            )}
+          </div>
+        ))}
+      </div>
     </section>
   )
 }
@@ -269,9 +276,9 @@ const colorsView = (model: Model, dispatch: Dispatcher<Msg>, mode: Mode) => {
 const contrastView = (model: Model, mode: Mode) => {
   const { palette } = model[mode].theme
   return (
-    <section className='flex flex-col gap-[8px]'>
+    <section className='@container flex flex-col gap-[8px]'>
       {sectionTitle('Readability (WCAG)')}
-      <div className='flex flex-col gap-[4px]'>
+      <div className='grid grid-cols-1 gap-x-[24px] gap-y-[4px] @md:grid-cols-2'>
         {CONTRAST_CHECKS.map(({ fg, bg, min }) => {
           const ratio = contrast(palette[fg], palette[bg])
           const ok = ratio >= min
