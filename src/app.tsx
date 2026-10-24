@@ -442,41 +442,75 @@ const creditView = (theme: Theme) =>
     <span>{theme.name}</span>
   )
 
-const previewView = (model: Model, dispatch: Dispatcher<Msg>) => {
-  const slot = slotOf(model)
-  const palette = slot.enabled ? slot.theme.palette : STOCK[model.editing]
+// One mode's preview: its caption and the mock. Clicking it edits that mode;
+// the mode being edited is ringed.
+const previewCardView = (
+  model: Model,
+  dispatch: Dispatcher<Msg>,
+  mode: Mode,
+  label: string,
+) => {
+  const slot = model[mode]
+  const editing = model.editing === mode
+  const palette = slot.enabled ? slot.theme.palette : STOCK[mode]
   return (
-    <section className='flex flex-col items-center gap-[16px] p-[16px] lg:min-h-0 lg:overflow-auto lg:p-[28px]'>
-      <div className='flex rounded-full bg-ui-panel p-[3px] ring-1 ring-ui-line'>
-        {MODES.map(({ mode, label }) => (
-          <button
-            key={mode}
-            type='button'
-            onClick={() => dispatch({ _tag: 'SelectMode', mode })}
-            className={`rounded-full px-[14px] py-[4px] text-xs transition-colors ${
-              model.editing === mode
-                ? 'bg-ui-brand text-ui-brand-ink'
-                : 'text-ui-ink-muted hover:text-ui-ink'
-            }`}
-          >
-            {label}
-          </button>
-        ))}
+    <div
+      key={mode}
+      role='button'
+      tabIndex={0}
+      aria-pressed={editing}
+      aria-label={`Edit ${label.toLowerCase()}`}
+      onClick={() => dispatch({ _tag: 'SelectMode', mode })}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          dispatch({ _tag: 'SelectMode', mode })
+        }
+      }}
+      className={`flex w-full cursor-pointer flex-col gap-[10px] rounded-2xl p-[12px] transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ui-brand ${
+        editing ? 'bg-ui-panel ring-2 ring-ui-brand' : 'hover:bg-ui-panel/60'
+      }`}
+    >
+      <div className='flex items-center justify-between gap-[12px] text-xs'>
+        <span className='flex items-center gap-[8px]'>
+          <span className='font-semibold text-ui-ink'>{label}</span>
+          <span className='text-ui-ink-faint'>
+            {slot.enabled ? slot.theme.name : 'Stock (shown approximately)'}
+          </span>
+        </span>
+        {editing ? (
+          <span className='rounded-full bg-ui-brand px-[8px] py-[1px] text-[0.6875rem] text-ui-brand-ink'>
+            Editing
+          </span>
+        ) : (
+          <span className='text-ui-ink-faint'>Click to edit</span>
+        )}
       </div>
       {/* The mock keeps its desktop proportions; narrow screens scroll it sideways */}
-      <div className='flex w-full flex-1 items-center justify-center-safe overflow-x-auto'>
+      <div className='flex w-full justify-center-safe overflow-x-auto'>
         {claudeMockView(palette)}
       </div>
-      <p className='text-center text-xs text-ui-ink-faint'>
-        {slot.enabled
-          ? creditView(slot.theme)
-          : `${model.editing === 'light' ? 'Light' : 'Dark'} mode stays stock (shown approximately)`}
-        {' · '}a mock of the Claude desktop app, painted with the variables the
-        snippet sets
-      </p>
-    </section>
+      {slot.enabled && slot.theme.credit ? (
+        <p className='text-center text-xs text-ui-ink-faint'>
+          {creditView(slot.theme)}
+        </p>
+      ) : null}
+    </div>
   )
 }
+
+// Both modes at once, light first
+const previewView = (model: Model, dispatch: Dispatcher<Msg>) => (
+  <section className='flex flex-col items-center gap-[20px] p-[16px] lg:min-h-0 lg:overflow-auto lg:p-[24px]'>
+    {MODES.map(({ mode, label }) =>
+      previewCardView(model, dispatch, mode, label),
+    )}
+    <p className='text-center text-xs text-ui-ink-faint'>
+      Mocks of the Claude desktop app, painted with the variables the snippet
+      sets
+    </p>
+  </section>
+)
 
 // Two halves: the customizer over the code it produces, and the preview
 export const App = ({ model, dispatch }: AppProps) => (

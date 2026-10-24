@@ -5,7 +5,7 @@ preview, and copy it as a DevTools snippet. Light and dark mode each get their
 own theme, and the app follows your OS between them.
 
 <p align="center">
-  <img src="doc/screenshot.png" alt="The tuner: customizer and snippet on the left, a preview of the Claude app on the right">
+  <img src="doc/screenshot.png" alt="The tuner: customizer and snippet on the left, light and dark previews of the Claude app on the right">
 </p>
 
 - **Presets:** Solarized Light and Dark, GitHub Light, Gruvbox Light and Dark,
@@ -13,8 +13,8 @@ own theme, and the app follows your OS between them.
   Groovy Lambda Black.
 - **Tuning:** every color of a theme has a picker, with WCAG contrast checks for
   the text and accent pairs. Edits are kept in your browser.
-- **Preview:** a mock of the Claude app, painted with the same variables the
-  snippet sets.
+- **Preview:** mocks of the Claude app in light and dark mode at once, painted
+  with the same variables the snippet sets.
 - **Readable output:** the snippet is shown in full before you copy it. It adds
   one `<style>` element and nothing else, and its CSS reads as plain CSS.
 
