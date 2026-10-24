@@ -12,7 +12,6 @@ import {
   handleResetSlot,
   handleSelectMode,
   handleSetColor,
-  handleToggleGlassOff,
   handleToggleReduceMotion,
   handleToggleSlot,
   isEdited,
@@ -70,14 +69,6 @@ describe('sub-updaters', () => {
     expect(handleToggleSlot(off, 'light').light.enabled).toBe(true)
   })
 
-  it('adds the glass-off code to the snippet when turned on', () => {
-    expect(model.glassOff).toBe(false)
-    expect(snippetOf(model)).not.toContain('WindowVibrancy')
-    const on = handleToggleGlassOff(model)
-    expect(on.glassOff).toBe(true)
-    expect(snippetOf(on)).toContain('WindowVibrancy')
-  })
-
   it('adds the reduce-motion code to the snippet when turned on', () => {
     expect(model.reduceMotion).toBe(false)
     expect(snippetOf(model)).not.toContain('reduceMotion')
@@ -99,13 +90,10 @@ describe('decodeStored', () => {
     expect(decodeStored(stored, defaultStored)).toEqual(defaultStored)
   })
 
-  it('reads settings saved before the glass option, with it off', () => {
+  it('reads settings saved before reduce motion, with it off', () => {
     const old = JSON.parse(JSON.stringify(defaultStored))
-    delete old.glassOff
     delete old.reduceMotion
-    const decoded = decodeStored(old, defaultStored)
-    expect(decoded.glassOff).toBe(false)
-    expect(decoded.reduceMotion).toBe(false)
+    expect(decodeStored(old, defaultStored).reduceMotion).toBe(false)
   })
 
   it('falls back on missing or invalid data', () => {

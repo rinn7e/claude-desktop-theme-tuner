@@ -154,12 +154,6 @@ const optionsView = (model: Model, dispatch: Dispatcher<Msg>) => (
       model.reduceMotion,
       () => dispatch({ _tag: 'ToggleReduceMotion' }),
     )}
-    {optionView(
-      'Turn off the translucent sidebar',
-      "Clears Claude's sidebar glass each time the sidebar opens. Saves less than reduce motion; the theme paints the sidebar solid anyway.",
-      model.glassOff,
-      () => dispatch({ _tag: 'ToggleGlassOff' }),
-    )}
   </section>
 )
 
@@ -397,20 +391,15 @@ const CODE_TABS: { target: CopyTarget; label: string; note: string }[] = [
   {
     target: 'revert',
     label: 'Revert',
-    note: 'Removes the theme, and lets the sidebar glass come back, until you run the snippet again.',
+    note: 'Removes the theme, and gives the animations back, until you run the snippet again.',
   },
 ]
 
-// With the glass option on, the theme snippet does one more thing, said here
-const noteFor = (model: Model, target: CopyTarget, note: string) => {
-  if (target !== 'theme' || (!model.glassOff && !model.reduceMotion))
-    return note
-  const extras = [
-    model.reduceMotion ? "switches on Claude's reduce-motion setting" : null,
-    model.glassOff ? 'turns off the sidebar glass' : null,
-  ].filter(Boolean)
-  return `Adds one <style> element with the CSS below, and ${extras.join(' and ')}, using the app's own hooks. Nothing else runs.`
-}
+// With reduce motion on, the theme snippet does one more thing, said here
+const noteFor = (model: Model, target: CopyTarget, note: string) =>
+  target === 'theme' && model.reduceMotion
+    ? "Adds one <style> element with the CSS below, and switches on Claude's own reduce-motion setting. Nothing else runs."
+    : note
 
 // The exact code each Copy button copies, shown before anyone runs it
 const codePanelView = (model: Model, dispatch: Dispatcher<Msg>) => {

@@ -17,15 +17,11 @@ export const templateLiteral = (text: string): string =>
   text.replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\$\{/g, '\\${') +
   '`'
 
-// Where the glass watcher is kept on window, so a rerun or the revert command
-// can find it
-const GLASS_KEY = '__claudeThemeTunerGlassOff'
+// Where the reduce-motion watcher is kept on window, so a rerun or the revert
+// command can find it
 const MOTION_KEY = '__claudeThemeTunerReduceMotion'
 
 export interface SnippetOptions {
-  // Turn off the translucent sidebar glass (macOS vibrancy), which makes
-  // WindowServer re-blur the desktop on every repaint
-  glassOff: boolean
   // Turn on the app's own reduce-motion guard: its looping animations (the
   // "working" text shimmer above all) cost a lot of GPU while Claude works
   reduceMotion: boolean
@@ -49,35 +45,11 @@ const reduceMotionCode = `
     console.log("[theme] reduced motion");
   }`
 
-// Uses the app's own vibrancy API (what the page calls itself). The page asks
-// for the glass again whenever the sidebar opens, so it is cleared again
-// after each open or close: twice, as the page's request lands a moment later.
-const glassOffCode = `
-  // Turn off the translucent sidebar glass, and keep it off
-  const glass = window["claude.windowVibrancy"]?.WindowVibrancy;
-  if (glass && !window.${GLASS_KEY}) {
-    const clearGlass = () => {
-      for (const ms of [60, 700]) setTimeout(() => glass.clear().catch(() => {}), ms);
-    };
-    const watcher = new MutationObserver(clearGlass);
-    watcher.observe(document.documentElement, {
-      attributes: true,
-      subtree: true,
-      attributeFilter: ["data-collapsed", "data-sidebar-vibrancy"],
-    });
-    window.${GLASS_KEY} = watcher;
-    clearGlass();
-    console.log("[theme] sidebar glass off");
-  }`
-
 // Wraps the theme CSS into the script pasted into the Claude app's DevTools.
 // Running it again replaces the theme in place.
 export const themeSnippet = (
   css: string,
-  { glassOff, reduceMotion }: SnippetOptions = {
-    glassOff: false,
-    reduceMotion: false,
-  },
+  { reduceMotion }: SnippetOptions = { reduceMotion: false },
 ): string => `// Claude desktop theme, made with Claude Desktop Theme Tuner.
 // Paste into the Claude app's DevTools: Sources > Snippets > + New snippet, run with Cmd+Enter.
 (() => {
@@ -99,11 +71,10 @@ export const themeSnippet = (
       if (el.isConnected && document.head.lastElementChild !== el) document.head.appendChild(el);
     }).observe(document.head, { childList: true });
   }
-  console.log("[theme] applied", css.length, "chars of CSS");${reduceMotion ? reduceMotionCode : ''}${glassOff ? glassOffCode : ''}
+  console.log("[theme] applied", css.length, "chars of CSS");${reduceMotion ? reduceMotionCode : ''}
 })();
 `
 
-// Undoes the theme until the next run: removes the CSS, gives the animations
-// back, and stops the glass watcher (the page brings the glass back the next
-// time the sidebar opens)
-export const REVERT_COMMAND = `document.getElementById(${JSON.stringify(STYLE_ID)})?.remove(); window.${MOTION_KEY}?.disconnect(); delete window.${MOTION_KEY}; delete document.documentElement.dataset.reduceMotion; window.${GLASS_KEY}?.disconnect(); delete window.${GLASS_KEY}`
+// Undoes the theme until the next run: removes the CSS and gives the
+// animations back
+export const REVERT_COMMAND = `document.getElementById(${JSON.stringify(STYLE_ID)})?.remove(); window.${MOTION_KEY}?.disconnect(); delete window.${MOTION_KEY}; delete document.documentElement.dataset.reduceMotion`

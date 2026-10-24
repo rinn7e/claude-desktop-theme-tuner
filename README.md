@@ -19,8 +19,7 @@ own theme, and the app follows your OS between them.
   working text above all) keep the GPU and macOS's WindowServer busy, see
   [anthropics/claude-code#94003](https://github.com/anthropics/claude-code/issues/94003).
   The **Reduce motion** option switches on Claude's own reduce-motion guard,
-  which the app never sets; it roughly halved the GPU load in our test. A
-  second option clears the translucent sidebar glass, which saves less.
+  which the app never sets; it roughly halved the GPU load in our test.
 - **Readable output:** the snippet is shown in full before you copy it. It adds
   one `<style>` element and nothing else, and its CSS reads as plain CSS.
 
