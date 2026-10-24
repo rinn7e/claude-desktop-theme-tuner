@@ -442,7 +442,7 @@ const codePanelView = (model: Model, dispatch: Dispatcher<Msg>) => {
               onClick={() => dispatch({ _tag: 'ShowCode', target })}
               className={`rounded-md px-[10px] py-[4px] text-xs transition-colors ${
                 model.shown === target
-                  ? 'bg-ui-panel font-medium shadow-sm'
+                  ? 'bg-[var(--color-panel)] font-medium shadow-sm'
                   : 'text-ui-ink-muted hover:text-ui-ink'
               }`}
             >
@@ -454,7 +454,7 @@ const codePanelView = (model: Model, dispatch: Dispatcher<Msg>) => {
           <button
             type='button'
             onClick={() => dispatch({ _tag: 'OpenHelp' })}
-            className='rounded-lg border border-ui-line px-[12px] py-[6px] text-xs hover:border-ui-ink-faint'
+            className='rounded-lg border border-ui-line bg-[var(--color-panel)] px-[12px] py-[6px] text-xs hover:border-ui-ink-faint'
           >
             How to apply
           </button>
