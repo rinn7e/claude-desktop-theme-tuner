@@ -5,6 +5,12 @@
 import React, { useEffect, useState } from 'react'
 import { type Dispatcher } from 'tea-cup-fp'
 
+import shotDeveloperMode from './asset/how-to-apply/1-enable-developer-mode.webp'
+import shotDevTools from './asset/how-to-apply/2-show-dev-tools.webp'
+import shotSources from './asset/how-to-apply/3-sources.webp'
+import shotSnippets from './asset/how-to-apply/4-snippets.webp'
+import shotNewSnippet from './asset/how-to-apply/5-new-snippet.webp'
+import shotRun from './asset/how-to-apply/6-run.webp'
 import { codeView } from './code-view'
 import { claudeMockView } from './preview/claude-mock'
 import { contrast, isHex } from './theme/color'
@@ -353,6 +359,35 @@ const modeColumnView = (
 
 // The "How to apply" dialog, over a backdrop; closes on the backdrop, the
 // Close button or Escape
+// The steps to run a snippet in Claude, each with a screenshot of it
+// (Claude 3.6556.2 on macOS)
+const HELP_STEPS: { text: string; shot?: string }[] = [
+  {
+    text: 'Turn on Developer Mode once: in Claude, Help > Troubleshooting > Enable Developer Mode.',
+    shot: shotDeveloperMode,
+  },
+  {
+    text: 'Copy the theme snippet here, and read it first: it only adds a style.',
+  },
+  {
+    text: 'In Claude, choose Developer > Show Dev Tools (Option+Cmd+I).',
+    shot: shotDevTools,
+  },
+  { text: 'In DevTools, open the Sources tab.', shot: shotSources },
+  {
+    text: 'Click >> next to Page and Workspace, and choose Snippets.',
+    shot: shotSnippets,
+  },
+  { text: 'Click + New snippet.', shot: shotNewSnippet },
+  {
+    text: 'Paste the snippet, press Cmd+S to keep it, then Cmd+Enter to run it. The Console says "[theme] applied".',
+    shot: shotRun,
+  },
+  {
+    text: 'The theme lasts until Claude restarts. After a restart, open Dev Tools, then Sources > Snippets, and run the saved snippet again.',
+  },
+]
+
 const helpDialogView = (model: Model, dispatch: Dispatcher<Msg>) =>
   model.helpOpen ? (
     <div
@@ -363,7 +398,7 @@ const helpDialogView = (model: Model, dispatch: Dispatcher<Msg>) =>
         role='dialog'
         aria-modal='true'
         aria-labelledby='help-title'
-        className='flex max-h-full w-full max-w-[34rem] flex-col gap-[14px] overflow-y-auto rounded-xl bg-ui-panel p-[22px] shadow-2xl ring-1 ring-ui-line'
+        className='flex max-h-full w-full max-w-[40rem] flex-col gap-[14px] overflow-y-auto rounded-xl bg-ui-panel p-[22px] shadow-2xl ring-1 ring-ui-line'
         onClick={(e) => e.stopPropagation()}
         onKeyDown={(e) => {
           if (e.key === 'Escape') dispatch({ _tag: 'CloseHelp' })
@@ -382,31 +417,25 @@ const helpDialogView = (model: Model, dispatch: Dispatcher<Msg>) =>
             Close
           </button>
         </div>
-        <ol className='flex list-decimal flex-col gap-[8px] pl-[20px] text-sm text-ui-ink-muted'>
-          <li>
-            Turn on Developer Mode once: create{' '}
-            <code className='font-mono text-ui-ink wrap-anywhere'>
-              ~/Library/Application Support/Claude/developer_settings.json
-            </code>{' '}
-            containing{' '}
-            <code className='font-mono text-ui-ink wrap-anywhere'>
-              {'{ "allowDevTools": true }'}
-            </code>
-            , then quit and reopen Claude.
-          </li>
-          <li>
-            Copy the theme snippet here, and read it first: it only adds a
-            style.
-          </li>
-          <li>In Claude, right-click anywhere and choose Inspect Element.</li>
-          <li>
-            In DevTools open Sources, then Snippets, then + New snippet. Paste
-            it, press Cmd+S to keep it, then Cmd+Enter to run it.
-          </li>
-          <li>
-            The theme lasts until Claude restarts. After a restart: right-click,
-            Inspect Element, and run the saved snippet again.
-          </li>
+        {/* shrink-0: the dialog scrolls instead of squashing the screenshots */}
+        <ol className='flex shrink-0 list-decimal flex-col gap-[18px] pl-[20px] text-sm text-ui-ink-muted'>
+          {HELP_STEPS.map(({ text, shot }) => (
+            <li key={text}>
+              <div className='flex flex-col gap-[8px]'>
+                {text}
+                {shot ? (
+                  <img
+                    src={shot}
+                    alt=''
+                    loading='lazy'
+                    width={1490}
+                    height={1166}
+                    className='h-auto w-full rounded-lg ring-1 ring-ui-line'
+                  />
+                ) : null}
+              </div>
+            </li>
+          ))}
         </ol>
         <div className='flex flex-col gap-[6px] rounded-lg bg-ui-field p-[12px] text-xs text-ui-ink-muted'>
           <span>

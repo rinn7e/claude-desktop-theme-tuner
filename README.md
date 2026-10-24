@@ -26,15 +26,17 @@ own theme, and the app follows your OS between them.
 
 ## Apply a theme
 
-The app's **How to apply** button walks through it:
+The app's **How to apply** button walks through it, with a screenshot of each
+step (in `src/asset/how-to-apply/`):
 
-1. Turn on Developer Mode once: create
-   `~/Library/Application Support/Claude/developer_settings.json` containing
-   `{ "allowDevTools": true }`, then quit and reopen Claude.
+1. Turn on Developer Mode once: in Claude, **Help > Troubleshooting > Enable
+   Developer Mode**.
 2. Copy the theme snippet.
-3. In Claude, right-click anywhere and choose **Inspect Element**.
-4. In DevTools open **Sources**, then **Snippets**, then **+ New snippet**.
-   Paste it, press Cmd+S to keep it, then Cmd+Enter to run it.
+3. In Claude, choose **Developer > Show Dev Tools** (Option+Cmd+I).
+4. In DevTools open **Sources**, click **>>** next to Page and Workspace, and
+   choose **Snippets**, then **+ New snippet**.
+5. Paste it, press Cmd+S to keep it, then Cmd+Enter to run it. The Console
+   says `[theme] applied`.
 
 The theme lasts until Claude restarts; after that, run the saved snippet again.
 The **Revert** tab has the one-line command that removes it.
