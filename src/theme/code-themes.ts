@@ -375,7 +375,7 @@ export const CODE_THEME_PRESETS: Theme[] = [
       pressed: '#173044',
       text: '#d6deeb',
       textSecondary: '#89a4bb',
-      textMuted: '#c5e4fd',
+      textMuted: '#65839b', // lightened for AA (was #5f7e97)
       line: '#89a4bb',
       accent: '#8b77ba', // lightened for AA (was #654aa3)
       accentHover: '#9270ca',

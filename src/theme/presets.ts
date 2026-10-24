@@ -323,8 +323,8 @@ const HAND_TUNED: Theme[] = [
       raised: '#292828', // Groovy Lambda's background
       pressed: '#32302f',
       text: '#d4be98',
-      textSecondary: '#ddc7a1',
-      textMuted: '#a89984',
+      textSecondary: '#a89984', // fg4: dimmer than the text, so thinking and labels stand apart
+      textMuted: '#928374', // gray
       line: '#5a524c',
       accent: '#a9b665', // green
       accentHover: '#d8a657', // yellow

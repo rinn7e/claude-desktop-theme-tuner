@@ -194,8 +194,12 @@ const paletteOf = (theme, mode) => {
       c,
       ['sideBar.foreground', 'foreground', 'tab.inactiveForeground'],
       frame,
-      // Not a color meant for the other mode's sidebar (Slack Ochin)
-      (hex) => hex !== text && contrast(hex, frame) >= 3,
+      // Not a color meant for the other mode's sidebar (Slack Ochin), and
+      // dimmer than the text, so Claude's thinking and labels stand apart
+      (hex) =>
+        hex !== text &&
+        contrast(hex, frame) >= 3 &&
+        contrast(hex, canvas) < contrast(text, canvas),
     ) ?? mix(text, canvas, 0.25)
   const textMuted =
     pick(
@@ -206,7 +210,12 @@ const paletteOf = (theme, mode) => {
         'tab.inactiveForeground',
       ],
       canvas,
-      (hex) => hex !== text && contrast(hex, canvas) >= 3,
+      // No brighter than the secondary text (Night Owl's description color
+      // is brighter than its text)
+      (hex) =>
+        hex !== text &&
+        contrast(hex, canvas) >= 3 &&
+        contrast(hex, canvas) <= contrast(textSecondary, canvas) + 0.05,
     ) ?? mix(text, canvas, 0.4)
 
   const vivid = (hex) => saturation(hex) > 0.3 && contrast(hex, canvas) > 1.6
