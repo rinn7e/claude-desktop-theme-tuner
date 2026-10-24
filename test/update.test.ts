@@ -10,7 +10,6 @@ import {
   defaultStored,
   handlePickPreset,
   handleResetSlot,
-  handleSelectMode,
   handleSetColor,
   handleToggleReduceMotion,
   handleToggleSlot,
@@ -20,7 +19,6 @@ import {
 
 const model: Model = {
   ...defaultStored,
-  editing: 'light',
   shown: 'theme',
   copied: null,
   copyFailed: null,
@@ -34,8 +32,8 @@ describe('sub-updaters', () => {
     expect(model.dark.enabled).toBe(false)
   })
 
-  it('picks a preset for the mode being edited and turns it on', () => {
-    const next = handlePickPreset(handleSelectMode(model, 'dark'), 'nord')
+  it('puts a preset in the slot of its own mode and turns it on', () => {
+    const next = handlePickPreset(model, 'nord')
     expect(next.dark).toMatchObject({ enabled: true, theme: { id: 'nord' } })
     expect(next.light).toBe(model.light)
   })
@@ -45,7 +43,7 @@ describe('sub-updaters', () => {
   })
 
   it('edits a color without touching the preset', () => {
-    const next = handleSetColor(model, 'canvas', '#ABCDEF')
+    const next = handleSetColor(model, 'light', 'canvas', '#ABCDEF')
     expect(next.light.theme.palette.canvas).toBe('#abcdef')
     expect(isEdited(next.light)).toBe(true)
     expect(isEdited(model.light)).toBe(false)
@@ -54,12 +52,21 @@ describe('sub-updaters', () => {
     ).toBe('#fdf6e3')
   })
 
+  it('edits each mode on its own', () => {
+    const next = handleSetColor(model, 'dark', 'canvas', '#123456')
+    expect(next.dark.theme.palette.canvas).toBe('#123456')
+    expect(next.light).toBe(model.light)
+  })
+
   it('rejects a half-typed color', () => {
-    expect(handleSetColor(model, 'canvas', '#abc')).toBe(model)
+    expect(handleSetColor(model, 'light', 'canvas', '#abc')).toBe(model)
   })
 
   it('resets edits back to the preset', () => {
-    const next = handleResetSlot(handleSetColor(model, 'accent', '#000000'))
+    const next = handleResetSlot(
+      handleSetColor(model, 'light', 'accent', '#000000'),
+      'light',
+    )
     expect(isEdited(next.light)).toBe(false)
   })
 
@@ -79,7 +86,7 @@ describe('sub-updaters', () => {
 
   it('puts only the enabled modes in the snippet', () => {
     expect(snippetOf(model)).toContain('light: Solarized Light, dark: stock')
-    const both = handlePickPreset(handleSelectMode(model, 'dark'), 'dracula')
+    const both = handlePickPreset(model, 'dracula')
     expect(snippetOf(both)).toContain('light: Solarized Light, dark: Dracula')
   })
 })

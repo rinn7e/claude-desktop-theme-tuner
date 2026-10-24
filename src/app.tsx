@@ -17,7 +17,7 @@ import {
 } from './theme/palette'
 import { PRESETS, STOCK } from './theme/presets'
 import { type CopyTarget, type Model, type Msg } from './type'
-import { isEdited, slotOf, textFor } from './update'
+import { isEdited, textFor } from './update'
 
 export interface AppProps {
   model: Model
@@ -74,49 +74,28 @@ const headerView = () => (
   </header>
 )
 
-const modeTabsView = (model: Model, dispatch: Dispatcher<Msg>) => (
-  <div className='grid grid-cols-2 gap-[4px] rounded-lg bg-ui-field p-[4px]'>
-    {MODES.map(({ mode, label }) => {
-      const active = model.editing === mode
-      const slot = model[mode]
-      return (
-        <button
-          key={mode}
-          type='button'
-          onClick={() => dispatch({ _tag: 'SelectMode', mode })}
-          className={`flex flex-col items-center gap-[2px] rounded-md px-[10px] py-[6px] text-sm transition-colors ${
-            active
-              ? 'bg-ui-panel font-medium shadow-sm'
-              : 'text-ui-ink-muted hover:text-ui-ink'
-          }`}
-        >
-          {label}
-          <span className='text-[0.6875rem] text-ui-ink-faint'>
-            {slot.enabled ? slot.theme.name : 'Stock'}
-          </span>
-        </button>
-      )
-    })}
-  </div>
-)
-
-const slotToggleView = (model: Model, dispatch: Dispatcher<Msg>) => {
-  const slot = slotOf(model)
+// A mode's heading: its name, its theme, and whether the snippet themes it
+const modeHeaderView = (
+  model: Model,
+  dispatch: Dispatcher<Msg>,
+  mode: Mode,
+  label: string,
+) => {
+  const slot = model[mode]
   return (
-    <label className='flex cursor-pointer items-center justify-between gap-[12px] rounded-lg border border-ui-line px-[12px] py-[10px]'>
-      <span className='flex flex-col gap-[2px]'>
-        <span className='text-sm font-medium'>Theme {model.editing} mode</span>
-        <span className='text-xs text-ui-ink-faint'>
-          {slot.enabled
-            ? 'The snippet recolors it.'
-            : 'Left as Claude ships it.'}
+    <label className='flex cursor-pointer items-center justify-between gap-[12px] rounded-lg bg-ui-field px-[12px] py-[10px]'>
+      <span className='flex min-w-0 flex-col gap-[2px]'>
+        <span className='text-sm font-semibold'>{label}</span>
+        <span className='truncate text-xs text-ui-ink-faint'>
+          {slot.enabled ? slot.theme.name : 'Stock, left as Claude ships it'}
         </span>
       </span>
       <input
         type='checkbox'
+        aria-label={`Theme ${label.toLowerCase()}`}
         checked={slot.enabled}
-        onChange={() => dispatch({ _tag: 'ToggleSlot', mode: model.editing })}
-        className='h-[18px] w-[18px] accent-ui-brand'
+        onChange={() => dispatch({ _tag: 'ToggleSlot', mode })}
+        className='h-[18px] w-[18px] shrink-0 accent-ui-brand'
       />
     </label>
   )
@@ -171,30 +150,33 @@ const swatchStripView = (theme: Theme) => (
   </span>
 )
 
-const presetsView = (model: Model, dispatch: Dispatcher<Msg>) => {
-  const slot = slotOf(model)
-  const presets = PRESETS.filter((t) => t.mode === model.editing)
+const sectionTitle = (title: string) => (
+  <h2 className='text-xs font-semibold tracking-wide text-ui-ink-faint uppercase'>
+    {title}
+  </h2>
+)
+
+const presetsView = (model: Model, dispatch: Dispatcher<Msg>, mode: Mode) => {
+  const slot = model[mode]
   return (
     <section className='flex flex-col gap-[8px]'>
-      <h2 className='text-xs font-semibold tracking-wide text-ui-ink-faint uppercase'>
-        Presets
-      </h2>
+      {sectionTitle('Presets')}
       <div className='grid grid-cols-2 gap-[8px]'>
-        {presets.map((t) => {
+        {PRESETS.filter((t) => t.mode === mode).map((t) => {
           const active = slot.enabled && slot.theme.id === t.id
           return (
             <button
               key={t.id}
               type='button'
               onClick={() => dispatch({ _tag: 'PickPreset', id: t.id })}
-              className={`flex flex-col gap-[6px] rounded-lg border p-[8px] text-left text-xs transition-colors ${
+              className={`flex min-w-0 flex-col gap-[6px] rounded-lg border p-[8px] text-left text-xs transition-colors ${
                 active
                   ? 'border-ui-brand ring-1 ring-ui-brand'
                   : 'border-ui-line hover:border-ui-ink-faint'
               }`}
             >
               {swatchStripView(t)}
-              <span className='font-medium'>{t.name}</span>
+              <span className='truncate font-medium'>{t.name}</span>
             </button>
           )
         })}
@@ -204,11 +186,12 @@ const presetsView = (model: Model, dispatch: Dispatcher<Msg>) => {
 }
 
 const colorRowView = (
+  dispatch: Dispatcher<Msg>,
+  mode: Mode,
   key: PaletteKey,
   label: string,
   note: string,
   value: string,
-  dispatch: Dispatcher<Msg>,
 ) => (
   <div
     key={key}
@@ -219,16 +202,16 @@ const colorRowView = (
       aria-label={label}
       value={value}
       onChange={(e) =>
-        dispatch({ _tag: 'SetColor', key, value: e.target.value })
+        dispatch({ _tag: 'SetColor', mode, key, value: e.target.value })
       }
       className='h-[28px] w-[32px] cursor-pointer rounded-md border border-ui-line bg-transparent p-0'
     />
     <HexInput
       value={value}
-      onChange={(hex) => dispatch({ _tag: 'SetColor', key, value: hex })}
+      onChange={(hex) => dispatch({ _tag: 'SetColor', mode, key, value: hex })}
     />
     <span className='flex min-w-0 flex-col'>
-      <span className='text-sm'>{label}</span>
+      <span className='truncate text-sm'>{label}</span>
       <span className='truncate text-[0.6875rem] text-ui-ink-faint'>
         {note}
       </span>
@@ -236,20 +219,17 @@ const colorRowView = (
   </div>
 )
 
-const colorsView = (model: Model, dispatch: Dispatcher<Msg>) => {
-  const slot = slotOf(model)
-  const edited = isEdited(slot)
+const colorsView = (model: Model, dispatch: Dispatcher<Msg>, mode: Mode) => {
+  const slot = model[mode]
   return (
     <section className='flex flex-col gap-[14px]'>
-      <div className='flex items-center justify-between'>
-        <h2 className='text-xs font-semibold tracking-wide text-ui-ink-faint uppercase'>
-          Colors
-        </h2>
-        {edited ? (
+      <div className='flex items-center justify-between gap-[8px]'>
+        {sectionTitle('Colors')}
+        {isEdited(slot) ? (
           <button
             type='button'
-            onClick={() => dispatch({ _tag: 'ResetSlot' })}
-            className='text-xs text-ui-brand hover:underline'
+            onClick={() => dispatch({ _tag: 'ResetSlot', mode })}
+            className='truncate text-xs text-ui-brand hover:underline'
           >
             Reset to {slot.theme.name}
           </button>
@@ -259,7 +239,14 @@ const colorsView = (model: Model, dispatch: Dispatcher<Msg>) => {
         <div key={g.title} className='flex flex-col gap-[8px]'>
           <h3 className='text-xs font-medium text-ui-ink-muted'>{g.title}</h3>
           {g.keys.map(({ key, label, note }) =>
-            colorRowView(key, label, note, slot.theme.palette[key], dispatch),
+            colorRowView(
+              dispatch,
+              mode,
+              key,
+              label,
+              note,
+              slot.theme.palette[key],
+            ),
           )}
         </div>
       ))}
@@ -267,13 +254,11 @@ const colorsView = (model: Model, dispatch: Dispatcher<Msg>) => {
   )
 }
 
-const contrastView = (model: Model) => {
-  const { palette } = slotOf(model).theme
+const contrastView = (model: Model, mode: Mode) => {
+  const { palette } = model[mode].theme
   return (
     <section className='flex flex-col gap-[8px]'>
-      <h2 className='text-xs font-semibold tracking-wide text-ui-ink-faint uppercase'>
-        Readability (WCAG)
-      </h2>
+      {sectionTitle('Readability (WCAG)')}
       <div className='flex flex-col gap-[4px]'>
         {CONTRAST_CHECKS.map(({ fg, bg, min }) => {
           const ratio = contrast(palette[fg], palette[bg])
@@ -283,17 +268,19 @@ const contrastView = (model: Model) => {
               key={`${fg}-${bg}`}
               className='flex items-center justify-between gap-[8px] text-xs'
             >
-              <span className='flex items-center gap-[6px] text-ui-ink-muted'>
+              <span className='flex min-w-0 items-center gap-[6px] text-ui-ink-muted'>
                 <span
-                  className='flex h-[18px] w-[26px] items-center justify-center rounded text-[0.625rem] font-semibold ring-1 ring-black/10'
+                  className='flex h-[18px] w-[26px] shrink-0 items-center justify-center rounded text-[0.625rem] font-semibold ring-1 ring-black/10'
                   style={{ background: palette[bg], color: palette[fg] }}
                 >
                   Aa
                 </span>
-                {LABELS[fg]} on {LABELS[bg].toLowerCase()}
+                <span className='truncate'>
+                  {LABELS[fg]} on {LABELS[bg].toLowerCase()}
+                </span>
               </span>
               <span
-                className={`font-mono ${ok ? 'text-ui-good' : 'text-ui-bad'}`}
+                className={`shrink-0 font-mono ${ok ? 'text-ui-good' : 'text-ui-bad'}`}
               >
                 {ratio.toFixed(1)} {ok ? 'AA' : `below ${min}`}
               </span>
@@ -304,6 +291,28 @@ const contrastView = (model: Model) => {
     </section>
   )
 }
+
+// One mode's whole configuration; a mode left stock is dimmed, and picking a
+// preset turns it on
+const modeColumnView = (
+  model: Model,
+  dispatch: Dispatcher<Msg>,
+  mode: Mode,
+  label: string,
+) => (
+  <div key={mode} className='flex min-w-0 flex-col gap-[20px]'>
+    {modeHeaderView(model, dispatch, mode, label)}
+    <div
+      className={`flex flex-col gap-[20px] transition-opacity ${
+        model[mode].enabled ? '' : 'opacity-50'
+      }`}
+    >
+      {presetsView(model, dispatch, mode)}
+      {colorsView(model, dispatch, mode)}
+      {contrastView(model, mode)}
+    </div>
+  </div>
+)
 
 // The "How to apply" dialog, over a backdrop; closes on the backdrop, the
 // Close button or Escape
@@ -454,14 +463,16 @@ const codePanelView = (model: Model, dispatch: Dispatcher<Msg>) => {
   )
 }
 
+// Light and dark side by side once the panel is wide enough (a container
+// query, as the panel is half the window), stacked below that
 const customizerView = (model: Model, dispatch: Dispatcher<Msg>) => (
-  <div className='flex flex-col gap-[20px] px-[20px] pb-[20px] lg:min-h-0 lg:flex-1 lg:overflow-y-auto'>
+  <div className='@container flex flex-col gap-[20px] px-[20px] pb-[20px] lg:min-h-0 lg:flex-1 lg:overflow-y-auto'>
     {headerView()}
-    {modeTabsView(model, dispatch)}
-    {slotToggleView(model, dispatch)}
-    {presetsView(model, dispatch)}
-    {colorsView(model, dispatch)}
-    {contrastView(model)}
+    <div className='grid grid-cols-1 gap-[24px] @2xl:grid-cols-2'>
+      {MODES.map(({ mode, label }) =>
+        modeColumnView(model, dispatch, mode, label),
+      )}
+    </div>
     {optionsView(model, dispatch)}
   </div>
 )
@@ -484,49 +495,17 @@ const creditView = (theme: Theme) =>
     <span>{theme.name}</span>
   )
 
-// One mode's preview: its caption and the mock. Clicking it edits that mode;
-// the mode being edited is ringed.
-const previewCardView = (
-  model: Model,
-  dispatch: Dispatcher<Msg>,
-  mode: Mode,
-  label: string,
-) => {
+// One mode's preview: its caption and the mock
+const previewCardView = (model: Model, mode: Mode, label: string) => {
   const slot = model[mode]
-  const editing = model.editing === mode
   const palette = slot.enabled ? slot.theme.palette : STOCK[mode]
   return (
-    <div
-      key={mode}
-      role='button'
-      tabIndex={0}
-      aria-pressed={editing}
-      aria-label={`Edit ${label.toLowerCase()}`}
-      onClick={() => dispatch({ _tag: 'SelectMode', mode })}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault()
-          dispatch({ _tag: 'SelectMode', mode })
-        }
-      }}
-      className={`flex w-full cursor-pointer flex-col gap-[10px] rounded-2xl p-[12px] transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ui-brand ${
-        editing ? 'bg-ui-panel ring-2 ring-ui-brand' : 'hover:bg-ui-panel/60'
-      }`}
-    >
-      <div className='flex items-center justify-between gap-[12px] text-xs'>
-        <span className='flex items-center gap-[8px]'>
-          <span className='font-semibold text-ui-ink'>{label}</span>
-          <span className='text-ui-ink-faint'>
-            {slot.enabled ? slot.theme.name : 'Stock (shown approximately)'}
-          </span>
+    <div key={mode} className='flex w-full flex-col gap-[10px]'>
+      <div className='flex items-center gap-[8px] text-xs'>
+        <span className='font-semibold text-ui-ink'>{label}</span>
+        <span className='text-ui-ink-faint'>
+          {slot.enabled ? slot.theme.name : 'Stock (shown approximately)'}
         </span>
-        {editing ? (
-          <span className='rounded-full bg-ui-brand px-[8px] py-[1px] text-[0.6875rem] text-ui-brand-ink'>
-            Editing
-          </span>
-        ) : (
-          <span className='text-ui-ink-faint'>Click to edit</span>
-        )}
       </div>
       {/* The mock keeps its desktop proportions; narrow screens scroll it sideways */}
       <div className='flex w-full justify-center-safe overflow-x-auto'>
@@ -542,11 +521,9 @@ const previewCardView = (
 }
 
 // Both modes at once, light first
-const previewView = (model: Model, dispatch: Dispatcher<Msg>) => (
+const previewView = (model: Model) => (
   <section className='flex flex-col items-center gap-[20px] p-[16px] lg:min-h-0 lg:overflow-auto lg:p-[24px]'>
-    {MODES.map(({ mode, label }) =>
-      previewCardView(model, dispatch, mode, label),
-    )}
+    {MODES.map(({ mode, label }) => previewCardView(model, mode, label))}
     <p className='text-center text-xs text-ui-ink-faint'>
       Mocks of the Claude desktop app, painted with the variables the snippet
       sets
@@ -561,7 +538,7 @@ export const App = ({ model, dispatch }: AppProps) => (
       {customizerView(model, dispatch)}
       {codePanelView(model, dispatch)}
     </aside>
-    {previewView(model, dispatch)}
+    {previewView(model)}
     {helpDialogView(model, dispatch)}
   </div>
 )

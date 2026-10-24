@@ -40,8 +40,6 @@ const storedOf = (model: Model): Stored => ({
   reduceMotion: model.reduceMotion,
 })
 
-export const slotOf = (model: Model): Slot => model[model.editing]
-
 // Whether a slot's colors still match the preset it came from
 export const isEdited = (slot: Slot): boolean => {
   const preset = presetById(slot.theme.id)
@@ -74,7 +72,6 @@ export const init = (): [Model, Cmd<Msg>] => {
   return [
     {
       ...stored,
-      editing: 'light',
       shown: 'theme',
       copied: null,
       copyFailed: null,
@@ -144,11 +141,6 @@ const withSlot = (model: Model, mode: Mode, slot: Slot): Model => ({
   [mode]: slot,
 })
 
-export const handleSelectMode = (model: Model, mode: Mode): Model => ({
-  ...model,
-  editing: mode,
-})
-
 export const handleToggleSlot = (model: Model, mode: Mode): Model =>
   withSlot(model, mode, { ...model[mode], enabled: !model[mode].enabled })
 
@@ -157,11 +149,12 @@ export const handleToggleReduceMotion = (model: Model): Model => ({
   reduceMotion: !model.reduceMotion,
 })
 
-// Picking a preset also turns its slot on: choosing a theme means wanting it
+// A preset goes to the slot of its own mode, and turns it on: choosing a
+// theme means wanting it
 export const handlePickPreset = (model: Model, id: string): Model => {
   const preset = presetById(id)
   if (!preset) return model
-  return withSlot(model, model.editing, {
+  return withSlot(model, preset.mode, {
     enabled: true,
     theme: copyOf(preset),
   })
@@ -169,12 +162,13 @@ export const handlePickPreset = (model: Model, id: string): Model => {
 
 export const handleSetColor = (
   model: Model,
+  mode: Mode,
   key: PaletteKey,
   value: string,
 ): Model => {
   if (!isHex(value)) return model
-  const slot = slotOf(model)
-  return withSlot(model, model.editing, {
+  const slot = model[mode]
+  return withSlot(model, mode, {
     ...slot,
     theme: {
       ...slot.theme,
@@ -183,11 +177,11 @@ export const handleSetColor = (
   })
 }
 
-export const handleResetSlot = (model: Model): Model => {
-  const slot = slotOf(model)
+export const handleResetSlot = (model: Model, mode: Mode): Model => {
+  const slot = model[mode]
   const preset = presetById(slot.theme.id)
   return preset
-    ? withSlot(model, model.editing, { ...slot, theme: copyOf(preset) })
+    ? withSlot(model, mode, { ...slot, theme: copyOf(preset) })
     : model
 }
 
@@ -195,8 +189,6 @@ const saved = (model: Model): [Model, Cmd<Msg>] => [model, saveCmd(model)]
 
 export const update = (msg: Msg, model: Model): [Model, Cmd<Msg>] => {
   switch (msg._tag) {
-    case 'SelectMode':
-      return [handleSelectMode(model, msg.mode), Cmd.none()]
     case 'ToggleReduceMotion':
       return saved(handleToggleReduceMotion(model))
     case 'ToggleSlot':
@@ -204,9 +196,9 @@ export const update = (msg: Msg, model: Model): [Model, Cmd<Msg>] => {
     case 'PickPreset':
       return saved(handlePickPreset(model, msg.id))
     case 'SetColor':
-      return saved(handleSetColor(model, msg.key, msg.value))
+      return saved(handleSetColor(model, msg.mode, msg.key, msg.value))
     case 'ResetSlot':
-      return saved(handleResetSlot(model))
+      return saved(handleResetSlot(model, msg.mode))
     case 'Copy':
       return [model, copyCmd(textFor(model, msg.target), msg.target)]
     case 'Copied':

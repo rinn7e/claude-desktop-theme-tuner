@@ -17,8 +17,6 @@ export interface Model {
   dark: Slot
   // Whether the snippet also turns off the app's looping animations
   reduceMotion: boolean
-  // The mode being edited, and shown in the preview
-  editing: Mode
   // The code shown in the snippet panel, and copied by its button
   shown: CopyTarget
   // What was just copied, for the button's confirmation
@@ -30,12 +28,11 @@ export interface Model {
 }
 
 export type Msg =
-  | { _tag: 'SelectMode'; mode: Mode }
   | { _tag: 'ToggleSlot'; mode: Mode }
   | { _tag: 'ToggleReduceMotion' }
   | { _tag: 'PickPreset'; id: string }
-  | { _tag: 'SetColor'; key: PaletteKey; value: string }
-  | { _tag: 'ResetSlot' }
+  | { _tag: 'SetColor'; mode: Mode; key: PaletteKey; value: string }
+  | { _tag: 'ResetSlot'; mode: Mode }
   | { _tag: 'Copy'; target: CopyTarget }
   | { _tag: 'Copied'; target: CopyTarget }
   | { _tag: 'CopyFailed'; target: CopyTarget }
