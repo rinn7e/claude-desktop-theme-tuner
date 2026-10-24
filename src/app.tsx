@@ -292,26 +292,25 @@ const contrastView = (model: Model, mode: Mode) => {
 }
 
 // One mode's whole configuration; a mode left stock is dimmed, and picking a
-// preset turns it on
+// preset turns it on. Its four parts sit on the rows of the parent grid
+// (subgrid), so each part lines up with the other mode's, whatever their
+// heights
 const modeColumnView = (
   model: Model,
   dispatch: Dispatcher<Msg>,
   mode: Mode,
   label: string,
-) => (
-  <div key={mode} className='flex min-w-0 flex-col gap-[20px]'>
-    {modeHeaderView(model, dispatch, mode, label)}
-    <div
-      className={`flex flex-col gap-[20px] transition-opacity ${
-        model[mode].enabled ? '' : 'opacity-50'
-      }`}
-    >
-      {presetsView(model, dispatch, mode)}
-      {colorsView(model, dispatch, mode)}
-      {contrastView(model, mode)}
+) => {
+  const dim = `min-w-0 transition-opacity ${model[mode].enabled ? '' : 'opacity-50'}`
+  return (
+    <div key={mode} className='row-span-4 grid min-w-0 grid-rows-subgrid'>
+      {modeHeaderView(model, dispatch, mode, label)}
+      <div className={dim}>{presetsView(model, dispatch, mode)}</div>
+      <div className={dim}>{colorsView(model, dispatch, mode)}</div>
+      <div className={dim}>{contrastView(model, mode)}</div>
     </div>
-  </div>
-)
+  )
+}
 
 // The "How to apply" dialog, over a backdrop; closes on the backdrop, the
 // Close button or Escape
@@ -467,7 +466,7 @@ const codePanelView = (model: Model, dispatch: Dispatcher<Msg>) => {
 const customizerView = (model: Model, dispatch: Dispatcher<Msg>) => (
   <div className='@container flex flex-col gap-[20px] px-[20px] pb-[20px] lg:min-h-0 lg:flex-1 lg:overflow-y-auto'>
     {headerView()}
-    <div className='grid grid-cols-1 gap-[24px] @2xl:grid-cols-2'>
+    <div className='grid grid-cols-1 gap-x-[24px] gap-y-[20px] @2xl:grid-cols-2'>
       {MODES.map(({ mode, label }) =>
         modeColumnView(model, dispatch, mode, label),
       )}
