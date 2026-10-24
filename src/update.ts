@@ -32,12 +32,14 @@ export const defaultStored: Stored = {
   light: { enabled: true, theme: copyOf(firstPreset('light')) },
   dark: { enabled: false, theme: copyOf(firstPreset('dark')) },
   reduceMotion: false,
+  swapped: false,
 }
 
 const storedOf = (model: Model): Stored => ({
   light: model.light,
   dark: model.dark,
   reduceMotion: model.reduceMotion,
+  swapped: model.swapped,
 })
 
 // Whether a slot's colors still match the preset it came from
@@ -149,6 +151,11 @@ export const handleToggleReduceMotion = (model: Model): Model => ({
   reduceMotion: !model.reduceMotion,
 })
 
+export const handleToggleSwapped = (model: Model): Model => ({
+  ...model,
+  swapped: !model.swapped,
+})
+
 // A preset goes to the slot of its own mode, and turns it on: choosing a
 // theme means wanting it
 export const handlePickPreset = (model: Model, id: string): Model => {
@@ -191,6 +198,8 @@ export const update = (msg: Msg, model: Model): [Model, Cmd<Msg>] => {
   switch (msg._tag) {
     case 'ToggleReduceMotion':
       return saved(handleToggleReduceMotion(model))
+    case 'ToggleSwapped':
+      return saved(handleToggleSwapped(model))
     case 'ToggleSlot':
       return saved(handleToggleSlot(model, msg.mode))
     case 'PickPreset':

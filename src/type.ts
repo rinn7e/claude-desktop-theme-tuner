@@ -17,6 +17,8 @@ export interface Model {
   dark: Slot
   // Whether the snippet also turns off the app's looping animations
   reduceMotion: boolean
+  // The previews on the left and the customizer on the right, on wide screens
+  swapped: boolean
   // The code shown in the snippet panel, and copied by its button
   shown: CopyTarget
   // What was just copied, for the button's confirmation
@@ -30,6 +32,7 @@ export interface Model {
 export type Msg =
   | { _tag: 'ToggleSlot'; mode: Mode }
   | { _tag: 'ToggleReduceMotion' }
+  | { _tag: 'ToggleSwapped' }
   | { _tag: 'PickPreset'; id: string }
   | { _tag: 'SetColor'; mode: Mode; key: PaletteKey; value: string }
   | { _tag: 'ResetSlot'; mode: Mode }

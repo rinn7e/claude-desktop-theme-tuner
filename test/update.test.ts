@@ -13,6 +13,7 @@ import {
   handleSetColor,
   handleToggleReduceMotion,
   handleToggleSlot,
+  handleToggleSwapped,
   isEdited,
   snippetOf,
 } from '../src/update'
@@ -84,6 +85,13 @@ describe('sub-updaters', () => {
     )
   })
 
+  it('swaps the sides and back, without touching the snippet', () => {
+    const swapped = handleToggleSwapped(model)
+    expect(swapped.swapped).toBe(true)
+    expect(snippetOf(swapped)).toBe(snippetOf(model))
+    expect(handleToggleSwapped(swapped).swapped).toBe(false)
+  })
+
   it('puts only the enabled modes in the snippet', () => {
     expect(snippetOf(model)).toContain('light: Solarized Light, dark: stock')
     const both = handlePickPreset(model, 'dracula')
@@ -100,7 +108,10 @@ describe('decodeStored', () => {
   it('reads settings saved before reduce motion, with it off', () => {
     const old = JSON.parse(JSON.stringify(defaultStored))
     delete old.reduceMotion
-    expect(decodeStored(old, defaultStored).reduceMotion).toBe(false)
+    delete old.swapped
+    const decoded = decodeStored(old, defaultStored)
+    expect(decoded.reduceMotion).toBe(false)
+    expect(decoded.swapped).toBe(false)
   })
 
   it('falls back on missing or invalid data', () => {

@@ -63,14 +63,24 @@ const HexInput = ({
   )
 }
 
-const headerView = () => (
-  <header className='flex flex-col items-center gap-[4px] pt-[22px] text-center'>
+// The title, centered, with the swap button at its right (wide screens only:
+// stacked panes have no sides to swap)
+const headerView = (dispatch: Dispatcher<Msg>) => (
+  <header className='relative flex flex-col items-center gap-[4px] pt-[22px] text-center'>
     <h1 className='text-lg font-semibold tracking-tight'>
       Claude Desktop Theme Tuner
     </h1>
     <p className='text-xs text-ui-ink-faint'>
       Pick a theme, tune its colors, copy the snippet.
     </p>
+    <button
+      type='button'
+      title='Swap the customizer and the previews'
+      onClick={() => dispatch({ _tag: 'ToggleSwapped' })}
+      className='absolute top-[20px] right-0 hidden items-center gap-[6px] rounded-lg border border-ui-line px-[10px] py-[5px] text-xs text-ui-ink-muted hover:border-ui-ink-faint hover:text-ui-ink lg:flex'
+    >
+      <span aria-hidden='true'>⇄</span> Swap sides
+    </button>
   </header>
 )
 
@@ -485,7 +495,7 @@ const codePanelView = (model: Model, dispatch: Dispatcher<Msg>) => {
 // query, as the panel is half the window), stacked below that
 const customizerView = (model: Model, dispatch: Dispatcher<Msg>) => (
   <div className='@container flex flex-col gap-[20px] px-[20px] pb-[20px] lg:min-h-0 lg:flex-1 lg:overflow-y-auto'>
-    {headerView()}
+    {headerView(dispatch)}
     <div className='grid grid-cols-1 gap-x-[24px] gap-y-[20px] @2xl:grid-cols-2'>
       {MODES.map(({ mode, label }) =>
         modeColumnView(model, dispatch, mode, label),
@@ -551,10 +561,15 @@ const previewView = (model: Model) => (
   </section>
 )
 
-// Two halves: the customizer over the code it produces, and the preview
+// Two halves: the customizer over the code it produces, and the preview;
+// swapped, the customizer moves to the right on wide screens
 export const App = ({ model, dispatch }: AppProps) => (
   <div className='grid min-h-full grid-cols-1 lg:h-full lg:grid-cols-2'>
-    <aside className='flex flex-col border-ui-line bg-ui-panel lg:min-h-0 lg:border-r'>
+    <aside
+      className={`flex flex-col border-ui-line bg-ui-panel lg:min-h-0 ${
+        model.swapped ? 'lg:order-last lg:border-l' : 'lg:border-r'
+      }`}
+    >
       {customizerView(model, dispatch)}
       {codePanelView(model, dispatch)}
     </aside>
