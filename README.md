@@ -4,6 +4,8 @@ Pick a color theme for the Claude desktop app, tune its colors with a live
 preview, and copy it as a DevTools snippet. Light and dark mode each get their
 own theme, and the app follows your OS between them.
 
+**Open the app: [rinn7e.com/claude-desktop-theme-tuner](https://rinn7e.com/claude-desktop-theme-tuner/)**
+
 <p align="center">
   <img src="doc/screenshot.png" alt="The tuner: customizer and snippet on the left, light and dark previews of the Claude app on the right">
 </p>
@@ -89,7 +91,8 @@ pnpm run dev
 ```
 
 Checks: `pnpm run check`, `pnpm run lint`, `pnpm run format:check`,
-`pnpm run test`. `pnpm run build` writes a static site to `dist/`. Follow the
+`pnpm run test`. `pnpm run build` writes a static site to `dist/`; every push
+to `main` deploys it to GitHub Pages (`.github/workflows/pages.yml`). Follow the
 [code convention](doc/code-convention.md). Open work is in the
 [future plan](doc/future-plan.md).
 

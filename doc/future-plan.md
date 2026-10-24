@@ -9,8 +9,6 @@ Ideas and open work, in no particular order.
   grew from. Now that this repository is public, remove that package and point
   its README here. Its snippet still has the bug where Revert brings the theme
   back (fixed here: the style is only re-pinned while it is in the page).
-- **Host the app on GitHub Pages**: `vite.config.ts` already builds with
-  relative paths (`base: './'`), so it needs only a Pages workflow.
 
 ## Keeping up with Claude
 
