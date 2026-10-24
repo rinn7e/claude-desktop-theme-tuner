@@ -63,21 +63,28 @@ const HexInput = ({
   )
 }
 
-// The title, centered, with the swap button at its right (wide screens only:
-// stacked panes have no sides to swap)
+// The two panel bars (the customizer's title bar and the snippet's tab bar)
+// share one shape, so they are the same height
+const BAR =
+  'flex min-h-[56px] flex-wrap items-center justify-between gap-[12px] px-[20px] py-[8px]'
+
+// The title and what the tool does on one line, with the swap button at the
+// right (wide screens only: stacked panes have no sides to swap)
 const headerView = (dispatch: Dispatcher<Msg>) => (
-  <header className='relative flex flex-col items-center gap-[4px] pt-[22px] text-center'>
-    <h1 className='text-lg font-semibold tracking-tight'>
-      Claude Desktop Theme Tuner
-    </h1>
-    <p className='text-xs text-ui-ink-faint'>
-      Pick a theme, tune its colors, copy the snippet.
-    </p>
+  <header className={BAR}>
+    <span className='flex min-w-0 items-baseline gap-[10px]'>
+      <h1 className='shrink-0 text-base font-semibold tracking-tight'>
+        Claude Desktop Theme Tuner
+      </h1>
+      <span className='truncate text-xs text-ui-ink-faint'>
+        Pick a theme, tune its colors, copy the snippet.
+      </span>
+    </span>
     <button
       type='button'
       title='Swap the customizer and the previews'
       onClick={() => dispatch({ _tag: 'ToggleSwapped' })}
-      className='absolute top-[20px] right-0 hidden items-center gap-[6px] rounded-lg border border-ui-line px-[10px] py-[5px] text-xs text-ui-ink-muted hover:border-ui-ink-faint hover:text-ui-ink lg:flex'
+      className='hidden items-center gap-[6px] rounded-lg border border-ui-line bg-ui-panel px-[12px] py-[6px] text-xs hover:border-ui-ink-faint lg:flex'
     >
       <span aria-hidden='true'>⇄</span> Swap sides
     </button>
@@ -445,7 +452,7 @@ const codePanelView = (model: Model, dispatch: Dispatcher<Msg>) => {
   const tab = CODE_TABS.find((t) => t.target === model.shown) ?? CODE_TABS[0]
   return (
     <section className='code-panel flex max-h-[32rem] flex-col border-t border-ui-line bg-ui-panel lg:max-h-none lg:min-h-0 lg:flex-1'>
-      <div className='flex flex-wrap items-center justify-between gap-[12px] px-[20px] pt-[12px]'>
+      <div className={BAR}>
         <div className='flex gap-[4px] rounded-lg bg-ui-field p-[3px]'>
           {CODE_TABS.map(({ target, label }) => (
             <button
@@ -479,7 +486,7 @@ const codePanelView = (model: Model, dispatch: Dispatcher<Msg>) => {
           </button>
         </div>
       </div>
-      <p className='px-[20px] py-[8px] text-xs text-ui-ink-faint'>
+      <p className='px-[20px] pb-[8px] text-xs text-ui-ink-faint'>
         {model.copyFailed === tab.target ? (
           <span className='text-ui-bad'>
             The browser blocked copying: select the code below and copy it.
@@ -498,9 +505,7 @@ const codePanelView = (model: Model, dispatch: Dispatcher<Msg>) => {
 // panel is half the window), stacked below that, scrolling on their own
 const customizerView = (model: Model, dispatch: Dispatcher<Msg>) => (
   <div className='flex flex-col lg:min-h-0 lg:flex-1'>
-    <div className='border-b border-ui-line px-[20px] pb-[16px]'>
-      {headerView(dispatch)}
-    </div>
+    <div className='border-b border-ui-line'>{headerView(dispatch)}</div>
     <div className='@container flex flex-col gap-[20px] p-[20px] lg:min-h-0 lg:flex-1 lg:overflow-y-auto'>
       <div className='grid grid-cols-1 gap-x-[24px] gap-y-[20px] @2xl:grid-cols-2'>
         {MODES.map(({ mode, label }) =>
