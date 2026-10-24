@@ -198,7 +198,7 @@ const sidePanelView = () => (
 
 export const claudeMockView = (palette: Palette) => (
   <div
-    className='flex h-[28rem] w-full min-w-[38rem] shrink-0 overflow-hidden lg:h-full rounded-xl shadow-2xl ring-1 ring-black/10 bg-[var(--cds-surface-1)]'
+    className='flex h-[28rem] w-full min-w-[38rem] shrink-0 overflow-hidden lg:h-full rounded-xl shadow-[0_2px_12px_rgba(0,0,0,0.10),0_1px_3px_rgba(0,0,0,0.06)] ring-1 ring-black/10 bg-[var(--cds-surface-1)]'
     style={tokenStyle(palette)}
   >
     {sidebarView()}

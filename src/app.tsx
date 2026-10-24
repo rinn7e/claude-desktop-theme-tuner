@@ -530,8 +530,8 @@ const previewCardView = (model: Model, mode: Mode, label: string) => {
   const palette = slot.enabled ? slot.theme.palette : STOCK[mode]
   return (
     <div key={mode} className='flex min-h-0 w-full flex-col items-center'>
-      <div className='flex h-full min-h-0 w-full flex-col gap-[10px]'>
-        <div className='flex items-center justify-between gap-[12px] text-xs'>
+      <div className='flex h-full min-h-0 w-full flex-col'>
+        <div className='flex items-center justify-between gap-[12px] px-[16px] text-xs'>
           <span className='flex min-w-0 items-center gap-[8px]'>
             <span className='shrink-0 font-semibold text-ui-ink'>{label}</span>
             <span className='truncate text-ui-ink-faint'>
@@ -544,8 +544,10 @@ const previewCardView = (model: Model, mode: Mode, label: string) => {
             </span>
           ) : null}
         </div>
-        {/* The mock keeps its desktop proportions; narrow screens scroll it sideways */}
-        <div className='flex min-h-0 w-full flex-1 overflow-x-auto'>
+        {/* The mock keeps its desktop proportions; narrow screens scroll it
+            sideways. The padding leaves room for its shadow, which the
+            scrolling box would clip, and the caption above has the same inset */}
+        <div className='flex min-h-0 w-full flex-1 overflow-x-auto p-[16px]'>
           {claudeMockView(palette)}
         </div>
       </div>
@@ -557,7 +559,7 @@ const previewCardView = (model: Model, mode: Mode, label: string) => {
 // screens, stacked at a fixed height on narrow ones. The same space on every
 // side and between the two, so the mocks sit evenly in the pane
 const previewView = (model: Model) => (
-  <section className='preview-dots flex flex-col gap-[20px] p-[16px] lg:grid lg:min-h-0 lg:grid-rows-2 lg:gap-[40px] lg:p-[40px]'>
+  <section className='preview-dots flex flex-col gap-[8px] p-[8px] lg:grid lg:min-h-0 lg:grid-rows-2 lg:gap-[24px] lg:p-[24px]'>
     {MODES.map(({ mode, label }) => previewCardView(model, mode, label))}
   </section>
 )
