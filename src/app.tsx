@@ -17,7 +17,7 @@ import {
 } from './theme/palette'
 import { STOCK, allPresets } from './theme/presets'
 import { type CopyTarget, type Model, type Msg } from './type'
-import { isEdited, textFor } from './update'
+import { isEdited, snippetDoesSomething, textFor } from './update'
 
 export interface AppProps {
   model: Model
@@ -445,8 +445,11 @@ const noteFor = (model: Model, target: CopyTarget, note: string) =>
 // The exact code each Copy button copies, shown before anyone runs it
 const codePanelView = (model: Model, dispatch: Dispatcher<Msg>) => {
   const tab = CODE_TABS.find((t) => t.target === model.shown) ?? CODE_TABS[0]
-  const noteText =
-    model.copyFailed === tab.target
+  // Nothing to copy while both modes are left stock
+  const empty = tab.target === 'theme' && !snippetDoesSomething(model)
+  const noteText = empty
+    ? 'Both modes are left as Claude ships them.'
+    : model.copyFailed === tab.target
       ? 'The browser blocked copying: select the code below and copy it.'
       : noteFor(model, tab.target, tab.note)
   return (
@@ -490,14 +493,21 @@ const codePanelView = (model: Model, dispatch: Dispatcher<Msg>) => {
           </button>
           <button
             type='button'
+            disabled={empty}
             onClick={() => dispatch({ _tag: 'Copy', target: tab.target })}
-            className='rounded-lg bg-ui-brand px-[14px] py-[6px] text-xs font-semibold text-ui-brand-ink hover:opacity-90'
+            className='rounded-lg bg-ui-brand px-[14px] py-[6px] text-xs font-semibold text-ui-brand-ink hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40'
           >
             {model.copied === tab.target ? 'Copied!' : 'Copy'}
           </button>
         </div>
       </div>
-      {codeView(textFor(model, tab.target))}
+      {empty ? (
+        <div className='flex min-h-[8rem] flex-1 items-center justify-center px-[16px] py-[12px] text-center text-sm text-ui-ink-faint'>
+          Tick Light mode or Dark mode above to get a snippet.
+        </div>
+      ) : (
+        codeView(textFor(model, tab.target))
+      )}
     </section>
   )
 }

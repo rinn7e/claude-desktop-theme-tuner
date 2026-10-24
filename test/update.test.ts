@@ -15,6 +15,7 @@ import {
   handleToggleSlot,
   handleToggleSwapped,
   isEdited,
+  snippetDoesSomething,
   snippetOf,
 } from '../src/update'
 
@@ -96,6 +97,13 @@ describe('sub-updaters', () => {
     expect(snippetOf(model)).toContain('light: Solarized Light, dark: stock')
     const both = handlePickPreset(model, 'dracula')
     expect(snippetOf(both)).toContain('light: Solarized Light, dark: Dracula')
+  })
+
+  it('has no snippet to offer while both modes are stock', () => {
+    const none = handleToggleSlot(model, 'light')
+    expect(snippetDoesSomething(model)).toBe(true)
+    expect(snippetDoesSomething(none)).toBe(false)
+    expect(snippetDoesSomething(handleToggleReduceMotion(none))).toBe(true)
   })
 })
 

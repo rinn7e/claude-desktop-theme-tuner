@@ -61,6 +61,11 @@ export const snippetOf = (model: Model): string =>
     { reduceMotion: model.reduceMotion },
   )
 
+// Whether the theme snippet would change anything: with both modes stock and
+// motion untouched, it would only add an empty <style>
+export const snippetDoesSomething = (model: Model): boolean =>
+  model.light.enabled || model.dark.enabled || model.reduceMotion
+
 export const textFor = (model: Model, target: CopyTarget): string =>
   target === 'theme' ? snippetOf(model) : REVERT_COMMAND
 
