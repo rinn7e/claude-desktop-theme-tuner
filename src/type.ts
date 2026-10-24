@@ -27,6 +27,8 @@ export interface Model {
   copyFailed: CopyTarget | null
   // The "How to apply" dialog
   helpOpen: boolean
+  // The settings menu under the gear button
+  menuOpen: boolean
 }
 
 export type Msg =
@@ -42,5 +44,7 @@ export type Msg =
   | { _tag: 'ShowCode'; target: CopyTarget }
   | { _tag: 'OpenHelp' }
   | { _tag: 'CloseHelp' }
+  | { _tag: 'ToggleMenu' }
+  | { _tag: 'CloseMenu' }
   | { _tag: 'ClearCopied'; target: CopyTarget }
   | { _tag: 'NoOp' }

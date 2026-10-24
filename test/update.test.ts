@@ -17,6 +17,7 @@ import {
   isEdited,
   snippetDoesSomething,
   snippetOf,
+  update,
 } from '../src/update'
 
 const model: Model = {
@@ -25,6 +26,7 @@ const model: Model = {
   copied: null,
   copyFailed: null,
   helpOpen: false,
+  menuOpen: false,
 }
 
 describe('sub-updaters', () => {
@@ -91,6 +93,14 @@ describe('sub-updaters', () => {
     expect(swapped.swapped).toBe(true)
     expect(snippetOf(swapped)).toBe(snippetOf(model))
     expect(handleToggleSwapped(swapped).swapped).toBe(false)
+  })
+
+  it('opens and closes the settings menu, and swapping from it closes it', () => {
+    const [open] = update({ _tag: 'ToggleMenu' }, model)
+    expect(open.menuOpen).toBe(true)
+    expect(update({ _tag: 'CloseMenu' }, open)[0].menuOpen).toBe(false)
+    const [swapped] = update({ _tag: 'ToggleSwapped' }, open)
+    expect(swapped).toMatchObject({ swapped: true, menuOpen: false })
   })
 
   it('puts only the enabled modes in the snippet', () => {

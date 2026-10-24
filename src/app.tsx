@@ -91,10 +91,103 @@ const githubMarkView = () => (
   </svg>
 )
 
+// A gear: eight teeth around a ring
+const gearView = () => (
+  <svg
+    aria-hidden='true'
+    viewBox='0 0 16 16'
+    className='h-[14px] w-[14px] fill-current'
+  >
+    {[0, 45, 90, 135, 180, 225, 270, 315].map((angle) => (
+      <rect
+        key={angle}
+        x='6.75'
+        y='0.5'
+        width='2.5'
+        height='3.5'
+        rx='0.75'
+        transform={`rotate(${angle} 8 8)`}
+      />
+    ))}
+    <circle
+      cx='8'
+      cy='8'
+      r='4.25'
+      fill='none'
+      stroke='currentColor'
+      strokeWidth='2.5'
+    />
+  </svg>
+)
+
+const MENU_ITEM =
+  'flex w-full items-center gap-[8px] rounded-md px-[10px] py-[6px] text-left text-xs whitespace-nowrap'
+
+// The settings menu under the gear: saving and loading presets (not built
+// yet, so greyed out with a tooltip) and swapping the panes (wide screens
+// only: stacked panes have no sides to swap). A click outside or Escape
+// closes it.
+const settingsMenuView = (model: Model, dispatch: Dispatcher<Msg>) => (
+  <div
+    className='relative'
+    onKeyDown={(e) => {
+      if (e.key === 'Escape') dispatch({ _tag: 'CloseMenu' })
+    }}
+  >
+    <button
+      type='button'
+      title='Settings'
+      aria-label='Settings'
+      aria-haspopup='menu'
+      aria-expanded={model.menuOpen}
+      onClick={() => dispatch({ _tag: 'ToggleMenu' })}
+      className={LINK_BUTTON}
+    >
+      {gearView()}
+    </button>
+    {model.menuOpen ? (
+      <>
+        <div
+          className='fixed inset-0 z-10'
+          onClick={() => dispatch({ _tag: 'CloseMenu' })}
+        />
+        <div
+          role='menu'
+          className='absolute top-[calc(100%+6px)] right-0 z-20 flex w-[13rem] flex-col rounded-lg bg-ui-panel p-[4px] shadow-lg ring-1 ring-ui-line'
+        >
+          {['Save Preset', 'Load Preset'].map((label) => (
+            <button
+              key={label}
+              type='button'
+              role='menuitem'
+              aria-disabled='true'
+              title='Coming soon'
+              className={`${MENU_ITEM} cursor-not-allowed text-ui-ink-faint`}
+            >
+              {label}
+            </button>
+          ))}
+          <div className='hidden py-[4px] lg:block' role='separator'>
+            <div className='h-px bg-ui-line' />
+          </div>
+          <button
+            type='button'
+            role='menuitem'
+            autoFocus
+            onClick={() => dispatch({ _tag: 'ToggleSwapped' })}
+            className={`${MENU_ITEM} hidden hover:bg-ui-field lg:flex`}
+          >
+            <span aria-hidden='true'>⇄</span> Swap Left/Right Panes
+          </button>
+        </div>
+      </>
+    ) : null}
+  </div>
+)
+
 // The title and what the tool does on one line; at the right, who built it,
-// the sponsor and source links, and the swap button (wide screens only:
-// stacked panes have no sides to swap)
-const headerView = (dispatch: Dispatcher<Msg>) => (
+// the sponsor and source links, and the settings menu
+const headerView = (model: Model, dispatch: Dispatcher<Msg>) => (
   <header className={TITLE_BAR}>
     <span className='flex min-w-0 items-center gap-[10px]'>
       {/* The logo lives in public/, served next to the page */}
@@ -154,14 +247,7 @@ const headerView = (dispatch: Dispatcher<Msg>) => (
         {githubMarkView()}
         <span className='hidden @3xl:inline'>Source</span>
       </a>
-      <button
-        type='button'
-        title='Swap the customizer and the previews'
-        onClick={() => dispatch({ _tag: 'ToggleSwapped' })}
-        className={`hidden lg:flex ${LINK_BUTTON}`}
-      >
-        <span aria-hidden='true'>⇄</span> Swap sides
-      </button>
+      {settingsMenuView(model, dispatch)}
     </div>
   </header>
 )
@@ -653,7 +739,7 @@ const codePanelView = (model: Model, dispatch: Dispatcher<Msg>) => {
 // panel is half the window), stacked below that, scrolling on their own
 const customizerView = (model: Model, dispatch: Dispatcher<Msg>) => (
   <div className='flex flex-col lg:min-h-0 lg:flex-1'>
-    <div className='border-b border-ui-line'>{headerView(dispatch)}</div>
+    <div className='border-b border-ui-line'>{headerView(model, dispatch)}</div>
     <div className='@container flex flex-col gap-[20px] p-[20px] lg:min-h-0 lg:flex-1 app-scroll lg:overflow-y-auto'>
       <div className='grid grid-cols-1 gap-x-[24px] gap-y-[20px] @2xl:grid-cols-2'>
         {MODES.map(({ mode, label }) =>

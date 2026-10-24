@@ -78,6 +78,7 @@ export const init = (): [Model, Cmd<Msg>] => {
       copied: null,
       copyFailed: null,
       helpOpen: false,
+      menuOpen: false,
     },
     Cmd.none(),
   ]
@@ -199,7 +200,8 @@ export const update = (msg: Msg, model: Model): [Model, Cmd<Msg>] => {
     case 'ToggleReduceMotion':
       return saved(handleToggleReduceMotion(model))
     case 'ToggleSwapped':
-      return saved(handleToggleSwapped(model))
+      // Picked from the settings menu, which closes with it
+      return saved({ ...handleToggleSwapped(model), menuOpen: false })
     case 'ToggleSlot':
       return saved(handleToggleSlot(model, msg.mode))
     case 'PickPreset':
@@ -221,6 +223,10 @@ export const update = (msg: Msg, model: Model): [Model, Cmd<Msg>] => {
       return [{ ...model, helpOpen: true }, Cmd.none()]
     case 'CloseHelp':
       return [{ ...model, helpOpen: false }, Cmd.none()]
+    case 'ToggleMenu':
+      return [{ ...model, menuOpen: !model.menuOpen }, Cmd.none()]
+    case 'CloseMenu':
+      return [{ ...model, menuOpen: false }, Cmd.none()]
     case 'ShowCode':
       return [{ ...model, shown: msg.target, copyFailed: null }, Cmd.none()]
     case 'ClearCopied':
