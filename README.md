@@ -59,10 +59,14 @@ from them.
 | `src/preview/claude-mock.tsx`  | the preview, painted with the same variables                         |
 | `snippets/diagnose.snippet.js` | the diagnostic shown in the Diagnostic tab                           |
 
-Two quirks shape the CSS, both explained where they are handled in the code:
-the frame re-sets its variables on its own sidebar and cards, so they are set
-there too, and with macOS vibrancy the docked sidebar mixes a white tint over a
-transparent window, which the snippet pins with `!important`.
+Three quirks shape the CSS, each explained where it is handled in the code:
+
+- Every declaration is `!important`, because Claude sets the same variables
+  with selectors of up to five parts (its dark mode ones most of all).
+- The frame re-sets its variables on its own sidebar and cards, so they are set
+  there too.
+- With macOS vibrancy the docked sidebar mixes a white tint over a transparent
+  window, so the tint is set to the frame color at 100%.
 
 ## Development
 

@@ -13,12 +13,7 @@ import { deriveTokens } from '../theme/tokens'
 // mock can.
 const tokenStyle = (palette: Palette): CSSProperties => {
   const { root, frame } = deriveTokens(palette)
-  return Object.fromEntries(
-    Object.entries({ ...root, ...frame }).map(([k, v]) => [
-      k,
-      v.replace(' !important', ''),
-    ]),
-  ) as CSSProperties
+  return { ...root, ...frame } as CSSProperties
 }
 
 const SESSIONS = [

@@ -14,8 +14,6 @@ export interface Tokens {
   frame: Record<string, string>
 }
 
-const IMPORTANT = ' !important'
-
 export const deriveTokens = (p: Palette): Tokens => {
   // A step past pressed toward the text: dividers and the strongest fill
   const deep = mix(p.pressed, p.text, 0.035)
@@ -29,7 +27,9 @@ export const deriveTokens = (p: Palette): Tokens => {
     '--cds-surface-2': p.canvas,
     '--cds-surface-3': p.raised,
     '--cds-surface-panel': p.canvas,
-    '--cds-surface-popover': p.frame,
+    // Menus, and boxes Claude lifts with a shadow (the composer): above the
+    // canvas, like stock's lighter popover
+    '--cds-surface-popover': p.raised,
     '--cds-page-bg': p.canvas,
     '--background-color-page': p.canvas,
     '--cds-bg-neutral': withAlpha(p.line, 0.08),
@@ -90,14 +90,18 @@ export const deriveTokens = (p: Palette): Tokens => {
     '--df-z4': hslTriple(deep),
     '--df-z5': hslTriple(mix(p.textMuted, p.canvas, 0.35)),
     '--df-z6': hslTriple(p.textMuted),
-    '--df-bg-page-hsl': hslTriple(p.frame),
+    // The ground under the chat panes (dark mode paints it from these; the
+    // frame's own --bg-100 is set from it too): the canvas, so the chat
+    // column and the composer dock are one surface
+    '--df-bg-page-hsl': hslTriple(p.canvas),
+    '--df-bg-page': p.canvas,
     '--df-sidebar-bg': p.frame,
     '--df-web-sidebar-bg': p.frame,
     // With macOS vibrancy the docked sidebar paints this tint over a
-    // transparent, blurred desktop; Claude's own rule outranks any selector
-    // here, so it is pinned: solid, like the collapsed sidebar
-    '--df-sidebar-tint': p.frame + IMPORTANT,
-    '--df-sidebar-tint-share': '100%' + IMPORTANT,
+    // transparent, blurred desktop: solid frame color, like the collapsed
+    // sidebar
+    '--df-sidebar-tint': p.frame,
+    '--df-sidebar-tint-share': '100%',
     '--df-hover': hover,
     '--df-selected': p.selected,
     '--df-selected-base': p.selected,

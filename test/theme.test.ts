@@ -34,10 +34,17 @@ describe('deriveTokens', () => {
     expect(frame['--df-selected']).toBe('#dfca88')
   })
 
-  it('pins the docked sidebar tint, which Claude sets with a stronger selector', () => {
+  it('paints the chat ground and popovers so the composer has no seam', () => {
+    const { root, frame } = deriveTokens(dracula.palette)
+    expect(frame['--df-bg-page']).toBe(dracula.palette.canvas)
+    expect(frame['--df-bg-page-hsl']).toBe(root['--bg-100'])
+    expect(root['--cds-surface-popover']).toBe(dracula.palette.raised)
+  })
+
+  it('makes the docked sidebar solid in the frame color', () => {
     const { frame } = deriveTokens(dracula.palette)
-    expect(frame['--df-sidebar-tint']).toBe('#21222c !important')
-    expect(frame['--df-sidebar-tint-share']).toBe('100% !important')
+    expect(frame['--df-sidebar-tint']).toBe('#21222c')
+    expect(frame['--df-sidebar-tint-share']).toBe('100%')
   })
 
   it('sets the text on accent buttons', () => {
@@ -57,6 +64,13 @@ describe('themeCss', () => {
     expect(css).toContain('@media (prefers-color-scheme: dark)')
     expect(css).toContain('html[data-mode="dark"] .dframe-root .dframe-sidebar')
     expect(css).toContain('html[data-mode="system"] .dframe-root')
+  })
+
+  it('marks every declaration !important, so no Claude selector outranks it', () => {
+    const css = themeCss({ light: solarized, dark: dracula })
+    const decls = css.split('\n').filter((l) => /^\s+[-a-z]+: /.test(l))
+    expect(decls.length).toBeGreaterThan(100)
+    for (const line of decls) expect(line).toMatch(/ !important;$/)
   })
 
   it('leaves a mode without a theme stock', () => {

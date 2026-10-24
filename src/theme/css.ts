@@ -13,6 +13,11 @@ export interface ThemePair {
 
 const other = (mode: Mode): Mode => (mode === 'light' ? 'dark' : 'light')
 
+// Every declaration is !important: Claude sets the same variables with
+// selectors of up to five attribute and class parts (its dark fizzy-lake
+// rules, its [data-theme="claude"][data-mode="dark"] tokens, the docked
+// sidebar's tint), and !important wins whatever their specificity. Variables
+// Claude re-sets on a child element still apply there, as before.
 const block = (
   selectors: string[],
   decls: Record<string, string>,
@@ -20,13 +25,13 @@ const block = (
 ) =>
   `${indent}${selectors.join(`,\n${indent}`)} {\n` +
   Object.entries(decls)
-    .map(([k, v]) => `${indent}  ${k}: ${v};`)
+    .map(([k, v]) => `${indent}  ${k}: ${v} !important;`)
     .join('\n') +
   `\n${indent}}`
 
 // A mode applies when the app is set to it, or set to follow the system while
 // the system is in it. The selectors repeat the app's own structure under
-// html[data-mode] so they win on specificity.
+// html[data-mode].
 const rootSelectors = (mode: Mode) => [
   `html.cds-root[data-mode="${mode}"]`,
   `html[data-mode="${mode}"] .cds-root:not([data-mode="${other(mode)}"]):not([data-mode="system"])`,

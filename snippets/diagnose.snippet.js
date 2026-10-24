@@ -129,6 +129,14 @@
       const decls = [...rule.style]
         .filter((p) => feeds.test(p))
         .map((p) => `${p}: ${rule.style.getPropertyValue(p).trim()}`)
+        // A background shorthand with var() leaves its longhands empty
+        .concat(
+          rule.style.getPropertyValue('background')
+            ? [
+                `background: ${rule.style.getPropertyValue('background').trim()}`,
+              ]
+            : [],
+        )
       if (decls.length)
         rules.push({ selector: rule.selectorText.slice(0, 300), decls })
     }
@@ -145,6 +153,99 @@
       rules,
     }
   })
+
+  // The rules setting the main surface and text variables, with their
+  // selectors: the theme's rules have to outrank these
+  const mainVars =
+    /^(--cds-surface-[01]|--cds-text-primary|--cds-page-bg|--bg-000|background-color)$/
+  const chat =
+    document.querySelector('.dframe-content') || document.querySelector('main')
+  report.mainRules = [
+    ['html', root],
+    ['body', document.body],
+    ['chat', chat],
+  ]
+    .filter(([, el]) => el)
+    .map(([name, el]) => ({
+      element: name,
+      class: classOf(el).slice(0, 160),
+      rules: ruleList
+        .filter((rule) => {
+          try {
+            return el.matches(rule.selectorText)
+          } catch {
+            return false
+          }
+        })
+        .map((rule) => ({
+          selector: rule.selectorText.slice(0, 300),
+          media: rule.parentRule?.conditionText ?? null,
+          decls: [...rule.style]
+            .filter((p) => mainVars.test(p))
+            .map(
+              (p) =>
+                `${p}: ${rule.style.getPropertyValue(p).trim()}${rule.style.getPropertyPriority(p) ? ' !important' : ''}`,
+            ),
+        }))
+        .filter((r) => r.decls.length),
+      computed: {
+        surface1: getComputedStyle(el)
+          .getPropertyValue('--cds-surface-1')
+          .trim(),
+        text: getComputedStyle(el)
+          .getPropertyValue('--cds-text-primary')
+          .trim(),
+        bg: getComputedStyle(el).backgroundColor,
+      },
+    }))
+
+  // The composer and every container around it, up to <body>, with the rules
+  // that paint them or re-set surface variables locally (a local declaration
+  // beats one inherited from <html>, even an !important one)
+  const localVars = /^(background|--cds-surface|--cds-fill|--cds-bg|--bg-)/
+  const composerSpot = document.elementFromPoint(
+    points.composer[0] * innerWidth,
+    points.composer[1] * innerHeight,
+  )
+  report.composerStack = []
+  for (
+    let el = composerSpot;
+    el && el !== document.body;
+    el = el.parentElement
+  ) {
+    const rules = ruleList
+      .filter((rule) => {
+        try {
+          return el.matches(rule.selectorText)
+        } catch {
+          return false
+        }
+      })
+      .map((rule) => ({
+        selector: rule.selectorText.slice(0, 240),
+        decls: [...rule.style]
+          .filter((p) => localVars.test(p))
+          .map((p) => `${p}: ${rule.style.getPropertyValue(p).trim()}`)
+          // A background shorthand with var() leaves its longhands empty
+          .concat(
+            rule.style.getPropertyValue('background')
+              ? [
+                  `background: ${rule.style.getPropertyValue('background').trim()}`,
+                ]
+              : [],
+          ),
+      }))
+      .filter((r) => r.decls.length)
+    const { width, height } = el.getBoundingClientRect()
+    report.composerStack.push({
+      tag: el.tagName.toLowerCase(),
+      class: classOf(el).slice(0, 200),
+      size: `${Math.round(width)}x${Math.round(height)}`,
+      bg: getComputedStyle(el).backgroundColor,
+      inline: (el.getAttribute('style') || '').slice(0, 200),
+      rules,
+    })
+  }
 
   // Large surfaces still painted white or a light neutral gray: what the
   // theme missed, wherever it sits (sample points can miss panes when docked
