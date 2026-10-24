@@ -5,6 +5,10 @@
 
 @import 'tailwindcss';
 
+@plugin 'tailwind-scrollbar' {
+  nocompatible: true;
+}
+
 /* The tuner's own UI: neutral, so the themes it previews stand out. Follows
  * the OS light or dark mode. */
 :root {
@@ -19,6 +23,8 @@
   --color-brand-ink: #ffffff;
   --color-good: #15803d;
   --color-bad: #b91c1c;
+  --color-scroll: #d4d4d8;
+  --color-scroll-hover: #a1a1aa;
   color-scheme: light;
 }
 
@@ -35,6 +41,8 @@
     --color-brand-ink: #09090b;
     --color-good: #4ade80;
     --color-bad: #f87171;
+    --color-scroll: #3f3f46;
+    --color-scroll-hover: #71717a;
     color-scheme: dark;
   }
 }
@@ -51,6 +59,23 @@
   --color-ui-brand-ink: var(--color-brand-ink);
   --color-ui-good: var(--color-good);
   --color-ui-bad: var(--color-bad);
+  --color-ui-scroll: var(--color-scroll);
+  --color-ui-scroll-hover: var(--color-scroll-hover);
+}
+
+/* Thin rounded scrollbars on every scrolling area, on a clear track, so
+ * they read on the white and the gray panels alike */
+.app-scroll {
+  @apply scrollbar scrollbar-w-[6px] scrollbar-h-[6px] scrollbar-thumb-rounded-full scrollbar-thumb-ui-scroll hover:scrollbar-thumb-ui-scroll-hover scrollbar-track-transparent scrollbar-corner-transparent;
+}
+
+/* Chromium also honors the standard properties, and they override the
+ * ::-webkit-scrollbar styles above; leave them to auto there */
+@supports selector(::-webkit-scrollbar) {
+  .app-scroll {
+    scrollbar-color: auto !important;
+    scrollbar-width: auto !important;
+  }
 }
 
 html,

@@ -45,6 +45,7 @@
     "eslint-plugin-unused-imports": "^4.4.1",
     "globals": "^16.2.0",
     "prettier": "^3.8.1",
+    "tailwind-scrollbar": "^4.0.2",
     "tailwindcss": "^4.1.18",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.34.1",

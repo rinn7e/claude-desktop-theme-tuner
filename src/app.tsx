@@ -429,7 +429,7 @@ const helpDialogView = (model: Model, dispatch: Dispatcher<Msg>) =>
         role='dialog'
         aria-modal='true'
         aria-labelledby='help-title'
-        className='flex max-h-full w-full max-w-[40rem] flex-col gap-[14px] overflow-y-auto rounded-xl bg-ui-panel p-[22px] shadow-2xl ring-1 ring-ui-line'
+        className='flex max-h-full w-full max-w-[40rem] flex-col gap-[14px] app-scroll overflow-y-auto rounded-xl bg-ui-panel p-[22px] shadow-2xl ring-1 ring-ui-line'
         onClick={(e) => e.stopPropagation()}
         onKeyDown={(e) => {
           if (e.key === 'Escape') dispatch({ _tag: 'CloseHelp' })
@@ -585,7 +585,7 @@ const codePanelView = (model: Model, dispatch: Dispatcher<Msg>) => {
 const customizerView = (model: Model, dispatch: Dispatcher<Msg>) => (
   <div className='flex flex-col lg:min-h-0 lg:flex-1'>
     <div className='border-b border-ui-line'>{headerView(dispatch)}</div>
-    <div className='@container flex flex-col gap-[20px] p-[20px] lg:min-h-0 lg:flex-1 lg:overflow-y-auto'>
+    <div className='@container flex flex-col gap-[20px] p-[20px] lg:min-h-0 lg:flex-1 app-scroll lg:overflow-y-auto'>
       <div className='grid grid-cols-1 gap-x-[24px] gap-y-[20px] @2xl:grid-cols-2'>
         {MODES.map(({ mode, label }) =>
           modeColumnView(model, dispatch, mode, label),
@@ -638,7 +638,7 @@ const previewCardView = (model: Model, mode: Mode, label: string) => {
         {/* The mock keeps its desktop proportions; narrow screens scroll it
             sideways. The padding leaves room for its shadow, which the
             scrolling box would clip, and the caption above has the same inset */}
-        <div className='flex min-h-0 w-full flex-1 overflow-x-auto p-[16px]'>
+        <div className='flex min-h-0 w-full flex-1 app-scroll overflow-x-auto p-[16px]'>
           {claudeMockView(palette)}
         </div>
       </div>

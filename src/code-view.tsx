@@ -25,7 +25,7 @@ export const highlightJs = (text: string): string => {
 
 export const codeView = (text: string) => (
   // Long lines wrap softly; copying still takes the exact text
-  <pre className='hljs min-h-0 flex-1 overflow-auto px-[16px] py-[12px] font-mono text-[0.75rem] leading-relaxed whitespace-pre-wrap wrap-anywhere'>
+  <pre className='app-scroll hljs min-h-0 flex-1 overflow-auto px-[16px] py-[12px] font-mono text-[0.75rem] leading-relaxed whitespace-pre-wrap wrap-anywhere'>
     <code dangerouslySetInnerHTML={{ __html: highlightJs(text) }} />
   </pre>
 )
