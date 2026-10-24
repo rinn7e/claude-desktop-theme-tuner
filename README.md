@@ -1,6 +1,19 @@
-<img src="public/logo.svg" alt="" width="72" height="72">
+<p align="center">
+  <img src="public/logo.svg" alt="Claude Desktop Theme Tuner logo" width="128" height="128">
+</p>
 
-# Claude Desktop Theme Tuner
+<h1 align="center">Claude Desktop Theme Tuner</h1>
+
+<p align="center">
+  Pick, tune and copy a color theme for the Claude desktop app, in light and dark mode.
+</p>
+
+<p align="center">
+  <a href="https://github.com/rinn7e/claude-desktop-theme-tuner/actions/workflows/pages.yml"><img src="https://github.com/rinn7e/claude-desktop-theme-tuner/actions/workflows/pages.yml/badge.svg" alt="Pages deploy"></a>
+  <a href="https://rinn7e.com/claude-desktop-theme-tuner/"><img src="https://img.shields.io/badge/open%20the%20app-rinn7e.com-18181b" alt="Open the app"></a>
+  <a href="https://github.com/sponsors/rinn7e"><img src="https://img.shields.io/github/sponsors/rinn7e?label=sponsors&logo=githubsponsors&color=db2777" alt="GitHub Sponsors"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/rinn7e/claude-desktop-theme-tuner" alt="License: MIT"></a>
+</p>
 
 Pick a color theme for the Claude desktop app, tune its colors with a live
 preview, and copy it as a DevTools snippet. Light and dark mode each get their
