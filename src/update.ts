@@ -9,7 +9,7 @@ import { type Stored, loadStored, saveStored } from './storage/storage'
 import { isHex } from './theme/color'
 import { themeCss } from './theme/css'
 import { type Mode, type PaletteKey, type Theme } from './theme/palette'
-import { PRESETS, presetById } from './theme/presets'
+import { presetById } from './theme/presets'
 import { REVERT_COMMAND, themeSnippet } from './theme/snippet'
 import { type CopyTarget, type Model, type Msg, type Slot } from './type'
 
@@ -21,16 +21,16 @@ const copyOf = (theme: Theme): Theme => ({
   palette: { ...theme.palette },
 })
 
-const firstPreset = (mode: Mode): Theme => {
-  const preset = PRESETS.find((t) => t.mode === mode)
-  if (!preset) throw new Error(`no ${mode} preset`)
+const presetOrThrow = (id: string): Theme => {
+  const preset = presetById(id)
+  if (!preset) throw new Error(`no preset ${id}`)
   return preset
 }
 
 // Solarized Light themed, dark mode left stock until a dark theme is picked
 export const defaultStored: Stored = {
-  light: { enabled: true, theme: copyOf(firstPreset('light')) },
-  dark: { enabled: false, theme: copyOf(firstPreset('dark')) },
+  light: { enabled: true, theme: copyOf(presetOrThrow('solarized-light')) },
+  dark: { enabled: false, theme: copyOf(presetOrThrow('solarized-dark')) },
   reduceMotion: false,
   swapped: false,
 }

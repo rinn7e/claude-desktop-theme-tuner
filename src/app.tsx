@@ -15,7 +15,7 @@ import {
   type PaletteKey,
   type Theme,
 } from './theme/palette'
-import { PRESETS, STOCK } from './theme/presets'
+import { STOCK, allPresets } from './theme/presets'
 import { type CopyTarget, type Model, type Msg } from './type'
 import { isEdited, textFor } from './update'
 
@@ -183,25 +183,27 @@ const presetsView = (model: Model, dispatch: Dispatcher<Msg>, mode: Mode) => {
     <section className='flex flex-col gap-[8px]'>
       {sectionTitle('Presets')}
       <div className='flex flex-wrap gap-[6px]'>
-        {PRESETS.filter((t) => t.mode === mode).map((t) => {
-          const active = slot.enabled && slot.theme.id === t.id
-          return (
-            <button
-              key={t.id}
-              type='button'
-              onClick={() => dispatch({ _tag: 'PickPreset', id: t.id })}
-              aria-pressed={active}
-              className={`flex items-center gap-[6px] rounded-full border py-[4px] pr-[10px] pl-[5px] text-xs transition-colors ${
-                active
-                  ? 'border-ui-brand bg-ui-field font-medium ring-1 ring-ui-brand'
-                  : 'border-ui-line hover:border-ui-ink-faint'
-              }`}
-            >
-              {swatchView(t)}
-              {t.name}
-            </button>
-          )
-        })}
+        {allPresets()
+          .filter((t) => t.mode === mode)
+          .map((t) => {
+            const active = slot.enabled && slot.theme.id === t.id
+            return (
+              <button
+                key={t.id}
+                type='button'
+                onClick={() => dispatch({ _tag: 'PickPreset', id: t.id })}
+                aria-pressed={active}
+                className={`flex items-center gap-[6px] rounded-full border py-[4px] pr-[10px] pl-[5px] text-xs transition-colors ${
+                  active
+                    ? 'border-ui-brand bg-ui-field font-medium ring-1 ring-ui-brand'
+                    : 'border-ui-line hover:border-ui-ink-faint'
+                }`}
+              >
+                {swatchView(t)}
+                {t.name}
+              </button>
+            )
+          })}
       </div>
     </section>
   )

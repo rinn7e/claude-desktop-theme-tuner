@@ -6,11 +6,42 @@ import { describe, expect, it } from 'vitest'
 
 import { contrast, isHex } from '../src/theme/color'
 import { CONTRAST_CHECKS } from '../src/theme/palette'
-import { PRESETS } from '../src/theme/presets'
+import { CLAUDE_PRESETS, PRESETS, allPresets } from '../src/theme/presets'
 
 describe('presets', () => {
   it('have unique ids', () => {
-    expect(new Set(PRESETS.map((t) => t.id)).size).toBe(PRESETS.length)
+    const ids = allPresets().map((t) => t.id)
+    expect(new Set(ids).size).toBe(ids.length)
+  })
+
+  it('list the Claude presets first in each mode', () => {
+    for (const mode of ['light', 'dark'] as const) {
+      expect(allPresets().find((t) => t.mode === mode)?.id).toBe(
+        `claude-${mode}`,
+      )
+    }
+  })
+
+  // Measured in Claude 3.6556.2; kept as Claude ships them, so they are not
+  // held to the AA checks below
+  it("keep Claude's own measured colors", () => {
+    const [light, dark] = CLAUDE_PRESETS
+    expect(light.palette).toMatchObject({
+      canvas: '#ffffff',
+      frame: '#f9f9f9',
+      accent: '#257de0',
+      text: '#1a1a1a',
+    })
+    expect(dark.palette).toMatchObject({
+      canvas: '#191919',
+      frame: '#1f1f1f',
+      accent: '#257de0',
+      text: '#efefef',
+    })
+    for (const t of CLAUDE_PRESETS) {
+      for (const value of Object.values(t.palette))
+        expect(isHex(value), value).toBe(true)
+    }
   })
 
   it('cover both modes', () => {

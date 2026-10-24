@@ -8,9 +8,10 @@ own theme, and the app follows your OS between them.
   <img src="doc/screenshot.png" alt="The tuner: customizer and snippet on the left, light and dark previews of the Claude app on the right">
 </p>
 
-- **Presets:** Solarized Light and Dark, GitHub Light, Gruvbox Light and Dark,
-  Catppuccin Latte and Mocha, Monokai, Dracula, Nord, Tokyo Night, One Dark and
-  Groovy Lambda Black.
+- **Presets:** Claude Light and Dark (Claude's own defaults, measured from the
+  app, to change just one color), Solarized Light and Dark, GitHub Light,
+  Gruvbox Light and Dark, Catppuccin Latte and Mocha, Monokai, Dracula, Nord,
+  Tokyo Night, One Dark and Groovy Lambda Black.
 - **Tuning:** every color of a theme has a picker, with WCAG contrast checks for
   the text and accent pairs. Edits are kept in your browser.
 - **Preview:** mocks of the Claude app in light and dark mode at once, painted
@@ -54,15 +55,16 @@ claude.ai's older `--bg-*` and `--text-*` (HSL triples), and the Code tab
 frame's `--df-*`. A theme is 13 semantic colors, and everything else is derived
 from them.
 
-| File                           | Role                                                                 |
-| ------------------------------ | -------------------------------------------------------------------- |
-| `src/theme/palette.ts`         | the semantic colors, their labels and the contrast pairs             |
-| `src/theme/presets.ts`         | the preset themes, and approximate stock colors for an unthemed mode |
-| `src/theme/tokens.ts`          | maps a palette onto every Claude variable the snippet sets           |
-| `src/theme/css.ts`             | writes those variables under the light and dark selectors            |
-| `src/theme/snippet.ts`         | wraps the CSS into the paste-able script                             |
-| `src/preview/claude-mock.tsx`  | the preview, painted with the same variables                         |
-| `snippets/diagnose.snippet.js` | the diagnostic shown in the Diagnostic tab                           |
+| File                               | Role                                                                 |
+| ---------------------------------- | -------------------------------------------------------------------- |
+| `src/theme/palette.ts`             | the semantic colors, their labels and the contrast pairs             |
+| `src/theme/presets.ts`             | the preset themes, and approximate stock colors for an unthemed mode |
+| `src/theme/tokens.ts`              | maps a palette onto every Claude variable the snippet sets           |
+| `src/theme/css.ts`                 | writes those variables under the light and dark selectors            |
+| `src/theme/snippet.ts`             | wraps the CSS into the paste-able script                             |
+| `src/preview/claude-mock.tsx`      | the preview, painted with the same variables                         |
+| `snippets/diagnose.snippet.js`     | the diagnostic shown in the Diagnostic tab                           |
+| `snippets/stock-colors.snippet.js` | reads Claude's own default colors, for the Claude presets            |
 
 Three quirks shape the CSS, each explained where it is handled in the code:
 

@@ -8,6 +8,7 @@ import { type Palette, type Theme } from './palette'
 // are the scheme's own colors; text and accent shades are adjusted only where
 // the scheme's own fall below WCAG AA (4.5:1) as UI text (test/presets.test.ts).
 
+// Listed after the Claude presets (see ALL_PRESETS)
 export const PRESETS: Theme[] = [
   {
     id: 'solarized-light',
@@ -332,38 +333,70 @@ export const PRESETS: Theme[] = [
 ]
 
 export const presetById = (id: string): Theme | undefined =>
-  PRESETS.find((t) => t.id === id)
+  allPresets().find((t) => t.id === id)
 
-// The app's own colors, close to Claude's stock look, for a mode left unthemed
+// Every preset, the Claude ones first in each mode's list
+export const allPresets = (): Theme[] => [...CLAUDE_PRESETS, ...PRESETS]
+
+// Claude's own defaults, measured in Claude 3.6556.2 with
+// snippets/stock-colors.snippet.js. Claude paints text and washes with
+// translucent black or white; here each is blended over its background, and
+// lines and washes are solved so that, at the alpha tokens.ts applies (22% and
+// 10%), they land on Claude's own (8% and 5%). Its muted text and blue accent
+// fall below AA, and are kept as Claude ships them.
 export const STOCK: Record<'light' | 'dark', Palette> = {
   light: {
-    frame: '#fafafa',
+    frame: '#f9f9f9', // --cds-surface-0; the sidebar is #fafafa
     canvas: '#ffffff',
-    raised: '#f5f5f5',
-    pressed: '#ebebeb',
-    text: '#141413',
-    textSecondary: '#3d3d3a',
-    textMuted: '#5e5d59',
-    line: '#1f1e1d',
-    accent: '#c6613f',
-    accentHover: '#b5552f',
+    raised: '#ffffff', // --cds-surface-3 and popovers
+    pressed: '#f2f2f2', // card hover
+    text: '#1a1a1a', // black at 90%
+    textSecondary: '#666666', // black at 60%
+    textMuted: '#888888', // black at 47%
+    line: '#a2a2a2', // at 22%: black at 8%
+    accent: '#257de0', // --cds-fill-accent
+    accentHover: '#1757ac', // --cds-text-accent
     onAccent: '#ffffff',
-    selected: '#e8e8e6',
-    wash: '#1f1e1d',
+    selected: '#e1e1e1', // black at 10% on the sidebar
+    wash: '#858585', // at 10%: #0b0b0b at 5%
   },
   dark: {
-    frame: '#1f1e1d',
-    canvas: '#262624',
-    raised: '#30302e',
-    pressed: '#3a3a37',
-    text: '#faf9f5',
-    textSecondary: '#c2c0b6',
-    textMuted: '#a6a39a',
-    line: '#c2c0b6',
-    accent: '#d97757',
-    accentHover: '#e08a6d',
-    onAccent: '#141413',
-    selected: '#3a3a37',
-    wash: '#faf9f5',
+    frame: '#1f1f1f', // the sidebar; --cds-surface-0 is #0b0b0b
+    canvas: '#191919',
+    raised: '#262626', // between --cds-surface-3 (#1f1f1f) and popovers (#303030)
+    pressed: '#303030',
+    text: '#efefef', // white at 93%
+    textSecondary: '#9c9c9c', // white at 57%
+    textMuted: '#757575', // white at 40%
+    line: '#424242', // at 22%: white at 4%
+    accent: '#257de0',
+    accentHover: '#338ced',
+    onAccent: '#ffffff',
+    selected: '#3c3c3c', // white at 15%
+    wash: '#8c8c8c', // at 10%: white at 5%
   },
 }
+
+const claudeCredit = {
+  name: "Claude's own defaults",
+  url: 'https://claude.ai/download',
+  license: 'measured in Claude 3.6556.2',
+}
+
+// The Claude presets: start from the app's own look and change one color
+export const CLAUDE_PRESETS: Theme[] = [
+  {
+    id: 'claude-light',
+    name: 'Claude Light',
+    mode: 'light',
+    credit: claudeCredit,
+    palette: STOCK.light,
+  },
+  {
+    id: 'claude-dark',
+    name: 'Claude Dark',
+    mode: 'dark',
+    credit: claudeCredit,
+    palette: STOCK.dark,
+  },
+]
