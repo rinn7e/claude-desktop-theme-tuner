@@ -4,6 +4,12 @@
  */
 import { Cmd, Task } from 'tea-cup-fp'
 
+import {
+  type PresetFile,
+  decodePresetFile,
+  encodePresetFile,
+  presetFileName,
+} from './storage/preset-file'
 import { type Stored, loadStored, saveStored } from './storage/storage'
 import { isHex } from './theme/color'
 import { themeCss } from './theme/css'
@@ -14,6 +20,9 @@ import { type CopyTarget, type Model, type Msg, type Slot } from './type'
 
 // How long a copy button says "Copied"
 const COPIED_MS = 1600
+
+// How long the "Loaded" notice stays after loading a preset file
+const LOADED_MS = 4000
 
 const copyOf = (theme: Theme): Theme => ({
   ...theme,
@@ -51,6 +60,11 @@ export const isEdited = (slot: Slot): boolean => {
   )
 }
 
+// Whether Reset has a preset to go back to: an edited preset, not a custom
+// theme from a preset file
+export const canReset = (slot: Slot): boolean =>
+  presetById(slot.theme.id) !== undefined && isEdited(slot)
+
 // The snippet for the current model: the enabled slots, the rest stock
 export const snippetOf = (model: Model): string =>
   themeSnippet(
@@ -79,6 +93,7 @@ export const init = (): [Model, Cmd<Msg>] => {
       copyFailed: null,
       helpOpen: false,
       menuOpen: false,
+      presetNotice: null,
     },
     Cmd.none(),
   ]
@@ -193,6 +208,76 @@ export const handleResetSlot = (model: Model, mode: Mode): Model => {
     : model
 }
 
+// The setup a preset file holds
+export const presetOf = (model: Model): PresetFile => ({
+  light: model.light,
+  dark: model.dark,
+  reduceMotion: model.reduceMotion,
+})
+
+// Puts a loaded preset file's setup in place of the current one
+export const handleLoadPreset = (model: Model, preset: PresetFile): Model => ({
+  ...model,
+  light: preset.light,
+  dark: preset.dark,
+  reduceMotion: preset.reduceMotion,
+})
+
+// Offers the setup as a JSON file to download
+const downloadCmd = (fileName: string, text: string): Cmd<Msg> =>
+  Task.attempt(
+    Task.fromPromise(() => {
+      const url = URL.createObjectURL(
+        new Blob([text], { type: 'application/json' }),
+      )
+      const link = document.createElement('a')
+      link.href = url
+      link.download = fileName
+      link.click()
+      setTimeout(() => URL.revokeObjectURL(url), 1000)
+      return Promise.resolve()
+    }),
+    (): Msg => ({ _tag: 'NoOp' }),
+  )
+
+const readFileCmd = (file: File): Cmd<Msg> =>
+  Task.attempt(
+    Task.fromPromise(() => file.text()),
+    (result): Msg =>
+      result.tag === 'Ok'
+        ? { _tag: 'PresetFileRead', fileName: file.name, text: result.value }
+        : { _tag: 'PresetFileUnreadable', fileName: file.name },
+  )
+
+const clearNoticeCmd = (text: string): Cmd<Msg> =>
+  Task.attempt(
+    Task.fromPromise(
+      () => new Promise<void>((resolve) => setTimeout(resolve, LOADED_MS)),
+    ),
+    (): Msg => ({ _tag: 'ClearPresetNotice', text }),
+  )
+
+// Decodes a chosen preset file: its setup in place, or why it was refused
+export const handlePresetFileRead = (
+  model: Model,
+  fileName: string,
+  text: string,
+): Model => {
+  const result = decodePresetFile(text)
+  return result.ok
+    ? {
+        ...handleLoadPreset(model, result.preset),
+        presetNotice: { kind: 'loaded', text: `Loaded ${fileName}.` },
+      }
+    : {
+        ...model,
+        presetNotice: {
+          kind: 'error',
+          text: `Couldn't load ${fileName}: ${result.error}`,
+        },
+      }
+}
+
 const saved = (model: Model): [Model, Cmd<Msg>] => [model, saveCmd(model)]
 
 export const update = (msg: Msg, model: Model): [Model, Cmd<Msg>] => {
@@ -227,6 +312,47 @@ export const update = (msg: Msg, model: Model): [Model, Cmd<Msg>] => {
       return [{ ...model, menuOpen: !model.menuOpen }, Cmd.none()]
     case 'CloseMenu':
       return [{ ...model, menuOpen: false }, Cmd.none()]
+    case 'SavePreset':
+      return [
+        { ...model, menuOpen: false },
+        downloadCmd(
+          presetFileName(presetOf(model)),
+          encodePresetFile(presetOf(model)),
+        ),
+      ]
+    case 'LoadPresetFile':
+      return [
+        { ...model, menuOpen: false, presetNotice: null },
+        readFileCmd(msg.file),
+      ]
+    case 'PresetFileRead': {
+      const next = handlePresetFileRead(model, msg.fileName, msg.text)
+      return next.presetNotice?.kind === 'loaded'
+        ? [
+            next,
+            Cmd.batch([saveCmd(next), clearNoticeCmd(next.presetNotice.text)]),
+          ]
+        : [next, Cmd.none()]
+    }
+    case 'PresetFileUnreadable':
+      return [
+        {
+          ...model,
+          presetNotice: {
+            kind: 'error',
+            text: `Couldn't read ${msg.fileName}.`,
+          },
+        },
+        Cmd.none(),
+      ]
+    case 'ClearPresetNotice':
+      // Only the notice this timer was set for: a newer one stays
+      return [
+        model.presetNotice?.text === msg.text
+          ? { ...model, presetNotice: null }
+          : model,
+        Cmd.none(),
+      ]
     case 'ShowCode':
       return [{ ...model, shown: msg.target, copyFailed: null }, Cmd.none()]
     case 'ClearCopied':

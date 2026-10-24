@@ -49,7 +49,7 @@ const ThemeCodec = t.intersection([
   t.partial({ credit: CreditCodec }),
 ])
 
-const SlotCodec = t.type({ enabled: t.boolean, theme: ThemeCodec })
+export const SlotCodec = t.type({ enabled: t.boolean, theme: ThemeCodec })
 
 // The options came later, so older stored data without them still decodes
 export const StoredCodec = t.intersection([

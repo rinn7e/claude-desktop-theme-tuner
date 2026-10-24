@@ -29,6 +29,13 @@ export interface Model {
   helpOpen: boolean
   // The settings menu under the gear button
   menuOpen: boolean
+  // What loading a preset file did: shown under the title bar
+  presetNotice: PresetNotice | null
+}
+
+export interface PresetNotice {
+  kind: 'loaded' | 'error'
+  text: string
 }
 
 export type Msg =
@@ -46,5 +53,10 @@ export type Msg =
   | { _tag: 'CloseHelp' }
   | { _tag: 'ToggleMenu' }
   | { _tag: 'CloseMenu' }
+  | { _tag: 'SavePreset' }
+  | { _tag: 'LoadPresetFile'; file: File }
+  | { _tag: 'PresetFileRead'; fileName: string; text: string }
+  | { _tag: 'PresetFileUnreadable'; fileName: string }
+  | { _tag: 'ClearPresetNotice'; text: string }
   | { _tag: 'ClearCopied'; target: CopyTarget }
   | { _tag: 'NoOp' }

@@ -27,6 +27,7 @@ const model: Model = {
   copyFailed: null,
   helpOpen: false,
   menuOpen: false,
+  presetNotice: null,
 }
 
 describe('sub-updaters', () => {

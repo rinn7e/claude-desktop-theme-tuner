@@ -23,7 +23,7 @@ import {
 } from './theme/palette'
 import { STOCK, TESTED_CLAUDE_VERSION, allPresets } from './theme/presets'
 import { type CopyTarget, type Model, type Msg } from './type'
-import { isEdited, snippetDoesSomething, textFor } from './update'
+import { canReset, snippetDoesSomething, textFor } from './update'
 
 export interface AppProps {
   model: Model
@@ -123,10 +123,9 @@ const gearView = () => (
 const MENU_ITEM =
   'flex w-full items-center gap-[8px] rounded-md px-[10px] py-[6px] text-left text-xs whitespace-nowrap'
 
-// The settings menu under the gear: saving and loading presets (not built
-// yet, so greyed out with a tooltip) and swapping the panes (wide screens
-// only: stacked panes have no sides to swap). A click outside or Escape
-// closes it.
+// The settings menu under the gear: saving the setup to a JSON file,
+// loading one, and swapping the panes (wide screens only: stacked panes have
+// no sides to swap). A click outside or Escape closes it.
 const settingsMenuView = (model: Model, dispatch: Dispatcher<Msg>) => (
   <div
     className='relative'
@@ -155,18 +154,33 @@ const settingsMenuView = (model: Model, dispatch: Dispatcher<Msg>) => (
           role='menu'
           className='absolute top-[calc(100%+6px)] right-0 z-20 flex w-[13rem] flex-col rounded-lg bg-ui-panel p-[4px] shadow-lg ring-1 ring-ui-line'
         >
-          {['Save Preset', 'Load Preset'].map((label) => (
-            <button
-              key={label}
-              type='button'
-              role='menuitem'
-              aria-disabled='true'
-              title='Coming soon'
-              className={`${MENU_ITEM} cursor-not-allowed text-ui-ink-faint`}
-            >
-              {label}
-            </button>
-          ))}
+          <button
+            type='button'
+            role='menuitem'
+            title='Download both modes and the options as a JSON file'
+            onClick={() => dispatch({ _tag: 'SavePreset' })}
+            className={`${MENU_ITEM} hover:bg-ui-field`}
+          >
+            <span aria-hidden='true'>↓</span> Save Preset
+          </button>
+          {/* A label opens the hidden file picker; choosing a file loads it */}
+          <label
+            role='menuitem'
+            title='Load a preset JSON file saved with the tuner'
+            className={`${MENU_ITEM} cursor-pointer hover:bg-ui-field`}
+          >
+            <span aria-hidden='true'>↑</span> Load Preset
+            <input
+              type='file'
+              accept='.json,application/json'
+              className='hidden'
+              onChange={(e) => {
+                const file = e.currentTarget.files?.[0]
+                e.currentTarget.value = ''
+                if (file) dispatch({ _tag: 'LoadPresetFile', file })
+              }}
+            />
+          </label>
           <div className='hidden py-[4px] lg:block' role='separator'>
             <div className='h-px bg-ui-line' />
           </div>
@@ -420,7 +434,7 @@ const colorsView = (model: Model, dispatch: Dispatcher<Msg>, mode: Mode) => {
     <section className='@container flex flex-col gap-[14px]'>
       <div className='flex items-center justify-between gap-[8px]'>
         {sectionTitle('Colors')}
-        {isEdited(slot) ? (
+        {canReset(slot) ? (
           <button
             type='button'
             onClick={() => dispatch({ _tag: 'ResetSlot', mode })}
@@ -734,12 +748,39 @@ const codePanelView = (model: Model, dispatch: Dispatcher<Msg>) => {
   )
 }
 
+// What loading a preset file did, under the title bar: an error stays until
+// dismissed, "Loaded" clears itself
+const presetNoticeView = (model: Model, dispatch: Dispatcher<Msg>) =>
+  model.presetNotice ? (
+    <div
+      role={model.presetNotice.kind === 'error' ? 'alert' : 'status'}
+      className={`flex items-center justify-between gap-[12px] border-b border-ui-line px-[20px] py-[8px] text-xs ${
+        model.presetNotice.kind === 'error' ? 'text-ui-bad' : 'text-ui-good'
+      }`}
+    >
+      <span className='min-w-0 wrap-anywhere'>{model.presetNotice.text}</span>
+      <button
+        type='button'
+        onClick={() =>
+          dispatch({
+            _tag: 'ClearPresetNotice',
+            text: model.presetNotice?.text ?? '',
+          })
+        }
+        className='shrink-0 text-ui-ink-faint hover:text-ui-ink'
+      >
+        Dismiss
+      </button>
+    </div>
+  ) : null
+
 // The title bar stays put, like the snippet panel's tabs; below it, light and
 // dark side by side once the panel is wide enough (a container query, as the
 // panel is half the window), stacked below that, scrolling on their own
 const customizerView = (model: Model, dispatch: Dispatcher<Msg>) => (
   <div className='flex flex-col lg:min-h-0 lg:flex-1'>
     <div className='border-b border-ui-line'>{headerView(model, dispatch)}</div>
+    {presetNoticeView(model, dispatch)}
     <div className='@container flex flex-col gap-[20px] p-[20px] lg:min-h-0 lg:flex-1 app-scroll lg:overflow-y-auto'>
       <div className='grid grid-cols-1 gap-x-[24px] gap-y-[20px] @2xl:grid-cols-2'>
         {MODES.map(({ mode, label }) =>

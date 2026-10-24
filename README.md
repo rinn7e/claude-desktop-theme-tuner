@@ -32,6 +32,9 @@ desktop 3.6556.2 on macOS (the version is shown in the app's title bar).
   Tokyo Night, One Dark and Groovy Lambda Black.
 - **Tuning:** every color of a theme has a picker, with WCAG contrast checks for
   the text and accent pairs. Edits are kept in your browser.
+- **Presets as files:** the gear menu saves both modes and the options to a
+  JSON file and loads one back, to keep a theme or share it. Loaded names and
+  links are cleaned, so a shared file can't slip extra CSS into the snippet.
 - **Preview:** mocks of the Claude app in light and dark mode at once, painted
   with the same variables the snippet sets.
 - **Less GPU:** while Claude works, its looping animations (the shimmer on its
@@ -85,6 +88,7 @@ from them.
 | `src/theme/css.ts`                 | writes those variables under the light and dark selectors                          |
 | `src/theme/snippet.ts`             | wraps the CSS into the paste-able script                                           |
 | `src/preview/claude-mock.tsx`      | the preview, painted with the same variables                                       |
+| `src/storage/preset-file.ts`       | the preset JSON file: saving, and checking a loaded one                            |
 | `snippets/diagnose.snippet.js`     | for maintainers: reports Claude's color variables after an update breaks the theme |
 | `snippets/stock-colors.snippet.js` | reads Claude's own default colors, for the Claude presets                          |
 
