@@ -15,10 +15,12 @@ own theme, and the app follows your OS between them.
   the text and accent pairs. Edits are kept in your browser.
 - **Preview:** mocks of the Claude app in light and dark mode at once, painted
   with the same variables the snippet sets.
-- **Less GPU:** an option turns off Claude's translucent sidebar glass. With
-  it on, macOS re-blurs the desktop behind the window on every repaint; the
-  snippet clears it through Claude's own API, again each time the sidebar
-  opens.
+- **Less GPU:** while Claude works, its looping animations (the shimmer on its
+  working text above all) keep the GPU and macOS's WindowServer busy, see
+  [anthropics/claude-code#94003](https://github.com/anthropics/claude-code/issues/94003).
+  The **Reduce motion** option switches on Claude's own reduce-motion guard,
+  which the app never sets; it roughly halved the GPU load in our test. A
+  second option clears the translucent sidebar glass, which saves less.
 - **Readable output:** the snippet is shown in full before you copy it. It adds
   one `<style>` element and nothing else, and its CSS reads as plain CSS.
 

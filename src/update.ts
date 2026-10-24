@@ -32,12 +32,14 @@ export const defaultStored: Stored = {
   light: { enabled: true, theme: copyOf(firstPreset('light')) },
   dark: { enabled: false, theme: copyOf(firstPreset('dark')) },
   glassOff: false,
+  reduceMotion: false,
 }
 
 const storedOf = (model: Model): Stored => ({
   light: model.light,
   dark: model.dark,
   glassOff: model.glassOff,
+  reduceMotion: model.reduceMotion,
 })
 
 export const slotOf = (model: Model): Slot => model[model.editing]
@@ -59,7 +61,7 @@ export const snippetOf = (model: Model): string =>
       light: model.light.enabled ? model.light.theme : null,
       dark: model.dark.enabled ? model.dark.theme : null,
     }),
-    { glassOff: model.glassOff },
+    { glassOff: model.glassOff, reduceMotion: model.reduceMotion },
   )
 
 export const textFor = (model: Model, target: CopyTarget): string =>
@@ -157,6 +159,11 @@ export const handleToggleGlassOff = (model: Model): Model => ({
   glassOff: !model.glassOff,
 })
 
+export const handleToggleReduceMotion = (model: Model): Model => ({
+  ...model,
+  reduceMotion: !model.reduceMotion,
+})
+
 // Picking a preset also turns its slot on: choosing a theme means wanting it
 export const handlePickPreset = (model: Model, id: string): Model => {
   const preset = presetById(id)
@@ -197,6 +204,8 @@ export const update = (msg: Msg, model: Model): [Model, Cmd<Msg>] => {
   switch (msg._tag) {
     case 'SelectMode':
       return [handleSelectMode(model, msg.mode), Cmd.none()]
+    case 'ToggleReduceMotion':
+      return saved(handleToggleReduceMotion(model))
     case 'ToggleGlassOff':
       return saved(handleToggleGlassOff(model))
     case 'ToggleSlot':

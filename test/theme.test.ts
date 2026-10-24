@@ -109,14 +109,31 @@ describe('themeSnippet', () => {
     expect(themeSnippet('')).toContain('user-solarized-light-theme')
   })
 
+  it('stops pinning its style once removed, so the revert sticks', () => {
+    expect(themeSnippet('a{}')).toContain(
+      'el.isConnected && document.head.lastElementChild !== el',
+    )
+  })
+
   it('reverts by removing that id and stopping the glass watcher', () => {
     expect(REVERT_COMMAND).toContain(STYLE_ID)
     expect(REVERT_COMMAND).toContain('disconnect()')
   })
 
+  it('reduces motion only when asked, and keeps it reduced', () => {
+    expect(themeSnippet('a{}')).not.toContain('reduceMotion')
+    const js = themeSnippet('a{}', { glassOff: false, reduceMotion: true })
+    expect(() => new Function(js)).not.toThrow()
+    expect(js).toContain('html.dataset.reduceMotion = "true"')
+    expect(js).toContain('attributeFilter: ["data-reduce-motion"]')
+    expect(REVERT_COMMAND).toContain(
+      'delete document.documentElement.dataset.reduceMotion',
+    )
+  })
+
   it('turns off the sidebar glass only when asked, and keeps it off', () => {
     expect(themeSnippet('a{}')).not.toContain('windowVibrancy')
-    const js = themeSnippet('a{}', { glassOff: true })
+    const js = themeSnippet('a{}', { glassOff: true, reduceMotion: false })
     expect(() => new Function(js)).not.toThrow()
     expect(js).toContain('WindowVibrancy')
     expect(js).toContain('glass.clear()')

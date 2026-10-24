@@ -122,25 +122,45 @@ const slotToggleView = (model: Model, dispatch: Dispatcher<Msg>) => {
   )
 }
 
-// A global option (not per mode): adds the glass-off code to the snippet
-const glassOffView = (model: Model, dispatch: Dispatcher<Msg>) => (
+// A global option (not per mode): adds its code to the snippet
+const optionView = (
+  label: string,
+  note: string,
+  checked: boolean,
+  onChange: () => void,
+) => (
   <label className='flex cursor-pointer items-center justify-between gap-[12px] rounded-lg border border-ui-line px-[12px] py-[10px]'>
     <span className='flex flex-col gap-[2px]'>
-      <span className='text-sm font-medium'>
-        Turn off the translucent sidebar
-      </span>
-      <span className='text-xs text-ui-ink-faint'>
-        Claude's sidebar glass makes macOS re-blur the desktop on every repaint.
-        Off saves GPU; the theme paints the sidebar solid anyway.
-      </span>
+      <span className='text-sm font-medium'>{label}</span>
+      <span className='text-xs text-ui-ink-faint'>{note}</span>
     </span>
     <input
       type='checkbox'
-      checked={model.glassOff}
-      onChange={() => dispatch({ _tag: 'ToggleGlassOff' })}
+      checked={checked}
+      onChange={onChange}
       className='h-[18px] w-[18px] shrink-0 accent-ui-brand'
     />
   </label>
+)
+
+const optionsView = (model: Model, dispatch: Dispatcher<Msg>) => (
+  <section className='flex flex-col gap-[8px]'>
+    <h2 className='text-xs font-semibold tracking-wide text-ui-ink-faint uppercase'>
+      Performance
+    </h2>
+    {optionView(
+      'Reduce motion',
+      "Stops Claude's looping animations, like the shimmer on its working text, which keep the GPU busy while Claude works. Measured about half the GPU load.",
+      model.reduceMotion,
+      () => dispatch({ _tag: 'ToggleReduceMotion' }),
+    )}
+    {optionView(
+      'Turn off the translucent sidebar',
+      "Clears Claude's sidebar glass each time the sidebar opens. Saves less than reduce motion; the theme paints the sidebar solid anyway.",
+      model.glassOff,
+      () => dispatch({ _tag: 'ToggleGlassOff' }),
+    )}
+  </section>
 )
 
 const swatchStripView = (theme: Theme) => (
@@ -382,10 +402,15 @@ const CODE_TABS: { target: CopyTarget; label: string; note: string }[] = [
 ]
 
 // With the glass option on, the theme snippet does one more thing, said here
-const noteFor = (model: Model, target: CopyTarget, note: string) =>
-  target === 'theme' && model.glassOff
-    ? "Adds one <style> element with the CSS below, and turns off the sidebar glass with Claude's own API. Nothing else runs."
-    : note
+const noteFor = (model: Model, target: CopyTarget, note: string) => {
+  if (target !== 'theme' || (!model.glassOff && !model.reduceMotion))
+    return note
+  const extras = [
+    model.reduceMotion ? "switches on Claude's reduce-motion setting" : null,
+    model.glassOff ? 'turns off the sidebar glass' : null,
+  ].filter(Boolean)
+  return `Adds one <style> element with the CSS below, and ${extras.join(' and ')}, using the app's own hooks. Nothing else runs.`
+}
 
 // The exact code each Copy button copies, shown before anyone runs it
 const codePanelView = (model: Model, dispatch: Dispatcher<Msg>) => {
@@ -445,10 +470,10 @@ const customizerView = (model: Model, dispatch: Dispatcher<Msg>) => (
     {headerView()}
     {modeTabsView(model, dispatch)}
     {slotToggleView(model, dispatch)}
-    {glassOffView(model, dispatch)}
     {presetsView(model, dispatch)}
     {colorsView(model, dispatch)}
     {contrastView(model)}
+    {optionsView(model, dispatch)}
   </div>
 )
 

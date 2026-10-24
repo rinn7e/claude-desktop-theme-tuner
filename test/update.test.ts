@@ -13,6 +13,7 @@ import {
   handleSelectMode,
   handleSetColor,
   handleToggleGlassOff,
+  handleToggleReduceMotion,
   handleToggleSlot,
   isEdited,
   snippetOf,
@@ -77,6 +78,14 @@ describe('sub-updaters', () => {
     expect(snippetOf(on)).toContain('WindowVibrancy')
   })
 
+  it('adds the reduce-motion code to the snippet when turned on', () => {
+    expect(model.reduceMotion).toBe(false)
+    expect(snippetOf(model)).not.toContain('reduceMotion')
+    expect(snippetOf(handleToggleReduceMotion(model))).toContain(
+      'html.dataset.reduceMotion = "true"',
+    )
+  })
+
   it('puts only the enabled modes in the snippet', () => {
     expect(snippetOf(model)).toContain('light: Solarized Light, dark: stock')
     const both = handlePickPreset(handleSelectMode(model, 'dark'), 'dracula')
@@ -93,7 +102,10 @@ describe('decodeStored', () => {
   it('reads settings saved before the glass option, with it off', () => {
     const old = JSON.parse(JSON.stringify(defaultStored))
     delete old.glassOff
-    expect(decodeStored(old, defaultStored).glassOff).toBe(false)
+    delete old.reduceMotion
+    const decoded = decodeStored(old, defaultStored)
+    expect(decoded.glassOff).toBe(false)
+    expect(decoded.reduceMotion).toBe(false)
   })
 
   it('falls back on missing or invalid data', () => {
