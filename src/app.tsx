@@ -432,7 +432,7 @@ const noteFor = (model: Model, target: CopyTarget, note: string) =>
 const codePanelView = (model: Model, dispatch: Dispatcher<Msg>) => {
   const tab = CODE_TABS.find((t) => t.target === model.shown) ?? CODE_TABS[0]
   return (
-    <section className='flex max-h-[32rem] flex-col border-t border-ui-line bg-ui-panel lg:max-h-none lg:min-h-0 lg:flex-1'>
+    <section className='code-panel flex max-h-[32rem] flex-col border-t border-ui-line bg-ui-panel lg:max-h-none lg:min-h-0 lg:flex-1'>
       <div className='flex flex-wrap items-center justify-between gap-[12px] px-[20px] pt-[12px]'>
         <div className='flex gap-[4px] rounded-lg bg-ui-field p-[3px]'>
           {CODE_TABS.map(({ target, label }) => (

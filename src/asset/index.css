@@ -120,3 +120,20 @@ body {
 .hljs-attr {
   color: var(--code-number);
 }
+
+/* The snippet panel: a gray surface, so it never blends with the white
+ * customizer above it. Tailwind's ui-* utilities read these --color-ui-*
+ * variables (resolved once on :root), so they are set again in this scope. */
+.code-panel {
+  --color-ui-panel: #f4f4f5;
+  --color-ui-field: #e4e4e7;
+  --code-bg: #ececee;
+}
+
+@media (prefers-color-scheme: dark) {
+  .code-panel {
+    --color-ui-panel: #0f0f12;
+    --color-ui-field: #1f1f23;
+    --code-bg: #09090b;
+  }
+}
