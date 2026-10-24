@@ -23,11 +23,15 @@ desktop 3.6556.2 on macOS (the version is shown in the app's title bar).
 
 **Open the app: [rinn7e.com/claude-desktop-theme-tuner](https://rinn7e.com/claude-desktop-theme-tuner/)**
 
-**Watch how to use it (1 minute): [YouTube](https://www.youtube.com/watch?v=DfnZwI23iNM)**
-
 <p align="center">
   <img src="doc/screenshot.png" alt="The tuner: customizer and snippet on the left, light and dark previews of the Claude app on the right">
 </p>
+
+## Video Showcase
+
+[![Claude Desktop Theme Tuner: how to use it](https://img.youtube.com/vi/DfnZwI23iNM/maxresdefault.jpg)](https://www.youtube.com/watch?v=DfnZwI23iNM)
+
+## Features
 
 - **Presets:** one for every code theme in Claude's "Code appearance" setting,
   in the same order, so the app can match its code blocks: Claude Light and
