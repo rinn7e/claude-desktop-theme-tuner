@@ -4,7 +4,8 @@
 
 Pick a color theme for the Claude desktop app, tune its colors with a live
 preview, and copy it as a DevTools snippet. Light and dark mode each get their
-own theme, and the app follows your OS between them.
+own theme, and the app follows your OS between them. Tested against Claude
+desktop 3.6556.2 on macOS (the version is shown in the app's title bar).
 
 **Open the app: [rinn7e.com/claude-desktop-theme-tuner](https://rinn7e.com/claude-desktop-theme-tuner/)**
 
@@ -97,6 +98,12 @@ Checks: `pnpm run check`, `pnpm run lint`, `pnpm run format:check`,
 to `main` deploys it to GitHub Pages (`.github/workflows/pages.yml`). Follow the
 [code convention](doc/code-convention.md). Open work is in the
 [future plan](doc/future-plan.md).
+
+## Support
+
+Built by [rinn7e](https://github.com/rinn7e). If the tuner is useful to you,
+you can help keep it going by
+[sponsoring me on GitHub](https://github.com/sponsors/rinn7e).
 
 ## Credits and license
 

@@ -14,7 +14,8 @@ Ideas and open work, in no particular order.
 
 - After a major Claude update, run `snippets/diagnose.snippet.js` and the
   stock-colors probe again (see [claude-internals.md](claude-internals.md)),
-  and update the version the Claude presets name in `src/theme/presets.ts`.
+  and update `TESTED_CLAUDE_VERSION` in `src/theme/presets.ts` (shown in
+  the title bar and the Claude presets' credit) and the version in the README.
 - If Claude starts honoring the OS reduce-motion setting, or adds its own
   toggle, as asked in
   [anthropics/claude-code#94003](https://github.com/anthropics/claude-code/issues/94003),

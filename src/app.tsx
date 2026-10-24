@@ -21,7 +21,7 @@ import {
   type PaletteKey,
   type Theme,
 } from './theme/palette'
-import { STOCK, allPresets } from './theme/presets'
+import { STOCK, TESTED_CLAUDE_VERSION, allPresets } from './theme/presets'
 import { type CopyTarget, type Model, type Msg } from './type'
 import { isEdited, snippetDoesSomething, textFor } from './update'
 
@@ -73,11 +73,29 @@ const HexInput = ({
 // share one shape, so they are the same height
 const BAR =
   'flex min-h-[56px] flex-wrap items-center justify-between gap-[12px] px-[20px] py-[8px]'
+// The title bar keeps to one line: the subtitle truncates instead of wrapping
+const TITLE_BAR =
+  '@container flex min-h-[56px] items-center justify-between gap-[12px] px-[20px] py-[8px]'
 
-// The title and what the tool does on one line, with the swap button at the
-// right (wide screens only: stacked panes have no sides to swap)
+const LINK_BUTTON =
+  'flex items-center gap-[6px] rounded-lg border border-ui-line bg-ui-panel px-[12px] py-[6px] text-xs whitespace-nowrap hover:border-ui-ink-faint'
+
+// The GitHub mark, for the source link
+const githubMarkView = () => (
+  <svg
+    aria-hidden='true'
+    viewBox='0 0 16 16'
+    className='h-[14px] w-[14px] fill-current'
+  >
+    <path d='M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z' />
+  </svg>
+)
+
+// The title and what the tool does on one line; at the right, who built it,
+// the sponsor and source links, and the swap button (wide screens only:
+// stacked panes have no sides to swap)
 const headerView = (dispatch: Dispatcher<Msg>) => (
-  <header className={BAR}>
+  <header className={TITLE_BAR}>
     <span className='flex min-w-0 items-center gap-[10px]'>
       {/* The logo lives in public/, served next to the page */}
       <img
@@ -87,23 +105,64 @@ const headerView = (dispatch: Dispatcher<Msg>) => (
         height={32}
         className='h-[32px] w-[32px] shrink-0'
       />
-      <span className='flex min-w-0 items-baseline gap-[10px]'>
+      <span className='flex min-w-0 items-baseline gap-[10px] overflow-hidden'>
         <h1 className='shrink-0 text-base font-semibold tracking-tight'>
           Claude Desktop Theme Tuner
         </h1>
+        <span
+          title={`Tested against Claude desktop ${TESTED_CLAUDE_VERSION} on macOS`}
+          className='hidden shrink-0 rounded-md bg-ui-field px-[6px] py-[1px] font-mono text-[0.6875rem] text-ui-ink-muted @xl:inline'
+        >
+          Claude Desktop {TESTED_CLAUDE_VERSION}
+        </span>
         <span className='truncate text-xs text-ui-ink-faint'>
           Pick a theme, tune its colors, copy the snippet.
         </span>
       </span>
     </span>
-    <button
-      type='button'
-      title='Swap the customizer and the previews'
-      onClick={() => dispatch({ _tag: 'ToggleSwapped' })}
-      className='hidden items-center gap-[6px] rounded-lg border border-ui-line bg-ui-panel px-[12px] py-[6px] text-xs hover:border-ui-ink-faint lg:flex'
-    >
-      <span aria-hidden='true'>⇄</span> Swap sides
-    </button>
+    <div className='flex shrink-0 items-center gap-[8px]'>
+      <span className='hidden text-xs whitespace-nowrap text-ui-ink-faint @4xl:inline'>
+        Built by{' '}
+        <a
+          href='https://github.com/rinn7e'
+          target='_blank'
+          rel='noreferrer'
+          className='text-ui-ink-muted hover:text-ui-ink hover:underline'
+        >
+          rinn7e
+        </a>
+      </span>
+      <a
+        href='https://github.com/sponsors/rinn7e'
+        target='_blank'
+        rel='noreferrer'
+        title='Like the tuner? Help keep it going by sponsoring rinn7e on GitHub'
+        className={LINK_BUTTON}
+      >
+        <span aria-hidden='true' className='text-[#db2777]'>
+          ♥
+        </span>
+        <span className='hidden @3xl:inline'>Sponsor</span>
+      </a>
+      <a
+        href='https://github.com/rinn7e/claude-desktop-theme-tuner'
+        target='_blank'
+        rel='noreferrer'
+        title='Source code on GitHub'
+        className={LINK_BUTTON}
+      >
+        {githubMarkView()}
+        <span className='hidden @3xl:inline'>Source</span>
+      </a>
+      <button
+        type='button'
+        title='Swap the customizer and the previews'
+        onClick={() => dispatch({ _tag: 'ToggleSwapped' })}
+        className={`hidden lg:flex ${LINK_BUTTON}`}
+      >
+        <span aria-hidden='true'>⇄</span> Swap sides
+      </button>
+    </div>
   </header>
 )
 

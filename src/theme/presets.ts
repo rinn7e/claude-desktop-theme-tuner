@@ -377,10 +377,15 @@ export const STOCK: Record<'light' | 'dark', Palette> = {
   },
 }
 
+// The Claude desktop version the theme and these presets were checked
+// against (macOS); shown in the tuner's title bar. Update it after testing a
+// new release.
+export const TESTED_CLAUDE_VERSION = '3.6556.2'
+
 const claudeCredit = {
   name: "Claude's own defaults",
   url: 'https://claude.ai/download',
-  license: 'measured in Claude 3.6556.2',
+  license: `measured in Claude ${TESTED_CLAUDE_VERSION}`,
 }
 
 // The Claude presets: start from the app's own look and change one color
