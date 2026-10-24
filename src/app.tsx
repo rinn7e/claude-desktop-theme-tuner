@@ -414,9 +414,9 @@ const helpDialogView = (model: Model, dispatch: Dispatcher<Msg>) =>
             Console, or restart Claude.
           </span>
           <span>
-            <b className='text-ui-ink'>An update left parts white?</b> Run the
-            Diagnostic the same way, with DevTools undocked. It copies a report
-            of the app's new color variables.
+            <b className='text-ui-ink'>An update left parts unthemed?</b> Claude
+            renamed some of its colors; the tuner needs updating for that
+            version.
           </span>
         </div>
       </div>
@@ -428,11 +428,6 @@ const CODE_TABS: { target: CopyTarget; label: string; note: string }[] = [
     target: 'theme',
     label: 'Theme snippet',
     note: 'Adds one <style> element with the CSS below. Nothing else runs.',
-  },
-  {
-    target: 'diagnose',
-    label: 'Diagnostic',
-    note: 'Reads the page and copies a JSON report of its colors. Changes nothing.',
   },
   {
     target: 'revert',

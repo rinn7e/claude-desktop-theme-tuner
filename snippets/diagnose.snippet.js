@@ -1,8 +1,9 @@
-// Run in the Claude app's DevTools (like apply-theme.snippet.js) after an app
-// update breaks the theme. It copies a JSON report to the clipboard: what
-// paints the sidebar, chat, side panels and composer, and every color-like
-// CSS variable the app defines, so the overrides in theme.css can be matched
-// to the new names.
+// For maintainers: run in the Claude app's DevTools Console (like the theme
+// snippet) after an app update breaks the theme. It copies a JSON report to
+// the clipboard: what paints the sidebar, chat, side panels and composer, and
+// every color-like CSS variable the app defines, so the tokens in
+// src/theme/tokens.ts can be matched to the new names. See
+// doc/claude-internals.md.
 ;(() => {
   const root = document.documentElement
   // Spots to sample, as fractions of the window

@@ -4,7 +4,6 @@
  */
 import { Cmd, Task } from 'tea-cup-fp'
 
-import diagnoseSnippet from '../snippets/diagnose.snippet.js?raw'
 import { type Stored, loadStored, saveStored } from './storage/storage'
 import { isHex } from './theme/color'
 import { themeCss } from './theme/css'
@@ -63,11 +62,7 @@ export const snippetOf = (model: Model): string =>
   )
 
 export const textFor = (model: Model, target: CopyTarget): string =>
-  target === 'theme'
-    ? snippetOf(model)
-    : target === 'diagnose'
-      ? diagnoseSnippet
-      : REVERT_COMMAND
+  target === 'theme' ? snippetOf(model) : REVERT_COMMAND
 
 export const init = (): [Model, Cmd<Msg>] => {
   const stored = loadStored(defaultStored)

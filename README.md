@@ -42,12 +42,13 @@ The **Revert** tab has the one-line command that removes it.
 ## When a Claude update breaks the theme
 
 Updates rename or add color variables, and the surfaces using them go back to
-stock. Run the **Diagnostic** code the same way, with DevTools undocked (docked
-DevTools narrows the window, which collapses the sidebar). It copies a JSON
-report to the clipboard: what paints each area, the color variables in use, the
-rules behind each sidebar, and every surface still white or gray. Map the new
-names in `src/theme/tokens.ts`. How Claude's UI is put together, and the traps
-met while debugging it, are in [doc/claude-internals.md](doc/claude-internals.md).
+stock. Maintainers run `snippets/diagnose.snippet.js` in the Console the same
+way, with DevTools undocked (docked DevTools narrows the window, which
+collapses the sidebar). It copies a JSON report to the clipboard: what paints
+each area, the color variables in use, the rules behind each sidebar, and
+every surface still white or gray. Map the new names in `src/theme/tokens.ts`.
+How Claude's UI is put together, and the traps met while debugging it, are in
+[doc/claude-internals.md](doc/claude-internals.md).
 
 ## How it works
 
@@ -56,16 +57,16 @@ claude.ai's older `--bg-*` and `--text-*` (HSL triples), and the Code tab
 frame's `--df-*`. A theme is 13 semantic colors, and everything else is derived
 from them.
 
-| File                               | Role                                                                 |
-| ---------------------------------- | -------------------------------------------------------------------- |
-| `src/theme/palette.ts`             | the semantic colors, their labels and the contrast pairs             |
-| `src/theme/presets.ts`             | the preset themes, and approximate stock colors for an unthemed mode |
-| `src/theme/tokens.ts`              | maps a palette onto every Claude variable the snippet sets           |
-| `src/theme/css.ts`                 | writes those variables under the light and dark selectors            |
-| `src/theme/snippet.ts`             | wraps the CSS into the paste-able script                             |
-| `src/preview/claude-mock.tsx`      | the preview, painted with the same variables                         |
-| `snippets/diagnose.snippet.js`     | the diagnostic shown in the Diagnostic tab                           |
-| `snippets/stock-colors.snippet.js` | reads Claude's own default colors, for the Claude presets            |
+| File                               | Role                                                                               |
+| ---------------------------------- | ---------------------------------------------------------------------------------- |
+| `src/theme/palette.ts`             | the semantic colors, their labels and the contrast pairs                           |
+| `src/theme/presets.ts`             | the preset themes, and approximate stock colors for an unthemed mode               |
+| `src/theme/tokens.ts`              | maps a palette onto every Claude variable the snippet sets                         |
+| `src/theme/css.ts`                 | writes those variables under the light and dark selectors                          |
+| `src/theme/snippet.ts`             | wraps the CSS into the paste-able script                                           |
+| `src/preview/claude-mock.tsx`      | the preview, painted with the same variables                                       |
+| `snippets/diagnose.snippet.js`     | for maintainers: reports Claude's color variables after an update breaks the theme |
+| `snippets/stock-colors.snippet.js` | reads Claude's own default colors, for the Claude presets                          |
 
 Three quirks shape the CSS, each explained where it is handled in the code:
 

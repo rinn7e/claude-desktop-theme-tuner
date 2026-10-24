@@ -27,9 +27,9 @@ can't: how the findings were made and the traps on the way.
 
 ## Debugging a broken theme
 
-Use `snippets/diagnose.snippet.js` (the Diagnostic tab). It reports what paints
-each area, the variables in use, the rules behind the sidebar, the main colors
-and every layer around the composer.
+Use `snippets/diagnose.snippet.js` (a maintainer tool, not in the app). It
+reports what paints each area, the variables in use, the rules behind the
+sidebar, the main colors and every layer around the composer.
 
 Traps that cost us time:
 

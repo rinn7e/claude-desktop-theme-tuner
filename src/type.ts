@@ -10,7 +10,7 @@ export interface Slot {
   theme: Theme
 }
 
-export type CopyTarget = 'theme' | 'diagnose' | 'revert'
+export type CopyTarget = 'theme' | 'revert'
 
 export interface Model {
   light: Slot
