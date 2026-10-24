@@ -317,19 +317,21 @@ const HAND_TUNED: Theme[] = [
       url: 'https://github.com/sheaf/groovy-lambda',
       license: 'MIT',
     },
+    // Matches universal-theme-tuner's VS Code theme of the same name
+    // (packages/vscode-theme-tuner/themes/groovy-lambda-black-color-theme.json)
     palette: {
-      frame: '#151515', // the near-black of universal-theme-tuner's VS Code theme
-      canvas: '#1b1b1b',
-      raised: '#292828', // Groovy Lambda's background
-      pressed: '#32302f',
-      text: '#d4be98',
-      textSecondary: '#a89984', // fg4: dimmer than the text, so thinking and labels stand apart
-      textMuted: '#928374', // gray
+      frame: '#151515', // sideBar.background: flat black, like the editor
+      canvas: '#151515', // editor.background
+      raised: '#1c1b1a', // VS Code widgets are #151515 with a border; a faint lift keeps cards visible
+      pressed: '#272524', // list.activeSelectionBackground #45403d60 over #151515
+      text: '#d4be98', // editor.foreground
+      textSecondary: '#928374', // sideBar.foreground; about 2:1 from the text
+      textMuted: '#928374', // the line-number gray #7c6f64 fails AA as text
       line: '#5a524c',
-      accent: '#a9b665', // green
+      accent: '#a9b665', // textLink.foreground: green
       accentHover: '#d8a657', // yellow
       onAccent: '#151515',
-      selected: '#45403d',
+      selected: '#272524', // list.activeSelectionBackground #45403d60 over #151515
       wash: '#d8a657',
     },
   },
