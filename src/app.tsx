@@ -513,39 +513,41 @@ const creditView = (theme: Theme) =>
     <span>{theme.name}</span>
   )
 
-// One mode's preview: its caption and the mock
+// One mode's preview: a caption the width of the mock (mode and theme on the
+// left, the colors' credit on the right) over the mock, which fills the rest
 const previewCardView = (model: Model, mode: Mode, label: string) => {
   const slot = model[mode]
   const palette = slot.enabled ? slot.theme.palette : STOCK[mode]
   return (
-    <div key={mode} className='flex w-full flex-col gap-[10px]'>
-      <div className='flex items-center gap-[8px] text-xs'>
-        <span className='font-semibold text-ui-ink'>{label}</span>
-        <span className='text-ui-ink-faint'>
-          {slot.enabled ? slot.theme.name : 'Stock (shown approximately)'}
-        </span>
+    <div key={mode} className='flex min-h-0 w-full flex-col items-center'>
+      <div className='flex h-full min-h-0 w-full max-w-[60rem] flex-col gap-[8px]'>
+        <div className='flex items-center justify-between gap-[12px] text-xs'>
+          <span className='flex min-w-0 items-center gap-[8px]'>
+            <span className='shrink-0 font-semibold text-ui-ink'>{label}</span>
+            <span className='truncate text-ui-ink-faint'>
+              {slot.enabled ? slot.theme.name : 'Stock (shown approximately)'}
+            </span>
+          </span>
+          {slot.enabled && slot.theme.credit ? (
+            <span className='shrink-0 text-ui-ink-faint'>
+              {creditView(slot.theme)}
+            </span>
+          ) : null}
+        </div>
+        {/* The mock keeps its desktop proportions; narrow screens scroll it sideways */}
+        <div className='flex min-h-0 w-full flex-1 overflow-x-auto'>
+          {claudeMockView(palette)}
+        </div>
       </div>
-      {/* The mock keeps its desktop proportions; narrow screens scroll it sideways */}
-      <div className='flex w-full justify-center-safe overflow-x-auto'>
-        {claudeMockView(palette)}
-      </div>
-      {slot.enabled && slot.theme.credit ? (
-        <p className='text-center text-xs text-ui-ink-faint'>
-          {creditView(slot.theme)}
-        </p>
-      ) : null}
     </div>
   )
 }
 
-// Both modes at once, light first
+// Both modes at once, light first: two equal halves of the pane on wide
+// screens, stacked at a fixed height on narrow ones
 const previewView = (model: Model) => (
-  <section className='flex flex-col items-center gap-[20px] p-[16px] lg:min-h-0 lg:overflow-auto lg:p-[24px]'>
+  <section className='flex flex-col gap-[20px] p-[16px] lg:grid lg:min-h-0 lg:grid-rows-2 lg:p-[24px]'>
     {MODES.map(({ mode, label }) => previewCardView(model, mode, label))}
-    <p className='text-center text-xs text-ui-ink-faint'>
-      Mocks of the Claude desktop app, painted with the variables the snippet
-      sets
-    </p>
   </section>
 )
 
