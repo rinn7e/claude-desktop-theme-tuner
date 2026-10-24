@@ -493,17 +493,22 @@ const codePanelView = (model: Model, dispatch: Dispatcher<Msg>) => {
   )
 }
 
-// Light and dark side by side once the panel is wide enough (a container
-// query, as the panel is half the window), stacked below that
+// The title bar stays put, like the snippet panel's tabs; below it, light and
+// dark side by side once the panel is wide enough (a container query, as the
+// panel is half the window), stacked below that, scrolling on their own
 const customizerView = (model: Model, dispatch: Dispatcher<Msg>) => (
-  <div className='@container flex flex-col gap-[20px] px-[20px] pb-[20px] lg:min-h-0 lg:flex-1 lg:overflow-y-auto'>
-    {headerView(dispatch)}
-    <div className='grid grid-cols-1 gap-x-[24px] gap-y-[20px] @2xl:grid-cols-2'>
-      {MODES.map(({ mode, label }) =>
-        modeColumnView(model, dispatch, mode, label),
-      )}
+  <div className='flex flex-col lg:min-h-0 lg:flex-1'>
+    <div className='border-b border-ui-line px-[20px] pb-[16px]'>
+      {headerView(dispatch)}
     </div>
-    {optionsView(model, dispatch)}
+    <div className='@container flex flex-col gap-[20px] p-[20px] lg:min-h-0 lg:flex-1 lg:overflow-y-auto'>
+      <div className='grid grid-cols-1 gap-x-[24px] gap-y-[20px] @2xl:grid-cols-2'>
+        {MODES.map(({ mode, label }) =>
+          modeColumnView(model, dispatch, mode, label),
+        )}
+      </div>
+      {optionsView(model, dispatch)}
+    </div>
   </div>
 )
 
