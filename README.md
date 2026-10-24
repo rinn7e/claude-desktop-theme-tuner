@@ -46,7 +46,8 @@ stock. Run the **Diagnostic** code the same way, with DevTools undocked (docked
 DevTools narrows the window, which collapses the sidebar). It copies a JSON
 report to the clipboard: what paints each area, the color variables in use, the
 rules behind each sidebar, and every surface still white or gray. Map the new
-names in `src/theme/tokens.ts`.
+names in `src/theme/tokens.ts`. How Claude's UI is put together, and the traps
+met while debugging it, are in [doc/claude-internals.md](doc/claude-internals.md).
 
 ## How it works
 
@@ -86,7 +87,8 @@ pnpm run dev
 
 Checks: `pnpm run check`, `pnpm run lint`, `pnpm run format:check`,
 `pnpm run test`. `pnpm run build` writes a static site to `dist/`. Follow the
-[code convention](doc/code-convention.md).
+[code convention](doc/code-convention.md). Open work is in the
+[future plan](doc/future-plan.md).
 
 ## Credits and license
 
