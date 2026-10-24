@@ -450,6 +450,10 @@ const noteFor = (model: Model, target: CopyTarget, note: string) =>
 // The exact code each Copy button copies, shown before anyone runs it
 const codePanelView = (model: Model, dispatch: Dispatcher<Msg>) => {
   const tab = CODE_TABS.find((t) => t.target === model.shown) ?? CODE_TABS[0]
+  const noteText =
+    model.copyFailed === tab.target
+      ? 'The browser blocked copying: select the code below and copy it.'
+      : noteFor(model, tab.target, tab.note)
   return (
     <section className='code-panel flex max-h-[32rem] flex-col border-t border-ui-line bg-ui-panel lg:max-h-none lg:min-h-0 lg:flex-1'>
       <div className={BAR}>
@@ -469,6 +473,18 @@ const codePanelView = (model: Model, dispatch: Dispatcher<Msg>) => {
             </button>
           ))}
         </div>
+        {/* What the shown code does, in the bar between the tabs and the
+            buttons; truncated when narrow, in full on hover */}
+        <p
+          className={`min-w-0 flex-1 truncate text-xs ${
+            model.copyFailed === tab.target
+              ? 'text-ui-bad'
+              : 'text-ui-ink-faint'
+          }`}
+          title={noteText}
+        >
+          {noteText}
+        </p>
         <div className='flex items-center gap-[8px]'>
           <button
             type='button'
@@ -486,15 +502,6 @@ const codePanelView = (model: Model, dispatch: Dispatcher<Msg>) => {
           </button>
         </div>
       </div>
-      <p className='px-[20px] pb-[8px] text-xs text-ui-ink-faint'>
-        {model.copyFailed === tab.target ? (
-          <span className='text-ui-bad'>
-            The browser blocked copying: select the code below and copy it.
-          </span>
-        ) : (
-          noteFor(model, tab.target, tab.note)
-        )}
-      </p>
       {codeView(textFor(model, tab.target))}
     </section>
   )
