@@ -557,7 +557,7 @@ const previewCardView = (model: Model, mode: Mode, label: string) => {
 // screens, stacked at a fixed height on narrow ones. The same space on every
 // side and between the two, so the mocks sit evenly in the pane
 const previewView = (model: Model) => (
-  <section className='flex flex-col gap-[20px] p-[16px] lg:grid lg:min-h-0 lg:grid-rows-2 lg:gap-[40px] lg:p-[40px]'>
+  <section className='preview-dots flex flex-col gap-[20px] p-[16px] lg:grid lg:min-h-0 lg:grid-rows-2 lg:gap-[40px] lg:p-[40px]'>
     {MODES.map(({ mode, label }) => previewCardView(model, mode, label))}
   </section>
 )

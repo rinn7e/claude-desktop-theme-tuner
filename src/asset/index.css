@@ -138,3 +138,13 @@ body {
     --code-bg: #09090b;
   }
 }
+
+/* The preview pane's dotted grid: Damn Center's "Dotted Grid" pattern, a
+ * neutral gray that reads on the light and the dark page alike */
+.preview-dots {
+  background-image: radial-gradient(
+    rgba(128, 128, 128, 0.22) 1.5px,
+    transparent 1.5px
+  );
+  background-size: 16px 16px;
+}
