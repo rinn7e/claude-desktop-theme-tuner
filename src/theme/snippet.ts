@@ -17,10 +17,42 @@ export const templateLiteral = (text: string): string =>
   text.replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\$\{/g, '\\${') +
   '`'
 
+// Where the glass watcher is kept on window, so a rerun or the revert command
+// can find it
+const GLASS_KEY = '__claudeThemeTunerGlassOff'
+
+export interface SnippetOptions {
+  // Turn off the translucent sidebar glass (macOS vibrancy), which makes
+  // WindowServer re-blur the desktop on every repaint
+  glassOff: boolean
+}
+
+// Uses the app's own vibrancy API (what the page calls itself). The page asks
+// for the glass again whenever the sidebar opens, so it is cleared again
+// after each open or close: twice, as the page's request lands a moment later.
+const glassOffCode = `
+  // Turn off the translucent sidebar glass, and keep it off
+  const glass = window["claude.windowVibrancy"]?.WindowVibrancy;
+  if (glass && !window.${GLASS_KEY}) {
+    const clearGlass = () => {
+      for (const ms of [60, 700]) setTimeout(() => glass.clear().catch(() => {}), ms);
+    };
+    const watcher = new MutationObserver(clearGlass);
+    watcher.observe(document.documentElement, {
+      attributes: true,
+      subtree: true,
+      attributeFilter: ["data-collapsed", "data-sidebar-vibrancy"],
+    });
+    window.${GLASS_KEY} = watcher;
+    clearGlass();
+    console.log("[theme] sidebar glass off");
+  }`
+
 // Wraps the theme CSS into the script pasted into the Claude app's DevTools.
 // Running it again replaces the theme in place.
 export const themeSnippet = (
   css: string,
+  { glassOff }: SnippetOptions = { glassOff: false },
 ): string => `// Claude desktop theme, made with Claude Desktop Theme Tuner.
 // Paste into the Claude app's DevTools: Sources > Snippets > + New snippet, run with Cmd+Enter.
 (() => {
@@ -41,9 +73,10 @@ export const themeSnippet = (
       if (document.head.lastElementChild !== el) document.head.appendChild(el);
     }).observe(document.head, { childList: true });
   }
-  console.log("[theme] applied", css.length, "chars of CSS");
+  console.log("[theme] applied", css.length, "chars of CSS");${glassOff ? glassOffCode : ''}
 })();
 `
 
-// Undoes the theme until the next run
-export const REVERT_COMMAND = `document.getElementById(${JSON.stringify(STYLE_ID)})?.remove()`
+// Undoes the theme until the next run; with the glass watcher stopped, the
+// page brings the glass back the next time the sidebar opens
+export const REVERT_COMMAND = `document.getElementById(${JSON.stringify(STYLE_ID)})?.remove(); window.${GLASS_KEY}?.disconnect(); delete window.${GLASS_KEY}`

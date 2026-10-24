@@ -12,6 +12,7 @@ import {
   handleResetSlot,
   handleSelectMode,
   handleSetColor,
+  handleToggleGlassOff,
   handleToggleSlot,
   isEdited,
   snippetOf,
@@ -68,6 +69,14 @@ describe('sub-updaters', () => {
     expect(handleToggleSlot(off, 'light').light.enabled).toBe(true)
   })
 
+  it('adds the glass-off code to the snippet when turned on', () => {
+    expect(model.glassOff).toBe(false)
+    expect(snippetOf(model)).not.toContain('WindowVibrancy')
+    const on = handleToggleGlassOff(model)
+    expect(on.glassOff).toBe(true)
+    expect(snippetOf(on)).toContain('WindowVibrancy')
+  })
+
   it('puts only the enabled modes in the snippet', () => {
     expect(snippetOf(model)).toContain('light: Solarized Light, dark: stock')
     const both = handlePickPreset(handleSelectMode(model, 'dark'), 'dracula')
@@ -79,6 +88,12 @@ describe('decodeStored', () => {
   it('reads back what was stored', () => {
     const stored = JSON.parse(JSON.stringify(defaultStored))
     expect(decodeStored(stored, defaultStored)).toEqual(defaultStored)
+  })
+
+  it('reads settings saved before the glass option, with it off', () => {
+    const old = JSON.parse(JSON.stringify(defaultStored))
+    delete old.glassOff
+    expect(decodeStored(old, defaultStored).glassOff).toBe(false)
   })
 
   it('falls back on missing or invalid data', () => {

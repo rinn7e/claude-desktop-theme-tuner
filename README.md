@@ -15,6 +15,10 @@ own theme, and the app follows your OS between them.
   the text and accent pairs. Edits are kept in your browser.
 - **Preview:** mocks of the Claude app in light and dark mode at once, painted
   with the same variables the snippet sets.
+- **Less GPU:** an option turns off Claude's translucent sidebar glass. With
+  it on, macOS re-blurs the desktop behind the window on every repaint; the
+  snippet clears it through Claude's own API, again each time the sidebar
+  opens.
 - **Readable output:** the snippet is shown in full before you copy it. It adds
   one `<style>` element and nothing else, and its CSS reads as plain CSS.
 

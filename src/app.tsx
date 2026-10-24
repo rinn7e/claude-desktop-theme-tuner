@@ -122,6 +122,27 @@ const slotToggleView = (model: Model, dispatch: Dispatcher<Msg>) => {
   )
 }
 
+// A global option (not per mode): adds the glass-off code to the snippet
+const glassOffView = (model: Model, dispatch: Dispatcher<Msg>) => (
+  <label className='flex cursor-pointer items-center justify-between gap-[12px] rounded-lg border border-ui-line px-[12px] py-[10px]'>
+    <span className='flex flex-col gap-[2px]'>
+      <span className='text-sm font-medium'>
+        Turn off the translucent sidebar
+      </span>
+      <span className='text-xs text-ui-ink-faint'>
+        Claude's sidebar glass makes macOS re-blur the desktop on every repaint.
+        Off saves GPU; the theme paints the sidebar solid anyway.
+      </span>
+    </span>
+    <input
+      type='checkbox'
+      checked={model.glassOff}
+      onChange={() => dispatch({ _tag: 'ToggleGlassOff' })}
+      className='h-[18px] w-[18px] shrink-0 accent-ui-brand'
+    />
+  </label>
+)
+
 const swatchStripView = (theme: Theme) => (
   <span className='flex h-[22px] overflow-hidden rounded-md ring-1 ring-black/10'>
     {(['frame', 'canvas', 'raised', 'text', 'accent', 'selected'] as const).map(
@@ -356,9 +377,15 @@ const CODE_TABS: { target: CopyTarget; label: string; note: string }[] = [
   {
     target: 'revert',
     label: 'Revert',
-    note: 'Removes the theme until you run the snippet again.',
+    note: 'Removes the theme, and lets the sidebar glass come back, until you run the snippet again.',
   },
 ]
+
+// With the glass option on, the theme snippet does one more thing, said here
+const noteFor = (model: Model, target: CopyTarget, note: string) =>
+  target === 'theme' && model.glassOff
+    ? "Adds one <style> element with the CSS below, and turns off the sidebar glass with Claude's own API. Nothing else runs."
+    : note
 
 // The exact code each Copy button copies, shown before anyone runs it
 const codePanelView = (model: Model, dispatch: Dispatcher<Msg>) => {
@@ -405,7 +432,7 @@ const codePanelView = (model: Model, dispatch: Dispatcher<Msg>) => {
             The browser blocked copying: select the code below and copy it.
           </span>
         ) : (
-          tab.note
+          noteFor(model, tab.target, tab.note)
         )}
       </p>
       {codeView(textFor(model, tab.target))}
@@ -418,6 +445,7 @@ const customizerView = (model: Model, dispatch: Dispatcher<Msg>) => (
     {headerView()}
     {modeTabsView(model, dispatch)}
     {slotToggleView(model, dispatch)}
+    {glassOffView(model, dispatch)}
     {presetsView(model, dispatch)}
     {colorsView(model, dispatch)}
     {contrastView(model)}

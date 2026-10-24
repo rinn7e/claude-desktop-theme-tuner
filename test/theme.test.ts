@@ -109,7 +109,17 @@ describe('themeSnippet', () => {
     expect(themeSnippet('')).toContain('user-solarized-light-theme')
   })
 
-  it('reverts by removing that id', () => {
+  it('reverts by removing that id and stopping the glass watcher', () => {
     expect(REVERT_COMMAND).toContain(STYLE_ID)
+    expect(REVERT_COMMAND).toContain('disconnect()')
+  })
+
+  it('turns off the sidebar glass only when asked, and keeps it off', () => {
+    expect(themeSnippet('a{}')).not.toContain('windowVibrancy')
+    const js = themeSnippet('a{}', { glassOff: true })
+    expect(() => new Function(js)).not.toThrow()
+    expect(js).toContain('WindowVibrancy')
+    expect(js).toContain('glass.clear()')
+    expect(js).toContain('data-collapsed')
   })
 })

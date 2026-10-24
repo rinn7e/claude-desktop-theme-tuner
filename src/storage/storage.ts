@@ -51,23 +51,28 @@ const ThemeCodec = t.intersection([
 
 const SlotCodec = t.type({ enabled: t.boolean, theme: ThemeCodec })
 
-export const StoredCodec = t.type({ light: SlotCodec, dark: SlotCodec })
+// glassOff came later, so older stored data without it still decodes
+export const StoredCodec = t.intersection([
+  t.type({ light: SlotCodec, dark: SlotCodec }),
+  t.partial({ glassOff: t.boolean }),
+])
 
 export interface Stored {
   light: Slot
   dark: Slot
+  glassOff: boolean
 }
 
 // Decodes stored data, falling back when it is missing or no longer valid
 export const decodeStored = (raw: unknown, fallback: Stored): Stored => {
   const result = StoredCodec.decode(raw)
   if (!isRight(result)) return fallback
-  const { light, dark } = result.right
+  const { light, dark, glassOff = false } = result.right
   const plain = (slot: typeof light): Slot => ({
     enabled: slot.enabled,
     theme: { ...slot.theme, palette: { ...slot.theme.palette } as Palette },
   })
-  return { light: plain(light), dark: plain(dark) }
+  return { light: plain(light), dark: plain(dark), glassOff }
 }
 
 // localStorage can be missing or throw (private windows, blocked storage);

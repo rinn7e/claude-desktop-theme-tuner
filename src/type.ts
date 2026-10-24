@@ -15,6 +15,8 @@ export type CopyTarget = 'theme' | 'diagnose' | 'revert'
 export interface Model {
   light: Slot
   dark: Slot
+  // Whether the snippet also turns off the translucent sidebar glass
+  glassOff: boolean
   // The mode being edited, and shown in the preview
   editing: Mode
   // The code shown in the snippet panel, and copied by its button
@@ -30,6 +32,7 @@ export interface Model {
 export type Msg =
   | { _tag: 'SelectMode'; mode: Mode }
   | { _tag: 'ToggleSlot'; mode: Mode }
+  | { _tag: 'ToggleGlassOff' }
   | { _tag: 'PickPreset'; id: string }
   | { _tag: 'SetColor'; key: PaletteKey; value: string }
   | { _tag: 'ResetSlot' }
