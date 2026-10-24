@@ -530,7 +530,7 @@ const previewCardView = (model: Model, mode: Mode, label: string) => {
   const palette = slot.enabled ? slot.theme.palette : STOCK[mode]
   return (
     <div key={mode} className='flex min-h-0 w-full flex-col items-center'>
-      <div className='flex h-full min-h-0 w-full max-w-[60rem] flex-col gap-[8px]'>
+      <div className='flex h-full min-h-0 w-full flex-col gap-[10px]'>
         <div className='flex items-center justify-between gap-[12px] text-xs'>
           <span className='flex min-w-0 items-center gap-[8px]'>
             <span className='shrink-0 font-semibold text-ui-ink'>{label}</span>
@@ -554,9 +554,10 @@ const previewCardView = (model: Model, mode: Mode, label: string) => {
 }
 
 // Both modes at once, light first: two equal halves of the pane on wide
-// screens, stacked at a fixed height on narrow ones
+// screens, stacked at a fixed height on narrow ones. The same space on every
+// side and between the two, so the mocks sit evenly in the pane
 const previewView = (model: Model) => (
-  <section className='flex flex-col gap-[20px] p-[16px] lg:grid lg:min-h-0 lg:grid-rows-2 lg:p-[24px]'>
+  <section className='flex flex-col gap-[20px] p-[16px] lg:grid lg:min-h-0 lg:grid-rows-2 lg:gap-[40px] lg:p-[40px]'>
     {MODES.map(({ mode, label }) => previewCardView(model, mode, label))}
   </section>
 )
