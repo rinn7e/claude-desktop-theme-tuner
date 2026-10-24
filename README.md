@@ -1,3 +1,5 @@
+<img src="public/logo.svg" alt="" width="72" height="72">
+
 # Claude Desktop Theme Tuner
 
 Pick a color theme for the Claude desktop app, tune its colors with a live

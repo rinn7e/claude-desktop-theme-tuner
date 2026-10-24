@@ -78,12 +78,22 @@ const BAR =
 // right (wide screens only: stacked panes have no sides to swap)
 const headerView = (dispatch: Dispatcher<Msg>) => (
   <header className={BAR}>
-    <span className='flex min-w-0 items-baseline gap-[10px]'>
-      <h1 className='shrink-0 text-base font-semibold tracking-tight'>
-        Claude Desktop Theme Tuner
-      </h1>
-      <span className='truncate text-xs text-ui-ink-faint'>
-        Pick a theme, tune its colors, copy the snippet.
+    <span className='flex min-w-0 items-center gap-[10px]'>
+      {/* The logo lives in public/, served next to the page */}
+      <img
+        src={`${import.meta.env.BASE_URL}logo.svg`}
+        alt=''
+        width={24}
+        height={24}
+        className='h-[24px] w-[24px] shrink-0'
+      />
+      <span className='flex min-w-0 items-baseline gap-[10px]'>
+        <h1 className='shrink-0 text-base font-semibold tracking-tight'>
+          Claude Desktop Theme Tuner
+        </h1>
+        <span className='truncate text-xs text-ui-ink-faint'>
+          Pick a theme, tune its colors, copy the snippet.
+        </span>
       </span>
     </span>
     <button

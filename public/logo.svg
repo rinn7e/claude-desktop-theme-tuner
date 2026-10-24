@@ -1,0 +1,25 @@
+<!-- 128px and up: four quadrants (swatches, code, Solarized Light, Dracula), concept z2. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <clipPath id="tile"><rect width="128" height="128" rx="28"/></clipPath>
+  </defs>
+  <g clip-path="url(#tile)">
+    <!-- swatches -->
+    <rect width="64" height="64" fill="#fafafa"/>
+    <circle cx="22" cy="34" r="7" fill="#cb4b16"/>
+    <circle cx="38" cy="34" r="7" fill="#268bd2"/>
+    <circle cx="54" cy="34" r="7" fill="#d33682"/>
+    <!-- code -->
+    <rect y="64" width="64" height="64" fill="#e4e4e7"/>
+    <rect x="16" y="84" width="26" height="7" rx="3.5" fill="#8250df"/>
+    <rect x="22" y="98" width="20" height="7" rx="3.5" fill="#cf222e"/>
+    <!-- light theme -->
+    <rect x="64" width="64" height="64" fill="#fdf6e3"/>
+    <rect x="76" y="24" width="32" height="7" rx="3.5" fill="#073642"/>
+    <rect x="76" y="38" width="22" height="7" rx="3.5" fill="#cb4b16"/>
+    <!-- dark theme -->
+    <rect x="64" y="64" width="64" height="64" fill="#282a36"/>
+    <rect x="76" y="84" width="32" height="7" rx="3.5" fill="#f8f8f2"/>
+    <rect x="76" y="98" width="22" height="7" rx="3.5" fill="#bd93f9"/>
+  </g>
+</svg>
