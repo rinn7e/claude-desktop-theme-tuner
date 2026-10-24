@@ -361,30 +361,61 @@ const modeColumnView = (
 // Close button or Escape
 // The steps to run a snippet in Claude, each with a screenshot of it
 // (Claude 3.6556.2 on macOS)
-const HELP_STEPS: { text: string; shot?: string }[] = [
+// A menu path or key in a step, set apart from the prose around it
+const ui = (text: string) => <b className='font-semibold text-ui-ink'>{text}</b>
+
+const HELP_STEPS: { text: React.ReactNode; shot?: string }[] = [
   {
-    text: 'Turn on Developer Mode once: in Claude, Help > Troubleshooting > Enable Developer Mode.',
+    text: (
+      <>
+        Turn on Developer Mode once: in Claude, choose{' '}
+        {ui('Help > Troubleshooting > Enable Developer Mode')}.
+      </>
+    ),
     shot: shotDeveloperMode,
   },
   {
-    text: 'Copy the theme snippet here, and read it first: it only adds a style.',
+    text: (
+      <>
+        {ui('Copy')} the theme snippet here, and read it first: it only adds a
+        style.
+      </>
+    ),
   },
   {
-    text: 'In Claude, choose Developer > Show Dev Tools (Option+Cmd+I).',
+    text: <>Choose {ui('Developer > Show Dev Tools')} (Option+Cmd+I).</>,
     shot: shotDevTools,
   },
-  { text: 'In DevTools, open the Sources tab.', shot: shotSources },
   {
-    text: 'Click >> next to Page and Workspace, and choose Snippets.',
+    text: <>In DevTools, open the {ui('Sources')} tab.</>,
+    shot: shotSources,
+  },
+  {
+    text: (
+      <>
+        Click {ui('>>')} next to Page and Workspace, and choose {ui('Snippets')}
+        .
+      </>
+    ),
     shot: shotSnippets,
   },
-  { text: 'Click + New snippet.', shot: shotNewSnippet },
+  { text: <>Click {ui('+ New snippet')}.</>, shot: shotNewSnippet },
   {
-    text: 'Paste the snippet, press Cmd+S to keep it, then Cmd+Enter to run it. The Console says "[theme] applied".',
+    text: (
+      <>
+        Paste the snippet, press {ui('Cmd+S')} to keep it, then{' '}
+        {ui('Cmd+Enter')} to run it. The Console says "[theme] applied".
+      </>
+    ),
     shot: shotRun,
   },
   {
-    text: 'The theme lasts until Claude restarts. After a restart, open Dev Tools, then Sources > Snippets, and run the saved snippet again.',
+    text: (
+      <>
+        The theme lasts until Claude restarts. After a restart, open Dev Tools,
+        then {ui('Sources > Snippets')}, and run the saved snippet again.
+      </>
+    ),
   },
 ]
 
@@ -417,21 +448,28 @@ const helpDialogView = (model: Model, dispatch: Dispatcher<Msg>) =>
             Close
           </button>
         </div>
-        {/* shrink-0: the dialog scrolls instead of squashing the screenshots */}
-        <ol className='flex shrink-0 list-decimal flex-col gap-[18px] pl-[20px] text-sm text-ui-ink-muted'>
-          {HELP_STEPS.map(({ text, shot }) => (
-            <li key={text}>
-              <div className='flex flex-col gap-[8px]'>
-                {text}
+        {/* shrink-0: the dialog scrolls instead of squashing the screenshots.
+            Each step: a numbered badge, its text, and its screenshot on a
+            gray tray so the screenshot's white edges don't blend in. */}
+        <ol className='flex shrink-0 flex-col divide-y divide-ui-line text-sm text-ui-ink-muted'>
+          {HELP_STEPS.map(({ text, shot }, i) => (
+            <li key={i} className='flex gap-[12px] py-[16px]'>
+              <span className='flex h-[24px] w-[24px] shrink-0 items-center justify-center rounded-full bg-ui-brand text-xs font-semibold text-ui-brand-ink'>
+                {i + 1}
+              </span>
+              <div className='flex min-w-0 flex-1 flex-col gap-[12px] pt-[2px] leading-relaxed'>
+                <p>{text}</p>
                 {shot ? (
-                  <img
-                    src={shot}
-                    alt=''
-                    loading='lazy'
-                    width={1490}
-                    height={1166}
-                    className='h-auto w-full rounded-lg ring-1 ring-ui-line'
-                  />
+                  <div className='rounded-lg bg-ui-field p-[10px]'>
+                    <img
+                      src={shot}
+                      alt=''
+                      loading='lazy'
+                      width={1490}
+                      height={1166}
+                      className='h-auto w-full rounded-md shadow-[0_1px_4px_rgba(0,0,0,0.12)] ring-1 ring-black/10'
+                    />
+                  </div>
                 ) : null}
               </div>
             </li>
