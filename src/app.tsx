@@ -855,7 +855,12 @@ const creditView = (theme: Theme) =>
 
 // One mode's preview: a caption the width of the mock (mode and theme on the
 // left, the colors' credit on the right) over the mock, which fills the rest
-const previewCardView = (model: Model, mode: Mode, label: string) => {
+const previewCardView = (
+  model: Model,
+  mode: Mode,
+  label: string,
+  fill = false,
+) => {
   const slot = model[mode]
   const palette = slot.enabled ? slot.theme.palette : STOCK[mode]
   return (
@@ -878,7 +883,7 @@ const previewCardView = (model: Model, mode: Mode, label: string) => {
             sideways. The padding leaves room for its shadow, which the
             scrolling box would clip, and the caption above has the same inset */}
         <div className='flex min-h-0 w-full flex-1 app-scroll overflow-x-auto p-[16px]'>
-          {claudeMockView(palette)}
+          {claudeMockView(palette, fill)}
         </div>
       </div>
     </div>
@@ -894,23 +899,24 @@ const previewView = (model: Model) => (
   </section>
 )
 
-// Only the previews at a fixed size, for screenshots (#view=preview): the
-// themed modes, or both when neither is. data-ready tells a headless browser
-// the theme is in place
+// Only the previews, for screenshots (#view=preview): the themed modes, or
+// both when neither is. As wide as the window up to 1280px, so an agent's
+// narrow browser pane shows the whole mock. data-ready tells a headless
+// browser the theme is in place
 const previewOnlyView = (model: Model) => {
   const themed = MODES.filter(({ mode }) => model[mode].enabled)
   return (
     <main
       data-ready
-      className='preview-dots flex min-h-screen w-[1280px] flex-col gap-[24px] p-[24px]'
+      className='preview-dots flex min-h-screen w-full max-w-[1280px] flex-col gap-[24px] p-[24px]'
     >
       {/* A bad link says why instead of showing the wrong theme silently */}
       {model.presetNotice?.kind === 'error'
         ? presetNoticeView(model, () => {})
         : null}
       {(themed.length ? themed : MODES).map(({ mode, label }) => (
-        <div key={mode} className='flex h-[36rem] flex-col'>
-          {previewCardView(model, mode, label)}
+        <div key={mode} className='flex h-[38rem] flex-col'>
+          {previewCardView(model, mode, label, true)}
         </div>
       ))}
     </main>

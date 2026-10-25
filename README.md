@@ -21,7 +21,8 @@ preview, and copy it as a DevTools snippet. Light and dark mode each get their
 own theme, and the app follows your OS between them. Tested against Claude
 desktop 3.6556.2 on macOS (the version is shown in the app's title bar).
 
-**Open the app: [rinn7e.com/claude-desktop-theme-tuner](https://rinn7e.com/claude-desktop-theme-tuner/)**
+**Open the app: [rinn7e.com/claude-desktop-theme-tuner](https://rinn7e.com/claude-desktop-theme-tuner/)**,
+or [let your AI agent design a theme for you](#design-a-theme-with-an-ai-agent).
 
 <p align="center">
   <img src="doc/screenshot.png" alt="The tuner: customizer and snippet on the left, light and dark previews of the Claude app on the right">
@@ -49,11 +50,9 @@ desktop 3.6556.2 on macOS (the version is shown in the app's title bar).
 - **Share links:** the gear menu's **Copy Share Link** puts the setup in the
   link itself (`#theme=...`, which never reaches the server); opening it loads
   the theme.
-- **Made for AI agents:** an agent (Claude Code, Codex...) can design themes
-  without clicking: it writes the theme as a link and screenshots
-  `#...&view=preview`, which shows only the preview. [llms.txt](public/llms.txt),
-  served with the app and linked as "Agent guide" in its title bar, tells it
-  how; [presets.json](public/presets.json) has every preset's colors.
+- **Made for AI agents:** an agent can design themes for you and show you
+  screenshots, without clicking through the page; see
+  [Design a theme with an AI agent](#design-a-theme-with-an-ai-agent).
 - **Preview:** mocks of the Claude app in light and dark mode at once, painted
   with the same variables the snippet sets.
 - **Less GPU:** while Claude works, its looping animations (the shimmer on its
@@ -63,6 +62,32 @@ desktop 3.6556.2 on macOS (the version is shown in the app's title bar).
   which the app never sets; it roughly halved the GPU load in our test.
 - **Readable output:** the snippet is shown in full before you copy it. It adds
   one `<style>` element and nothing else, and its CSS reads as plain CSS.
+
+## Design a theme with an AI agent
+
+The tuner works with AI agents that can browse or run commands, such as
+Claude Code, Claude Desktop's Code tab or Codex. Give one the link and say
+what you want:
+
+```
+Use https://rinn7e.com/claude-desktop-theme-tuner/ to design a theme based on
+Solarized Light with neon magenta accents, and show me screenshots of 5 styles.
+```
+
+The agent finds the "Agent guide" link in the tuner's title bar and reads
+[llms.txt](public/llms.txt), which explains how to work without clicking
+through the page:
+
+1. It writes each theme as JSON (a preset plus the colors it changes; every
+   preset's colors are in [presets.json](public/presets.json)) and checks the
+   contrast rules the tuner's own presets follow.
+2. It puts each theme in a link (`#theme=...`). With `&view=preview`, the link
+   shows only the themed preview of Claude, which the agent screenshots.
+3. It sends you the screenshots, each with its link. Open the one you like:
+   the tuner loads it, and you apply it as below.
+
+Applying stays your step: the snippet runs in your Claude app, so you copy and
+run it yourself.
 
 ## Apply a theme
 

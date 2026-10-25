@@ -14,9 +14,10 @@ Source (MIT): https://github.com/rinn7e/claude-desktop-theme-tuner
 
     https://rinn7e.com/claude-desktop-theme-tuner/#theme=<JSON, URI-encoded>
 
-Add `&view=preview` to show only the preview of Claude, at a fixed width of
-1280px, for screenshots. Without it, the link opens the full tuner with the
-theme loaded, ready for the user to copy the snippet.
+Add `&view=preview` to show only the preview of Claude, for screenshots. It
+fills the window up to 1280px wide, so a window at least 700px wide shows the
+whole mock. Without it, the link opens the full tuner with the theme loaded,
+ready for the user to copy the snippet.
 
 The JSON:
 
