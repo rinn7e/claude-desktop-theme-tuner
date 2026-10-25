@@ -228,11 +228,13 @@ export const claudeMockView = (palette: Palette) => (
     style={tokenStyle(palette)}
   >
     {sidebarView()}
-    <main className='flex min-w-0 flex-1 flex-col'>
+    {/* A div, not <main>: the page's main content is the tuner, and text
+        readers (and agents) that pick <main> should land there */}
+    <div className='flex min-w-0 flex-1 flex-col'>
       {topBarView()}
       {chatView()}
       {composerView()}
-    </main>
+    </div>
     {sidePanelView()}
   </div>
 )

@@ -237,6 +237,25 @@ const headerView = (model: Model, dispatch: Dispatcher<Msg>) => (
       </span>
     </span>
     <div className='flex shrink-0 items-center gap-[8px]'>
+      {/* Visible on purpose: an agent driving a browser reads the rendered
+          links (not index.html's head), so this is how it finds the guide */}
+      <a
+        href={`${import.meta.env.BASE_URL}llms.txt`}
+        target='_blank'
+        rel='noreferrer'
+        title='Guide for AI agents (llms.txt): design themes as links and screenshot them, without filling in the color fields'
+        className={LINK_BUTTON}
+      >
+        <span aria-hidden='true'>🤖</span>
+        <span aria-hidden='true' className='hidden @3xl:inline'>
+          For AI agents
+        </span>
+        {/* The full name for screen readers and page-text tools, at any width */}
+        <span className='sr-only'>
+          Guide for AI agents (llms.txt): design themes as links and screenshot
+          them, without filling in the color fields
+        </span>
+      </a>
       <span className='hidden text-xs whitespace-nowrap text-ui-ink-faint @4xl:inline'>
         Built by{' '}
         <a
@@ -903,7 +922,7 @@ export const App = ({ model, dispatch }: AppProps) =>
   model.previewOnly ? (
     previewOnlyView(model)
   ) : (
-    <div className='grid min-h-full grid-cols-1 lg:h-full lg:grid-cols-2'>
+    <main className='grid min-h-full grid-cols-1 lg:h-full lg:grid-cols-2'>
       <aside
         className={`flex flex-col border-ui-line bg-ui-panel lg:min-h-0 ${
           model.swapped ? 'lg:order-last lg:border-l' : 'lg:border-r'
@@ -914,5 +933,5 @@ export const App = ({ model, dispatch }: AppProps) =>
       </aside>
       {previewView(model)}
       {helpDialogView(model, dispatch)}
-    </div>
+    </main>
   )
