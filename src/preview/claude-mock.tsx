@@ -112,16 +112,42 @@ const topBarView = () => (
 )
 
 const chatView = () => (
-  <div className='flex flex-1 flex-col gap-[14px] overflow-hidden px-[24px] py-[18px] text-[0.8125rem] leading-relaxed'>
+  <div className='flex min-h-0 flex-1 flex-col gap-[14px] overflow-y-auto px-[24px] py-[18px] text-[0.8125rem] leading-relaxed'>
     <div className='flex justify-end'>
       <div className='max-w-[80%] rounded-xl px-[12px] py-[8px] bg-[var(--cds-bg-user-message)] text-[var(--cds-text-primary)]'>
         the docked sidebar is still white, can you fix it?
       </div>
     </div>
     <div className='flex flex-col gap-[8px] text-[var(--cds-text-primary)]'>
+      {/* Claude draws its thinking in the secondary color, so the preview
+          shows how far it sits from the reply */}
       <span className='text-[0.75rem] text-[var(--cds-text-muted)]'>
-        Ran 2 commands ›
+        Thought for 8s ⌄
       </span>
+      <p className='text-[var(--cds-text-secondary)]'>
+        The sidebar is themed, so something paints over it when docked. Let me
+        check which variable the docked state reads.
+      </p>
+      {/* An expanded tool group: one command open, the other collapsed */}
+      <span className='text-[0.75rem] text-[var(--cds-text-muted)]'>
+        Ran 2 commands ▾
+      </span>
+      <div className='rounded-lg border border-[var(--cds-border)] text-[0.75rem]'>
+        <div className='flex flex-col gap-[6px] px-[12px] py-[8px]'>
+          <span className='text-[var(--cds-text-secondary)]'>
+            Searched the sidebar styles ▾
+          </span>
+          <code className='font-mono text-[0.6875rem] text-[var(--cds-text-primary)]'>
+            $ grep -rn "sidebar-tint" src
+          </code>
+          <code className='font-mono text-[0.6875rem] text-[var(--cds-text-secondary)]'>
+            src/sidebar.css:12: --df-sidebar-tint
+          </code>
+        </div>
+        <div className='border-t border-[var(--cds-border)] px-[12px] py-[6px] text-[var(--cds-text-secondary)]'>
+          Checked the docked layout ▸
+        </div>
+      </div>
       <p>
         Found it: the docked sidebar mixes{' '}
         <code className='rounded px-[4px] py-[1px] text-[0.75rem] bg-[var(--cds-bg-neutral)]'>
