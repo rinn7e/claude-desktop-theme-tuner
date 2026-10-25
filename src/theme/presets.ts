@@ -335,6 +335,30 @@ const HAND_TUNED: Theme[] = [
       wash: '#d8a657',
     },
   },
+  {
+    // A five-color palette: slate #474d64, teal #509777, green #6fb16f,
+    // yellow #dad881, cream #efeeba. Its cream is too green for a whole
+    // window, so the surfaces are Solarized Light's and the palette paints
+    // the text and highlights
+    id: 'meadow-light',
+    name: 'Meadow Light',
+    mode: 'light',
+    palette: {
+      frame: '#eee8d5', // Solarized base2
+      canvas: '#fdf6e3', // Solarized base3
+      raised: '#f5efdc',
+      pressed: '#e4ddc8',
+      text: '#2e3248', // slate, darkened so the secondary fits between it and AA
+      textSecondary: '#3b6b57', // teal, darkened for AA
+      textMuted: '#3b6b57',
+      line: '#474d64', // slate
+      accent: '#237d32', // green, darkened for AA and saturated to stay lively
+      accentHover: '#1b6a28',
+      onAccent: '#ffffff',
+      selected: '#dad881', // yellow
+      wash: '#6fb16f', // green
+    },
+  },
 ]
 
 export const presetById = (id: string): Theme | undefined =>
@@ -342,7 +366,7 @@ export const presetById = (id: string): Theme | undefined =>
 
 // The order of Claude's "Code appearance" lists (Claude 3.6556.2), so each
 // app theme sits where its code theme does; presets Claude has no code theme
-// for (Gruvbox, Groovy Lambda Black) come after
+// for (Gruvbox, Groovy Lambda Black, Meadow Light) come after
 const CLAUDE_ORDER = [
   'claude-light',
   'github-light',
