@@ -112,7 +112,7 @@ const topBarView = () => (
 )
 
 const chatView = () => (
-  <div className='flex min-h-0 flex-1 flex-col gap-[14px] overflow-y-auto px-[24px] py-[18px] text-[0.8125rem] leading-relaxed'>
+  <div className='mock-scroll flex min-h-0 flex-1 flex-col gap-[14px] overflow-y-auto px-[24px] py-[18px] text-[0.8125rem] leading-relaxed'>
     <div className='flex justify-end'>
       <div className='max-w-[80%] rounded-xl px-[12px] py-[8px] bg-[var(--cds-bg-user-message)] text-[var(--cds-text-primary)]'>
         the docked sidebar is still white, can you fix it?

@@ -69,10 +69,22 @@
   @apply scrollbar scrollbar-w-[6px] scrollbar-h-[6px] scrollbar-thumb-rounded-full scrollbar-thumb-ui-scroll hover:scrollbar-thumb-ui-scroll-hover scrollbar-track-transparent scrollbar-corner-transparent;
 }
 
+/* The same scrollbar inside the Claude mock, painted with the theme's line
+ * and muted text colors like the rest of the mock */
+.mock-scroll {
+  @apply scrollbar scrollbar-w-[6px] scrollbar-h-[6px] scrollbar-thumb-rounded-full scrollbar-track-transparent scrollbar-corner-transparent;
+  /* Set directly: the plugin's arbitrary colors skip Chromium's variable */
+  --scrollbar-thumb: var(--cds-border-strong);
+}
+.mock-scroll:hover {
+  --scrollbar-thumb: var(--cds-text-muted);
+}
+
 /* Chromium also honors the standard properties, and they override the
  * ::-webkit-scrollbar styles above; leave them to auto there */
 @supports selector(::-webkit-scrollbar) {
-  .app-scroll {
+  .app-scroll,
+  .mock-scroll {
     scrollbar-color: auto !important;
     scrollbar-width: auto !important;
   }
