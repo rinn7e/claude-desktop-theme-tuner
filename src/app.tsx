@@ -208,6 +208,10 @@ const settingsMenuView = (model: Model, dispatch: Dispatcher<Msg>) => (
   </div>
 )
 
+// The agent guide link's name: what agents listing the page's links read
+const AGENT_GUIDE =
+  'Guide for AI agents (llms.txt): design themes as links and screenshot them, without filling in the color fields'
+
 // The title and what the tool does on one line; at the right, who built it,
 // the sponsor and source links, and the settings menu
 const headerView = (model: Model, dispatch: Dispatcher<Msg>) => (
@@ -237,35 +241,32 @@ const headerView = (model: Model, dispatch: Dispatcher<Msg>) => (
       </span>
     </span>
     <div className='flex shrink-0 items-center gap-[8px]'>
-      {/* Visible on purpose: an agent driving a browser reads the rendered
-          links (not index.html's head), so this is how it finds the guide */}
-      <a
-        href={`${import.meta.env.BASE_URL}llms.txt`}
-        target='_blank'
-        rel='noreferrer'
-        title='Guide for AI agents (llms.txt): design themes as links and screenshot them, without filling in the color fields'
-        className={LINK_BUTTON}
-      >
-        <span aria-hidden='true'>🤖</span>
-        <span aria-hidden='true' className='hidden @3xl:inline'>
-          For AI agents
-        </span>
-        {/* The full name for screen readers and page-text tools, at any width */}
-        <span className='sr-only'>
-          Guide for AI agents (llms.txt): design themes as links and screenshot
-          them, without filling in the color fields
-        </span>
-      </a>
-      <span className='hidden text-xs whitespace-nowrap text-ui-ink-faint @4xl:inline'>
-        Built by{' '}
+      {/* A real link on purpose: an agent driving a browser reads the
+          rendered links (not index.html's head), so this is how it finds the
+          guide. Quiet text beside "Built by", but visible at every width:
+          tools that list a page's links skip one with nothing visible */}
+      <span className='flex items-center gap-[6px] text-xs whitespace-nowrap text-ui-ink-faint'>
         <a
-          href='https://github.com/rinn7e'
+          href={`${import.meta.env.BASE_URL}llms.txt`}
           target='_blank'
           rel='noreferrer'
+          aria-label={AGENT_GUIDE}
+          title={AGENT_GUIDE}
           className='text-ui-ink-muted hover:text-ui-ink hover:underline'
         >
-          rinn7e
+          Agent guide
         </a>
+        <span className='hidden @4xl:inline'>
+          · Built by{' '}
+          <a
+            href='https://github.com/rinn7e'
+            target='_blank'
+            rel='noreferrer'
+            className='text-ui-ink-muted hover:text-ui-ink hover:underline'
+          >
+            rinn7e
+          </a>
+        </span>
       </span>
       <a
         href='https://github.com/sponsors/rinn7e'

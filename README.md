@@ -52,7 +52,8 @@ desktop 3.6556.2 on macOS (the version is shown in the app's title bar).
 - **Made for AI agents:** an agent (Claude Code, Codex...) can design themes
   without clicking: it writes the theme as a link and screenshots
   `#...&view=preview`, which shows only the preview. [llms.txt](public/llms.txt),
-  served with the app, tells it how.
+  served with the app and linked as "Agent guide" in its title bar, tells it
+  how; [presets.json](public/presets.json) has every preset's colors.
 - **Preview:** mocks of the Claude app in light and dark mode at once, painted
   with the same variables the snippet sets.
 - **Less GPU:** while Claude works, its looping animations (the shimmer on its

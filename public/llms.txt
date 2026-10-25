@@ -85,6 +85,16 @@ current theme.
 
 ## Presets
 
+Every preset's 13 colors, as JSON, to start from or to check contrast
+against without a browser:
+
+    https://rinn7e.com/claude-desktop-theme-tuner/presets.json
+
+    [{ "id": "solarized-light", "name": "Solarized Light", "mode": "light",
+       "palette": { "frame": "#eee8d5", "canvas": "#fdf6e3", ... } }, ...]
+
+The ids:
+
 Light: claude-light, github-light, pierre-light, vs-code-light, one-light,
 catppuccin-latte, solarized-light, vitesse-light, min-light, rose-pine-dawn,
 slack-ochin, gruvbox-light, meadow-light
@@ -102,9 +112,15 @@ command:
 
     npx playwright screenshot --wait-for-selector "[data-ready]" --full-page "<link>" theme-1.png
 
+If it fails because Playwright's browser is not installed, either install it
+once with `npx playwright install chromium` (a one-time download) or open the links
+in your browser tool instead. In a browser tool, navigate to each link and
+take a screenshot; never fill in the color fields one by one.
+
 ## Recipe: "design me a theme"
 
-1. Pick a starting preset from the user's request, or write all 13 colors.
+1. Pick a starting preset from the user's request (its colors are in
+   presets.json), or write all 13 colors.
 2. Design the variants the user asked for, keeping the rules above.
 3. Build one `&view=preview` link per variant and screenshot each.
 4. Show the user the screenshots, each with its link without `&view=preview`.
