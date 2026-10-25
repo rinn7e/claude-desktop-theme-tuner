@@ -386,12 +386,26 @@ const presetsView = (model: Model, dispatch: Dispatcher<Msg>, mode: Mode) => {
                 aria-pressed={active}
                 className={`flex items-center gap-[6px] rounded-full border py-[4px] pr-[10px] pl-[5px] text-xs transition-colors ${
                   active
-                    ? 'border-ui-brand bg-ui-field font-medium ring-1 ring-ui-brand'
+                    ? 'border-ui-brand bg-ui-field ring-1 ring-ui-brand'
                     : 'border-ui-line hover:border-ui-ink-faint'
                 }`}
               >
                 {swatchView(t)}
-                {t.name}
+                {/* An invisible bold copy keeps the width of the selected
+                    (bold) name, so picking a chip doesn't shift its row */}
+                <span className='grid'>
+                  <span
+                    aria-hidden='true'
+                    className='invisible col-start-1 row-start-1 font-medium'
+                  >
+                    {t.name}
+                  </span>
+                  <span
+                    className={`col-start-1 row-start-1 ${active ? 'font-medium' : ''}`}
+                  >
+                    {t.name}
+                  </span>
+                </span>
               </button>
             )
           })}
