@@ -4,12 +4,30 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Claude Desktop Theme Tuner</title>
+    <meta
+      name="description"
+      content="Pick or tune a color theme for the Claude desktop app and copy it as a DevTools snippet."
+    />
+    <!-- AI agents: how to design a theme as a link, without clicking -->
+    <link
+      rel="alternate"
+      type="text/plain"
+      href="./llms.txt"
+      title="Guide for AI agents"
+    />
     <link rel="icon" type="image/svg+xml" href="./logo.svg" />
     <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="./favicon-16.png" />
     <link rel="apple-touch-icon" href="./logo-128.png" />
   </head>
   <body>
+    <noscript>
+      <p>
+        Claude Desktop Theme Tuner themes the Claude desktop app. It needs
+        JavaScript. AI agents: read <a href="./llms.txt">llms.txt</a> to design
+        a theme as a link and screenshot it, without clicking.
+      </p>
+    </noscript>
     <div id="root"></div>
     <script type="module" src="/src/root.tsx"></script>
   </body>

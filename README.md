@@ -39,12 +39,20 @@ desktop 3.6556.2 on macOS (the version is shown in the app's title bar).
   Dark Dimmed), Pierre, VS Code, One Light and One Dark Pro, Catppuccin Latte
   and Mocha, Solarized, Vitesse, Min, Rosé Pine and Rosé Pine Dawn, Slack
   Ochin and Slack Dark, Dracula and Dracula Soft, Nord, Monokai, Tokyo Night,
-  Night Owl and Ayu Dark. Plus Gruvbox Light and Dark and Groovy Lambda Black.
+  Night Owl and Ayu Dark. Plus Gruvbox Light and Dark, Groovy Lambda Black
+  and Meadow Light.
 - **Tuning:** every color of a theme has a picker, with WCAG contrast checks for
   the text and accent pairs. Edits are kept in your browser.
 - **Presets as files:** the gear menu saves both modes and the options to a
   JSON file and loads one back, to keep a theme or share it. Loaded names and
   links are cleaned, so a shared file can't slip extra CSS into the snippet.
+- **Share links:** the gear menu's **Copy Share Link** puts the setup in the
+  link itself (`#theme=...`, which never reaches the server); opening it loads
+  the theme.
+- **Made for AI agents:** an agent (Claude Code, Codex...) can design themes
+  without clicking: it writes the theme as a link and screenshots
+  `#...&view=preview`, which shows only the preview. [llms.txt](public/llms.txt),
+  served with the app, tells it how.
 - **Preview:** mocks of the Claude app in light and dark mode at once, painted
   with the same variables the snippet sets.
 - **Less GPU:** while Claude works, its looping animations (the shimmer on its

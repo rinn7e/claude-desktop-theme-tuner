@@ -10,6 +10,11 @@ import {
   encodePresetFile,
   presetFileName,
 } from './storage/preset-file'
+import {
+  type LinkSetupResult,
+  linkHash,
+  parseLinkHash,
+} from './storage/share-link'
 import { type Stored, loadStored, saveStored } from './storage/storage'
 import { isHex } from './theme/color'
 import { themeCss } from './theme/css'
@@ -83,21 +88,40 @@ export const snippetDoesSomething = (model: Model): boolean =>
 export const textFor = (model: Model, target: CopyTarget): string =>
   target === 'theme' ? snippetOf(model) : REVERT_COMMAND
 
-export const init = (): [Model, Cmd<Msg>] => {
-  const stored = loadStored(defaultStored)
+// The page's address without its hash, for share links
+const pageUrl = (): string => window.location.href.replace(/#.*$/, '')
+
+// Puts a setup from a link (#theme=...) in place of the stored one. In the
+// full view it is saved and the hash cleared, so a reload keeps later edits;
+// a preview-only page (#view=preview, for screenshots) changes nothing stored
+const openHash = (model: Model, hash: string): [Model, Cmd<Msg>] => {
+  const link = parseLinkHash(hash, presetOf(model))
+  const viewed = { ...model, previewOnly: link.previewOnly }
+  if (!link.setup) return [viewed, Cmd.none()]
+  const next = handleLinkSetup(viewed, link.setup)
+  if (link.previewOnly || next.presetNotice?.kind !== 'loaded')
+    return [next, Cmd.none()]
+  window.history.replaceState(null, '', pageUrl())
   return [
+    next,
+    Cmd.batch([saveCmd(next), clearNoticeCmd(next.presetNotice.text)]),
+  ]
+}
+
+export const init = (): [Model, Cmd<Msg>] =>
+  openHash(
     {
-      ...stored,
+      ...loadStored(defaultStored),
       shown: 'theme',
       copied: null,
       copyFailed: null,
       helpOpen: false,
       menuOpen: false,
       presetNotice: null,
+      previewOnly: false,
     },
-    Cmd.none(),
-  ]
-}
+    window.location.hash,
+  )
 
 const saveCmd = (model: Model): Cmd<Msg> =>
   Task.attempt(
@@ -278,6 +302,45 @@ export const handlePresetFileRead = (
       }
 }
 
+// A setup from a link: in place, or why it was refused
+export const handleLinkSetup = (model: Model, setup: LinkSetupResult): Model =>
+  setup.ok
+    ? {
+        ...handleLoadPreset(model, setup.preset),
+        presetNotice: {
+          kind: 'loaded',
+          text: 'Loaded the theme from the link.',
+        },
+      }
+    : {
+        ...model,
+        presetNotice: {
+          kind: 'error',
+          text: `Couldn't load the link: ${setup.error}`,
+        },
+      }
+
+// A link to the current setup
+export const shareLinkOf = (model: Model, page: string): string =>
+  page + linkHash(presetOf(model))
+
+const copyLinkCmd = (model: Model): Cmd<Msg> =>
+  Task.attempt(
+    Task.fromPromise(() => writeClipboard(shareLinkOf(model, pageUrl()))),
+    (result): Msg =>
+      result.tag === 'Ok' ? { _tag: 'LinkCopied' } : { _tag: 'LinkCopyFailed' },
+  )
+
+// When the browser refuses to copy, the link goes in the address bar instead
+const showLinkCmd = (model: Model): Cmd<Msg> =>
+  Task.attempt(
+    Task.fromPromise(() => {
+      window.history.replaceState(null, '', shareLinkOf(model, pageUrl()))
+      return Promise.resolve()
+    }),
+    (): Msg => ({ _tag: 'NoOp' }),
+  )
+
 const saved = (model: Model): [Model, Cmd<Msg>] => [model, saveCmd(model)]
 
 export const update = (msg: Msg, model: Model): [Model, Cmd<Msg>] => {
@@ -319,6 +382,29 @@ export const update = (msg: Msg, model: Model): [Model, Cmd<Msg>] => {
           presetFileName(presetOf(model)),
           encodePresetFile(presetOf(model)),
         ),
+      ]
+    case 'HashChanged':
+      // A link pasted into a tab that already has the tuner open
+      return openHash(model, msg.hash)
+    case 'CopyLink':
+      return [{ ...model, menuOpen: false }, copyLinkCmd(model)]
+    case 'LinkCopied': {
+      const text = 'Copied a link to this setup.'
+      return [
+        { ...model, presetNotice: { kind: 'loaded', text } },
+        clearNoticeCmd(text),
+      ]
+    }
+    case 'LinkCopyFailed':
+      return [
+        {
+          ...model,
+          presetNotice: {
+            kind: 'error',
+            text: "Couldn't copy the link: copy it from the address bar.",
+          },
+        },
+        showLinkCmd(model),
       ]
     case 'LoadPresetFile':
       return [

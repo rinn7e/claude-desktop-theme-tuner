@@ -1,0 +1,114 @@
+# Claude Desktop Theme Tuner: a guide for AI agents
+
+The tuner themes the Claude desktop app. A theme is 13 colors per mode
+(light and dark). The tuner shows a live preview of Claude in those colors
+and writes a DevTools snippet that the user runs in Claude to apply it.
+
+You never need to click through the page. Describe a theme as JSON, put it in
+a link, and open or screenshot the link.
+
+App: https://rinn7e.com/claude-desktop-theme-tuner/
+Source (MIT): https://github.com/rinn7e/claude-desktop-theme-tuner
+
+## The link
+
+    https://rinn7e.com/claude-desktop-theme-tuner/#theme=<JSON, URI-encoded>
+
+Add `&view=preview` to show only the preview of Claude, at a fixed width of
+1280px, for screenshots. Without it, the link opens the full tuner with the
+theme loaded, ready for the user to copy the snippet.
+
+The JSON:
+
+    {
+      "light": {
+        "preset": "solarized-light",
+        "name": "Neon Solarized",
+        "colors": { "accent": "#c0009f", "accentHover": "#a3008a" }
+      },
+      "dark": { "preset": "dracula" },
+      "reduceMotion": false
+    }
+
+- `light`, `dark`: each optional. A mode left out stays as Claude ships it.
+- `preset`: a preset id (below) to start from. Optional.
+- `colors`: overrides the preset's colors, as `#rrggbb`. Without a `preset`,
+  all 13 colors are required.
+- `name`: shown in the tuner and in the snippet. Optional.
+- `reduceMotion`: true also turns off Claude's looping animations.
+
+Build the link with encodeURIComponent, for example:
+
+    node -e 'const theme = {light: {preset: "solarized-light", colors: {accent: "#c0009f"}}}; console.log("https://rinn7e.com/claude-desktop-theme-tuner/#theme=" + encodeURIComponent(JSON.stringify(theme)) + "&view=preview")'
+
+## The 13 colors
+
+Surfaces:
+- `frame`: sidebar, title bar, menus
+- `canvas`: chat area, composer, panes
+- `raised`: cards, inputs
+- `pressed`: hovered and stronger fills
+
+Text:
+- `text`: messages, titles
+- `textSecondary`: labels, list rows, Claude's thinking and tool rows
+- `textMuted`: hints, timestamps
+
+Accent and lines:
+- `accent`: links, buttons, focus rings, progress bars
+- `accentHover`: the hovered accent
+- `onAccent`: text and icons on accent buttons
+- `line`: borders, applied at 22% and 40% opacity
+
+Lists and washes:
+- `selected`: the selected sidebar row; hover uses it at 27%
+- `wash`: the user's message bubbles and neutral tints, applied at 10%
+
+## Rules for a good theme
+
+Contrast is WCAG contrast ratio. The tuner's own presets all pass these:
+
+- `text`, `textSecondary` and `textMuted` at least 4.5 on both `canvas` and
+  `frame`.
+- `accent` at least 4.5 on `canvas`: one color serves both links and buttons,
+  so a bright neon must be darkened to work as link text. Use the bright shade
+  for `accentHover` or `selected` instead, where it is not text.
+- `onAccent` at least 4.5 on `accent`.
+- `text` at least 4.5 on `selected`, and `selected` clearly visible against
+  `frame` (about 1.15 or more).
+- `textSecondary` dimmer than `text`, at least 1.5 apart, so Claude's thinking
+  reads apart from its replies; `textMuted` no brighter than `textSecondary`.
+- `raised` and `pressed` visibly different from `canvas` and `frame`.
+
+The full tuner (the link without `&view=preview`) shows these checks for the
+current theme.
+
+## Presets
+
+Light: claude-light, github-light, pierre-light, vs-code-light, one-light,
+catppuccin-latte, solarized-light, vitesse-light, min-light, rose-pine-dawn,
+slack-ochin, gruvbox-light, meadow-light
+
+Dark: claude-dark, github-dark, github-dark-dimmed, pierre-dark, vs-code-dark,
+one-dark, dracula, dracula-soft, catppuccin-mocha, nord, solarized-dark,
+vitesse-dark, min-dark, monokai, tokyo-night, night-owl, rose-pine, ayu-dark,
+slack-dark, gruvbox-dark, groovy-lambda-black
+
+## Screenshots
+
+With a browser tool, open the `&view=preview` link and wait for an element
+with the `data-ready` attribute. From a shell, Playwright does it in one
+command:
+
+    npx playwright screenshot --wait-for-selector "[data-ready]" --full-page "<link>" theme-1.png
+
+## Recipe: "design me a theme"
+
+1. Pick a starting preset from the user's request, or write all 13 colors.
+2. Design the variants the user asked for, keeping the rules above.
+3. Build one `&view=preview` link per variant and screenshot each.
+4. Show the user the screenshots, each with its link without `&view=preview`.
+5. The user opens the one they like. The tuner loads it and explains how to
+   apply it: copy the snippet, then run it in Claude's DevTools (Help >
+   Troubleshooting > Enable Developer Mode). Applying it is the user's step,
+   since it runs code in their Claude app.

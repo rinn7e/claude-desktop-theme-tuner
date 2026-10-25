@@ -28,6 +28,7 @@ const model: Model = {
   helpOpen: false,
   menuOpen: false,
   presetNotice: null,
+  previewOnly: false,
 }
 
 describe('sub-updaters', () => {

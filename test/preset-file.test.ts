@@ -29,6 +29,7 @@ const model: Model = {
   helpOpen: false,
   menuOpen: false,
   presetNotice: null,
+  previewOnly: false,
 }
 
 const preset: PresetFile = presetOf(model)

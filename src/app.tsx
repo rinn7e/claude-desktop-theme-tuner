@@ -124,7 +124,7 @@ const MENU_ITEM =
   'flex w-full items-center gap-[8px] rounded-md px-[10px] py-[6px] text-left text-xs whitespace-nowrap'
 
 // The settings menu under the gear: saving the setup to a JSON file,
-// loading one, and swapping the panes (wide screens only: stacked panes have
+// loading one, copying a link to it, and swapping the panes (wide screens only: stacked panes have
 // no sides to swap). A click outside or Escape closes it.
 const settingsMenuView = (model: Model, dispatch: Dispatcher<Msg>) => (
   <div
@@ -181,6 +181,15 @@ const settingsMenuView = (model: Model, dispatch: Dispatcher<Msg>) => (
               }}
             />
           </label>
+          <button
+            type='button'
+            role='menuitem'
+            title='Copy a link that opens the tuner with this setup'
+            onClick={() => dispatch({ _tag: 'CopyLink' })}
+            className={`${MENU_ITEM} hover:bg-ui-field`}
+          >
+            <span aria-hidden='true'>🔗</span> Copy Share Link
+          </button>
           <div className='hidden py-[4px] lg:block' role='separator'>
             <div className='h-px bg-ui-line' />
           </div>
@@ -748,7 +757,7 @@ const codePanelView = (model: Model, dispatch: Dispatcher<Msg>) => {
   )
 }
 
-// What loading a preset file did, under the title bar: an error stays until
+// What loading a preset file or a link did, under the title bar: an error stays until
 // dismissed, "Loaded" clears itself
 const presetNoticeView = (model: Model, dispatch: Dispatcher<Msg>) =>
   model.presetNotice ? (
@@ -851,19 +860,45 @@ const previewView = (model: Model) => (
   </section>
 )
 
+// Only the previews at a fixed size, for screenshots (#view=preview): the
+// themed modes, or both when neither is. data-ready tells a headless browser
+// the theme is in place
+const previewOnlyView = (model: Model) => {
+  const themed = MODES.filter(({ mode }) => model[mode].enabled)
+  return (
+    <main
+      data-ready
+      className='preview-dots flex min-h-screen w-[1280px] flex-col gap-[24px] p-[24px]'
+    >
+      {/* A bad link says why instead of showing the wrong theme silently */}
+      {model.presetNotice?.kind === 'error'
+        ? presetNoticeView(model, () => {})
+        : null}
+      {(themed.length ? themed : MODES).map(({ mode, label }) => (
+        <div key={mode} className='flex h-[36rem] flex-col'>
+          {previewCardView(model, mode, label)}
+        </div>
+      ))}
+    </main>
+  )
+}
+
 // Two halves: the customizer over the code it produces, and the preview;
 // swapped, the customizer moves to the right on wide screens
-export const App = ({ model, dispatch }: AppProps) => (
-  <div className='grid min-h-full grid-cols-1 lg:h-full lg:grid-cols-2'>
-    <aside
-      className={`flex flex-col border-ui-line bg-ui-panel lg:min-h-0 ${
-        model.swapped ? 'lg:order-last lg:border-l' : 'lg:border-r'
-      }`}
-    >
-      {customizerView(model, dispatch)}
-      {codePanelView(model, dispatch)}
-    </aside>
-    {previewView(model)}
-    {helpDialogView(model, dispatch)}
-  </div>
-)
+export const App = ({ model, dispatch }: AppProps) =>
+  model.previewOnly ? (
+    previewOnlyView(model)
+  ) : (
+    <div className='grid min-h-full grid-cols-1 lg:h-full lg:grid-cols-2'>
+      <aside
+        className={`flex flex-col border-ui-line bg-ui-panel lg:min-h-0 ${
+          model.swapped ? 'lg:order-last lg:border-l' : 'lg:border-r'
+        }`}
+      >
+        {customizerView(model, dispatch)}
+        {codePanelView(model, dispatch)}
+      </aside>
+      {previewView(model)}
+      {helpDialogView(model, dispatch)}
+    </div>
+  )

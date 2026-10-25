@@ -29,8 +29,10 @@ export interface Model {
   helpOpen: boolean
   // The settings menu under the gear button
   menuOpen: boolean
-  // What loading a preset file did: shown under the title bar
+  // What loading a preset file or a link did: shown under the title bar
   presetNotice: PresetNotice | null
+  // Only the previews, for screenshots: opened with #view=preview
+  previewOnly: boolean
 }
 
 export interface PresetNotice {
@@ -54,6 +56,10 @@ export type Msg =
   | { _tag: 'ToggleMenu' }
   | { _tag: 'CloseMenu' }
   | { _tag: 'SavePreset' }
+  | { _tag: 'HashChanged'; hash: string }
+  | { _tag: 'CopyLink' }
+  | { _tag: 'LinkCopied' }
+  | { _tag: 'LinkCopyFailed' }
   | { _tag: 'LoadPresetFile'; file: File }
   | { _tag: 'PresetFileRead'; fileName: string; text: string }
   | { _tag: 'PresetFileUnreadable'; fileName: string }

@@ -30,5 +30,3 @@ Ideas and open work, in no particular order.
 - **A truer preview**: the mock is hand-made and drifts from the real app over
   time. A preview built from a saved copy of Claude's markup would follow it
   more closely.
-- **Sharing themes**: encode a palette in the URL, so a tuned theme can be
-  shared as a link.

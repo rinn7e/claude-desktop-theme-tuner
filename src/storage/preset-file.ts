@@ -63,7 +63,7 @@ export const presetFileName = (preset: PresetFile): string =>
 // A name from a file goes into the snippet's CSS comments, so it must not be
 // able to close one ("*/") and inject CSS; control characters and length are
 // trimmed too
-const safeName = (name: string): string =>
+export const safeName = (name: string): string =>
   name
     .replace(/[\u0000-\u001f\u007f]/g, '')
     .replace(/\*\/|\/\*/g, '')
