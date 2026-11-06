@@ -28,7 +28,8 @@ The JSON:
         "colors": { "accent": "#c0009f", "accentHover": "#a3008a" }
       },
       "dark": { "preset": "dracula" },
-      "reduceMotion": false
+      "reduceMotion": false,
+      "thinArrows": false
     }
 
 - `light`, `dark`: each optional. A mode left out stays as Claude ships it.
@@ -37,6 +38,8 @@ The JSON:
   all 13 colors are required.
 - `name`: shown in the tuner and in the snippet. Optional.
 - `reduceMotion`: true also turns off Claude's looping animations.
+- `thinArrows`: true draws thin chevrons in place of Claude's filled triangle
+  arrows.
 
 Build the link with encodeURIComponent, for example:
 

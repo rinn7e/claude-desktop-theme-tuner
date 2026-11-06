@@ -25,6 +25,7 @@ export interface LinkSetup {
   light?: LinkMode
   dark?: LinkMode
   reduceMotion?: boolean
+  thinArrows?: boolean
 }
 
 // What the hash asks for: a setup, and whether to show only the previews
@@ -146,6 +147,7 @@ export const decodeLinkSetup = (
       light: light.slot,
       dark: dark.slot,
       reduceMotion: raw.reduceMotion === true,
+      thinArrows: raw.thinArrows === true,
     },
   }
 }
@@ -175,6 +177,7 @@ export const encodeLinkSetup = (preset: PresetFile): string => {
     light: linkModeOf(preset.light),
     dark: linkModeOf(preset.dark),
     ...(preset.reduceMotion ? { reduceMotion: true } : {}),
+    ...(preset.thinArrows ? { thinArrows: true } : {}),
   }
   return JSON.stringify(setup)
 }

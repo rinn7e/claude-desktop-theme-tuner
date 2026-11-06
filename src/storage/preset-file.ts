@@ -10,25 +10,30 @@ import { TESTED_CLAUDE_VERSION } from '../theme/presets'
 import { type Slot } from '../type'
 import { SlotCodec } from './storage'
 
-// A saved setup, as a JSON file: both modes and the reduce-motion option.
+// A saved setup, as a JSON file: both modes and the options (reduce motion,
+// thin arrows; thin arrows came later, so files without it still load).
 // `format` and `version` tell a tuner file apart from any other JSON and let
 // the format change later; `savedWith` records the Claude version it was
 // tuned against.
 const FORMAT = 'claude-desktop-theme-tuner'
 const VERSION = 1
 
-const PresetFileCodec = t.type({
-  format: t.literal(FORMAT),
-  version: t.literal(VERSION),
-  light: SlotCodec,
-  dark: SlotCodec,
-  reduceMotion: t.boolean,
-})
+const PresetFileCodec = t.intersection([
+  t.type({
+    format: t.literal(FORMAT),
+    version: t.literal(VERSION),
+    light: SlotCodec,
+    dark: SlotCodec,
+    reduceMotion: t.boolean,
+  }),
+  t.partial({ thinArrows: t.boolean }),
+])
 
 export interface PresetFile {
   light: Slot
   dark: Slot
   reduceMotion: boolean
+  thinArrows: boolean
 }
 
 export type PresetFileResult =
@@ -43,6 +48,7 @@ export const encodePresetFile = (preset: PresetFile): string =>
       light: preset.light,
       dark: preset.dark,
       reduceMotion: preset.reduceMotion,
+      thinArrows: preset.thinArrows,
     },
     null,
     2,
@@ -124,7 +130,7 @@ export const decodePresetFile = (text: string): PresetFileResult => {
         : "That's not a Claude Desktop Theme Tuner preset file.",
     }
   }
-  const { light, dark, reduceMotion } = result.right
+  const { light, dark, reduceMotion, thinArrows = false } = result.right
   for (const [mode, slot] of [
     ['light', light],
     ['dark', dark],
@@ -137,6 +143,11 @@ export const decodePresetFile = (text: string): PresetFileResult => {
   }
   return {
     ok: true,
-    preset: { light: slotOf(light), dark: slotOf(dark), reduceMotion },
+    preset: {
+      light: slotOf(light),
+      dark: slotOf(dark),
+      reduceMotion,
+      thinArrows,
+    },
   }
 }

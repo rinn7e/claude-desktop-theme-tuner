@@ -60,6 +60,11 @@ or [let your AI agent design a theme for you](#design-a-theme-with-an-ai-agent).
   [anthropics/claude-code#94003](https://github.com/anthropics/claude-code/issues/94003).
   The **Reduce motion** option switches on Claude's own reduce-motion guard,
   which the app never sets; it roughly halved the GPU load in our test.
+- **Thin arrows:** Claude's disclosure arrows (sidebar sections, sessions with
+  nested sessions, the file tree, panels, the chat's tool rows) are a filled
+  triangle that reads like the status dot beside it. The **Thin arrows**
+  option draws Claude's own thin chevron in their place, in the same
+  `<style>`.
 - **Readable output:** the snippet is shown in full before you copy it. It adds
   one `<style>` element and nothing else, and its CSS reads as plain CSS.
 
@@ -136,6 +141,7 @@ from them.
 | `src/storage/preset-file.ts`       | the preset JSON file: saving, and checking a loaded one                                       |
 | `snippets/diagnose.snippet.js`     | for maintainers: reports Claude's color variables after an update breaks the theme            |
 | `snippets/stock-colors.snippet.js` | reads Claude's own default colors, for the Claude presets                                     |
+| `snippets/arrows.snippet.js`       | lists every icon shape in Claude and where it shows, to find the bold arrows to restyle       |
 
 Three quirks shape the CSS, each explained where it is handled in the code:
 

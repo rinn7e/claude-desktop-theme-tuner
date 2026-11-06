@@ -84,3 +84,22 @@ translucent values were turned into solid ones, are in the `STOCK` comments in
   for a saving we never measured cleanly (others in #94003 saw no change from
   macOS Reduce transparency), so it was removed. The theme paints the sidebar
   solid anyway.
+
+## Icons and the disclosure arrows
+
+- Most icons are glyphs of Claude's own variable icon font,
+  `Anthropicons-Variable` (weights 400 to 700), in an empty-looking
+  `<span data-cds="Icon">`: the glyph is a private-use character, so it does
+  not show when the markup is copied. Only file-type icons and a few others
+  are inline SVGs.
+- The weight sets the stroke: Claude draws each icon at its own weight with
+  an inline `font-weight` (433.3 to 628.6), and `400` is the thinnest.
+- Every disclosure arrow is the same glyph, U+F011 (a filled triangle),
+  turned by `--cds-icon-rotate` (90deg when open). The Context panel uses
+  U+E02A, a thin chevron. The Thin arrows option (`src/theme/arrows.ts`)
+  makes U+F011 transparent and paints U+E02A over it in a `::before`.
+- CSS cannot select by glyph, so the option lists each place the arrow is
+  drawn (`data-group-caret`, `data-container-icon`, `data-tree-caret`,
+  `data-panel-open`, the chat's status rows). After a Claude update, run
+  `snippets/arrows.snippet.js` and check that list against what it reports;
+  an arrow the list misses stays a triangle.

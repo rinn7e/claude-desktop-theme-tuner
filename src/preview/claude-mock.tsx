@@ -73,7 +73,23 @@ const sessionRowView = (name: string, i: number) => (
   </div>
 )
 
-const sidebarView = () => (
+// A disclosure arrow, open (down) or closed (right): Claude's filled
+// triangle, or with the Thin arrows option its thin chevron, which Claude
+// turns a quarter for open rows (src/theme/arrows.ts)
+const caretView = (open: boolean, thin: boolean) =>
+  thin ? (
+    <span
+      aria-hidden='true'
+      className='inline-block'
+      style={{ rotate: open ? '90deg' : '0deg' }}
+    >
+      ›
+    </span>
+  ) : (
+    <span aria-hidden='true'>{open ? '▾' : '▸'}</span>
+  )
+
+const sidebarView = (thin: boolean) => (
   <aside className='flex w-[11rem] shrink-0 flex-col gap-[14px] p-[12px] bg-[var(--cds-fizzy-lake-color-sidebar)] border-r border-[var(--cds-border)]'>
     {trafficLightsView()}
     <div className='flex flex-col gap-[2px]'>
@@ -83,7 +99,7 @@ const sidebarView = () => (
     </div>
     <div className='flex flex-col gap-[2px]'>
       <div className='px-[8px] pb-[2px] text-[0.6875rem] text-[var(--cds-text-muted)]'>
-        Projects ▾
+        Projects {caretView(true, thin)}
       </div>
       {SESSIONS.map(sessionRowView)}
     </div>
@@ -111,7 +127,7 @@ const topBarView = () => (
   </div>
 )
 
-const chatView = () => (
+const chatView = (thin: boolean) => (
   <div className='mock-scroll flex min-h-0 flex-1 flex-col gap-[14px] overflow-y-auto px-[24px] py-[18px] text-[0.8125rem] leading-relaxed'>
     <div className='flex justify-end'>
       <div className='max-w-[80%] rounded-xl px-[12px] py-[8px] bg-[var(--cds-bg-user-message)] text-[var(--cds-text-primary)]'>
@@ -122,7 +138,7 @@ const chatView = () => (
       {/* Claude draws its thinking in the secondary color, so the preview
           shows how far it sits from the reply */}
       <span className='text-[0.75rem] text-[var(--cds-text-muted)]'>
-        Thought for 8s ⌄
+        Thought for 8s {caretView(true, thin)}
       </span>
       <p className='text-[var(--cds-text-secondary)]'>
         The sidebar is themed, so something paints over it when docked. Let me
@@ -130,12 +146,12 @@ const chatView = () => (
       </p>
       {/* An expanded tool group: one command open, the other collapsed */}
       <span className='text-[0.75rem] text-[var(--cds-text-muted)]'>
-        Ran 2 commands ▾
+        Ran 2 commands {caretView(true, thin)}
       </span>
       <div className='rounded-lg border border-[var(--cds-border)] text-[0.75rem]'>
         <div className='flex flex-col gap-[6px] px-[12px] py-[8px]'>
           <span className='text-[var(--cds-text-secondary)]'>
-            Searched the sidebar styles ▾
+            Searched the sidebar styles {caretView(true, thin)}
           </span>
           <code className='font-mono text-[0.6875rem] text-[var(--cds-text-primary)]'>
             $ grep -rn "sidebar-tint" src
@@ -145,7 +161,7 @@ const chatView = () => (
           </code>
         </div>
         <div className='border-t border-[var(--cds-border)] px-[12px] py-[6px] text-[var(--cds-text-secondary)]'>
-          Checked the docked layout ▸
+          Checked the docked layout {caretView(false, thin)}
         </div>
       </div>
       <p>
@@ -187,19 +203,19 @@ const composerView = () => (
   </div>
 )
 
-const panelCardView = (title: string, body: React.ReactNode) => (
+const panelCardView = (title: string, body: React.ReactNode, thin: boolean) => (
   <div
     key={title}
     className='flex flex-col gap-[8px] rounded-lg border border-[var(--cds-border)] bg-[var(--cds-surface-panel)] p-[10px]'
   >
     <span className='text-[0.6875rem] font-medium text-[var(--cds-text-primary)]'>
-      {title} ▾
+      {title} {caretView(true, thin)}
     </span>
     {body}
   </div>
 )
 
-const sidePanelView = () => (
+const sidePanelView = (thin: boolean) => (
   <div className='flex w-[9.5rem] shrink-0 flex-col gap-[10px] border-l border-[var(--cds-border)] p-[10px]'>
     {panelCardView(
       'Environment',
@@ -208,6 +224,7 @@ const sidePanelView = () => (
         <span>theme-tuner</span>
         <span>master</span>
       </div>,
+      thin,
     )}
     {panelCardView(
       'Context',
@@ -218,25 +235,33 @@ const sidePanelView = () => (
         </div>
         <span className='text-[var(--cds-text-muted)]'>Messages 25.5%</span>
       </div>,
+      thin,
     )}
   </div>
 )
 
 // `fill` takes the parent's height at any width (the screenshot view);
-// otherwise a fixed height on narrow screens, where the panes stack
-export const claudeMockView = (palette: Palette, fill = false) => (
+// otherwise a fixed height on narrow screens, where the panes stack.
+// `thinArrows` draws the arrows the way the Thin arrows option does
+export const claudeMockView = (
+  palette: Palette,
+  {
+    fill = false,
+    thinArrows = false,
+  }: { fill?: boolean; thinArrows?: boolean } = {},
+) => (
   <div
     className={`flex ${fill ? 'h-full' : 'h-[28rem] lg:h-full'} w-full min-w-[38rem] shrink-0 overflow-hidden rounded-xl shadow-[0_2px_12px_rgba(0,0,0,0.10),0_1px_3px_rgba(0,0,0,0.06)] ring-1 ring-black/10 bg-[var(--cds-surface-1)]`}
     style={tokenStyle(palette)}
   >
-    {sidebarView()}
+    {sidebarView(thinArrows)}
     {/* A div, not <main>: the page's main content is the tuner, and text
         readers (and agents) that pick <main> should land there */}
     <div className='flex min-w-0 flex-1 flex-col'>
       {topBarView()}
-      {chatView()}
+      {chatView(thinArrows)}
       {composerView()}
     </div>
-    {sidePanelView()}
+    {sidePanelView(thinArrows)}
   </div>
 )

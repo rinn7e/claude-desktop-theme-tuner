@@ -85,6 +85,7 @@ describe('share links', () => {
     expect(result.preset.light.enabled).toBe(false)
     expect(result.preset.dark.enabled).toBe(true)
     expect(result.preset.reduceMotion).toBe(false)
+    expect(result.preset.thinArrows).toBe(false)
   })
 
   it('take a full custom palette without a preset', () => {

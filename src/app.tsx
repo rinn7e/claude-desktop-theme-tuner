@@ -367,6 +367,19 @@ const optionsView = (model: Model, dispatch: Dispatcher<Msg>) => (
       model.reduceMotion,
       () => dispatch({ _tag: 'ToggleReduceMotion' }),
     )}
+    <h2 className='pt-[8px] text-xs font-semibold tracking-wide text-ui-ink-faint uppercase'>
+      Icons
+    </h2>
+    {optionView(
+      'Thin arrows',
+      <>
+        Draws Claude's thin chevron in place of its filled triangle arrows: in
+        the sidebar, the file tree, panels and the chat's tool rows. Shown in
+        the preview.
+      </>,
+      model.thinArrows,
+      () => dispatch({ _tag: 'ToggleThinArrows' }),
+    )}
   </section>
 )
 
@@ -883,7 +896,7 @@ const previewCardView = (
             sideways. The padding leaves room for its shadow, which the
             scrolling box would clip, and the caption above has the same inset */}
         <div className='flex min-h-0 w-full flex-1 app-scroll overflow-x-auto p-[16px]'>
-          {claudeMockView(palette, fill)}
+          {claudeMockView(palette, { fill, thinArrows: model.thinArrows })}
         </div>
       </div>
     </div>

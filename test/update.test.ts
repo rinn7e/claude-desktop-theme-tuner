@@ -14,6 +14,7 @@ import {
   handleToggleReduceMotion,
   handleToggleSlot,
   handleToggleSwapped,
+  handleToggleThinArrows,
   isEdited,
   snippetDoesSomething,
   snippetOf,
@@ -90,6 +91,24 @@ describe('sub-updaters', () => {
     )
   })
 
+  it('adds the thin arrows CSS to the same style when turned on', () => {
+    expect(model.thinArrows).toBe(false)
+    expect(snippetOf(model)).not.toContain('Thin arrows')
+    const thin = snippetOf(handleToggleThinArrows(model))
+    // The CSS escape \e02a, written \\e02a inside the snippet's JS string
+    expect(thin).toContain('content: "\\\\e02a"')
+    for (const selector of [
+      '[data-group-caret]',
+      '[data-container-icon]',
+      '[data-tree-caret]',
+      '[data-panel-open]',
+      'group-hover/status:text-secondary',
+    ])
+      expect(thin).toContain(selector)
+    // Still one <style>: the CSS sits after the colors, inside the same string
+    expect(thin.match(/createElement\("style"\)/g)).toHaveLength(1)
+  })
+
   it('swaps the sides and back, without touching the snippet', () => {
     const swapped = handleToggleSwapped(model)
     expect(swapped.swapped).toBe(true)
@@ -116,6 +135,7 @@ describe('sub-updaters', () => {
     expect(snippetDoesSomething(model)).toBe(true)
     expect(snippetDoesSomething(none)).toBe(false)
     expect(snippetDoesSomething(handleToggleReduceMotion(none))).toBe(true)
+    expect(snippetDoesSomething(handleToggleThinArrows(none))).toBe(true)
   })
 })
 
@@ -128,9 +148,11 @@ describe('decodeStored', () => {
   it('reads settings saved before reduce motion, with it off', () => {
     const old = JSON.parse(JSON.stringify(defaultStored))
     delete old.reduceMotion
+    delete old.thinArrows
     delete old.swapped
     const decoded = decodeStored(old, defaultStored)
     expect(decoded.reduceMotion).toBe(false)
+    expect(decoded.thinArrows).toBe(false)
     expect(decoded.swapped).toBe(false)
   })
 

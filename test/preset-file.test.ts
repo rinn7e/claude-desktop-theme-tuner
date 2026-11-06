@@ -111,6 +111,16 @@ describe('preset files', () => {
   })
 })
 
+describe('preset files from before thin arrows', () => {
+  it('load with the option off', () => {
+    const file = JSON.parse(encodePresetFile(preset)) as Record<string, unknown>
+    delete file.thinArrows
+    const result = decodePresetFile(JSON.stringify(file))
+    if (!result.ok) throw new Error(result.error)
+    expect(result.preset.thinArrows).toBe(false)
+  })
+})
+
 describe('loading a preset file', () => {
   it('puts its setup in place and says so', () => {
     const nord = presetById('nord')
@@ -119,10 +129,12 @@ describe('loading a preset file', () => {
       ...preset,
       dark: { enabled: true, theme: nord },
       reduceMotion: true,
+      thinArrows: true,
     })
     const next = handlePresetFileRead(model, 'mine.json', file)
     expect(next.dark.theme.id).toBe('nord')
     expect(next.reduceMotion).toBe(true)
+    expect(next.thinArrows).toBe(true)
     expect(next.presetNotice).toEqual({
       kind: 'loaded',
       text: 'Loaded mine.json.',

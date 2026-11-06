@@ -17,6 +17,8 @@ export interface Model {
   dark: Slot
   // Whether the snippet also turns off the app's looping animations
   reduceMotion: boolean
+  // Whether the snippet swaps Claude's filled triangle arrows for thin chevrons
+  thinArrows: boolean
   // The previews on the left and the customizer on the right, on wide screens
   swapped: boolean
   // The code shown in the snippet panel, and copied by its button
@@ -43,6 +45,7 @@ export interface PresetNotice {
 export type Msg =
   | { _tag: 'ToggleSlot'; mode: Mode }
   | { _tag: 'ToggleReduceMotion' }
+  | { _tag: 'ToggleThinArrows' }
   | { _tag: 'ToggleSwapped' }
   | { _tag: 'PickPreset'; id: string }
   | { _tag: 'SetColor'; mode: Mode; key: PaletteKey; value: string }

@@ -16,6 +16,7 @@ import {
   parseLinkHash,
 } from './storage/share-link'
 import { type Stored, loadStored, saveStored } from './storage/storage'
+import { thinArrowsCss } from './theme/arrows'
 import { isHex } from './theme/color'
 import { themeCss } from './theme/css'
 import { type Mode, type PaletteKey, type Theme } from './theme/palette'
@@ -45,6 +46,7 @@ export const defaultStored: Stored = {
   light: { enabled: true, theme: copyOf(presetOrThrow('solarized-light')) },
   dark: { enabled: false, theme: copyOf(presetOrThrow('solarized-dark')) },
   reduceMotion: false,
+  thinArrows: false,
   swapped: false,
 }
 
@@ -52,6 +54,7 @@ const storedOf = (model: Model): Stored => ({
   light: model.light,
   dark: model.dark,
   reduceMotion: model.reduceMotion,
+  thinArrows: model.thinArrows,
   swapped: model.swapped,
 })
 
@@ -70,20 +73,24 @@ export const isEdited = (slot: Slot): boolean => {
 export const canReset = (slot: Slot): boolean =>
   presetById(slot.theme.id) !== undefined && isEdited(slot)
 
-// The snippet for the current model: the enabled slots, the rest stock
-export const snippetOf = (model: Model): string =>
-  themeSnippet(
-    themeCss({
-      light: model.light.enabled ? model.light.theme : null,
-      dark: model.dark.enabled ? model.dark.theme : null,
-    }),
-    { reduceMotion: model.reduceMotion },
-  )
+// The snippet for the current model: the enabled slots, the rest stock, and
+// the thin arrows' CSS in the same <style> when that option is on
+export const snippetOf = (model: Model): string => {
+  const colors = themeCss({
+    light: model.light.enabled ? model.light.theme : null,
+    dark: model.dark.enabled ? model.dark.theme : null,
+  })
+  const css = model.thinArrows ? `${colors}\n${thinArrowsCss()}\n` : colors
+  return themeSnippet(css, { reduceMotion: model.reduceMotion })
+}
 
 // Whether the theme snippet would change anything: with both modes stock and
-// motion untouched, it would only add an empty <style>
+// both options off, it would only add an empty <style>
 export const snippetDoesSomething = (model: Model): boolean =>
-  model.light.enabled || model.dark.enabled || model.reduceMotion
+  model.light.enabled ||
+  model.dark.enabled ||
+  model.reduceMotion ||
+  model.thinArrows
 
 export const textFor = (model: Model, target: CopyTarget): string =>
   target === 'theme' ? snippetOf(model) : REVERT_COMMAND
@@ -191,6 +198,11 @@ export const handleToggleReduceMotion = (model: Model): Model => ({
   reduceMotion: !model.reduceMotion,
 })
 
+export const handleToggleThinArrows = (model: Model): Model => ({
+  ...model,
+  thinArrows: !model.thinArrows,
+})
+
 export const handleToggleSwapped = (model: Model): Model => ({
   ...model,
   swapped: !model.swapped,
@@ -237,6 +249,7 @@ export const presetOf = (model: Model): PresetFile => ({
   light: model.light,
   dark: model.dark,
   reduceMotion: model.reduceMotion,
+  thinArrows: model.thinArrows,
 })
 
 // Puts a loaded preset file's setup in place of the current one
@@ -245,6 +258,7 @@ export const handleLoadPreset = (model: Model, preset: PresetFile): Model => ({
   light: preset.light,
   dark: preset.dark,
   reduceMotion: preset.reduceMotion,
+  thinArrows: preset.thinArrows,
 })
 
 // Offers the setup as a JSON file to download
@@ -347,6 +361,8 @@ export const update = (msg: Msg, model: Model): [Model, Cmd<Msg>] => {
   switch (msg._tag) {
     case 'ToggleReduceMotion':
       return saved(handleToggleReduceMotion(model))
+    case 'ToggleThinArrows':
+      return saved(handleToggleThinArrows(model))
     case 'ToggleSwapped':
       // Picked from the settings menu, which closes with it
       return saved({ ...handleToggleSwapped(model), menuOpen: false })

@@ -54,13 +54,18 @@ export const SlotCodec = t.type({ enabled: t.boolean, theme: ThemeCodec })
 // The options came later, so older stored data without them still decodes
 export const StoredCodec = t.intersection([
   t.type({ light: SlotCodec, dark: SlotCodec }),
-  t.partial({ reduceMotion: t.boolean, swapped: t.boolean }),
+  t.partial({
+    reduceMotion: t.boolean,
+    thinArrows: t.boolean,
+    swapped: t.boolean,
+  }),
 ])
 
 export interface Stored {
   light: Slot
   dark: Slot
   reduceMotion: boolean
+  thinArrows: boolean
   swapped: boolean
 }
 
@@ -68,12 +73,24 @@ export interface Stored {
 export const decodeStored = (raw: unknown, fallback: Stored): Stored => {
   const result = StoredCodec.decode(raw)
   if (!isRight(result)) return fallback
-  const { light, dark, reduceMotion = false, swapped = false } = result.right
+  const {
+    light,
+    dark,
+    reduceMotion = false,
+    thinArrows = false,
+    swapped = false,
+  } = result.right
   const plain = (slot: typeof light): Slot => ({
     enabled: slot.enabled,
     theme: { ...slot.theme, palette: { ...slot.theme.palette } as Palette },
   })
-  return { light: plain(light), dark: plain(dark), reduceMotion, swapped }
+  return {
+    light: plain(light),
+    dark: plain(dark),
+    reduceMotion,
+    thinArrows,
+    swapped,
+  }
 }
 
 // localStorage can be missing or throw (private windows, blocked storage);
