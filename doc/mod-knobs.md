@@ -121,10 +121,10 @@ The 13 palette roles of a preset map to the knobs above as follows, under the
 knobs a mode sets directly; the rest are derived by `makeColors` or left to
 Claude:
 
-| Palette role                                                               | Knob                                                      |
-| -------------------------------------------------------------------------- | --------------------------------------------------------- |
-| `frame`, `canvas`                                                          | `surface-0` and `surface-1`/`surface-2`, the darker first |
-| `text`, `textSecondary`, `textMuted`                                       | `text-primary`, `text-secondary`, `text-muted`            |
-| `accent`                                                                   | `roles.accent` of the mode                                |
-| `raised`, `pressed`, `line`, `accentHover`, `onAccent`, `selected`, `wash` | not sent: derived by `makeColors`                         |
-| the preset id                                                              | `codeTheme`, where Claude has a code theme of that name   |
+| Palette role                                                               | Knob                                                                                                 |
+| -------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `frame`, `canvas`                                                          | `surface-0` and `surface-1`/`surface-2`, the darker first                                            |
+| `text`, `textSecondary`, `textMuted`                                       | `text-primary`, `text-secondary`, `text-muted`                                                       |
+| `accent`                                                                   | `roles.accent` of the mode                                                                           |
+| `raised`, `pressed`, `line`, `accentHover`, `onAccent`, `selected`, `wash` | not sent: derived by `makeColors`                                                                    |
+| the preset id                                                              | `codeTheme`, where Claude has a code theme of that name, unless the setup sets one (`null` for none) |

@@ -15,8 +15,8 @@ export type TunerModeChoice = {
   roles?: Partial<Record<string, string>>
   /** Git colors for diffs and pull request states. */
   git?: Partial<Record<string, string>>
-  /** A code theme id of Claude, over the preset's own. */
-  codeTheme?: string
+  /** A code theme id of Claude, over the preset's own; null sends none. */
+  codeTheme?: string | null
 }
 
 export type TunerBackdrop =

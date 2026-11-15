@@ -54,7 +54,8 @@ What the home page writes, and what the mod takes: in its pane, as
 - `git`: `added`, `removed`, `modified`, `merged`, `closed`, `conflicting`,
   `draft`.
 - `codeTheme`: the id of one of Claude's code themes; by default the one of
-  the preset's name, where Claude has one.
+  the preset's name, where Claude has one. `null` sends none, so Claude's own
+  code theme picker stays free for that mode.
 - `contrast`: `"more"` for stronger borders and focus rings.
 - `backdrop`: `{ "color": "#rrggbb" }`, or `{ "gradient": { "stops": [2 to
   16 colors], "angle": 0 to 360, "shape": "linear" or "radial" } }`.

@@ -76,7 +76,9 @@ export interface ModeChoice {
   anchors?: Partial<Record<AnchorKey, string>>
   roles?: Partial<Record<RoleKey, string>>
   git?: Partial<Record<GitKey, string>>
-  codeTheme?: string
+  // A code theme id of Claude, over the preset's own; null sends none, so
+  // Claude's own picker stays free for the mode
+  codeTheme?: string | null
 }
 
 // What is behind the conversation: a color (#rrggbb, or a design system
@@ -181,6 +183,7 @@ export const resolveMode = (mode: Mode, raw: unknown): Result<Resolved> => {
   if (!git.ok) return git
   if (
     raw.codeTheme !== undefined &&
+    raw.codeTheme !== null &&
     (typeof raw.codeTheme !== 'string' || !CODE_THEME.test(raw.codeTheme))
   )
     return { ok: false, error: `The ${mode} code theme is invalid.` }
@@ -189,7 +192,7 @@ export const resolveMode = (mode: Mode, raw: unknown): Result<Resolved> => {
     Object.keys(anchors.value).length +
       Object.keys(roles.value).length +
       Object.keys(git.value).length >
-      0 || raw.codeTheme !== undefined
+      0 || typeof raw.codeTheme === 'string'
   if (!isRecord(colors))
     return { ok: false, error: `The ${mode} colors are invalid.` }
   for (const [key, value] of Object.entries(colors)) {
@@ -236,13 +239,13 @@ export const resolveMode = (mode: Mode, raw: unknown): Result<Resolved> => {
       palette: palette as Palette,
       ...(typeof raw.codeTheme === 'string'
         ? { codeTheme: raw.codeTheme }
-        : codeTheme
+        : codeTheme && raw.codeTheme !== null
           ? { codeTheme }
           : {}),
       anchors: anchors.value,
       roles: roles.value,
       git: git.value,
-      isCodeThemeSet: typeof raw.codeTheme === 'string',
+      isCodeThemeSet: raw.codeTheme !== undefined,
       ...(typeof presetId === 'string' &&
       STOCK_PRESETS.includes(presetId) &&
       Object.keys(colors).length === 0 &&
@@ -319,7 +322,9 @@ export const checkSetup = (raw: unknown): Result<Setup> => {
       ...nonEmpty('anchors', resolved.value.anchors),
       ...nonEmpty('roles', resolved.value.roles),
       ...nonEmpty('git', resolved.value.git),
-      ...(typeof codeTheme === 'string' ? { codeTheme } : {}),
+      ...(typeof codeTheme === 'string' || codeTheme === null
+        ? { codeTheme }
+        : {}),
     }
   }
   if (raw.contrast !== undefined) {

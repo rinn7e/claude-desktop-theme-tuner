@@ -99,8 +99,9 @@ const MODE_SCHEMA = {
     ),
     git: hexKnobs(GIT_KEYS, 'Git colors for diffs and pull request states.'),
     codeTheme: {
-      type: 'string',
-      description: 'A code theme id of Claude, such as solarized-light.',
+      type: ['string', 'null'],
+      description:
+        "A code theme id of Claude, such as solarized-light; null sends none, so Claude's own picker stays free.",
     },
   },
 }

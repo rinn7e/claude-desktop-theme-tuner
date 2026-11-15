@@ -336,7 +336,7 @@ export const update = (msg: Msg, model: Model): [Model, Cmd<Msg>] => {
         model,
         editMode(setup, msg.mode, (c) => ({
           ...c,
-          codeTheme: msg.value ?? undefined,
+          codeTheme: msg.value,
         })),
       )
     case 'ResetMode':

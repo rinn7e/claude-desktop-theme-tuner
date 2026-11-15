@@ -259,3 +259,21 @@ test('the model sets every knob, and the backdrop reaches Claude', async ($, on)
   expect(set.colors?.contrast).toBe('more')
   expect(sent.store.get('setup')).toMatchObject({ contrast: 'more' })
 })
+
+test("a code theme of null leaves Claude's picker free for the mode", async ($, on) => {
+  const sent = engine(on)
+  await start($)
+  await $.tool.call({
+    tool: 'mcp__theme-tuner__set_theme',
+    light: { preset: 'solarized-light', codeTheme: null },
+    dark: { preset: 'dracula' },
+  })
+  const set = sent.sets[0] as {
+    colors?: { codeTheme?: { light?: string; dark?: string } }
+  }
+  expect(set.colors?.codeTheme?.light).toBeUndefined()
+  expect(set.colors?.codeTheme?.dark).toBe('dracula')
+  expect(sent.store.get('setup')).toMatchObject({
+    light: { preset: 'solarized-light', codeTheme: null },
+  })
+})

@@ -119,6 +119,31 @@ describe('editing a mode', () => {
     expect(edited.setup.light).toEqual(DEFAULT_SETUP.light)
   })
 
+  it("sends no code theme for None, so Claude's picker stays free", () => {
+    const none = run([{ _tag: 'SetCodeTheme', mode: 'light', value: null }])
+    expect(none.setup.light).toEqual({
+      preset: 'solarized-light',
+      codeTheme: null,
+    })
+    expect(checkSetup(JSON.parse(JSON.stringify(none.setup)))).toEqual({
+      ok: true,
+      value: none.setup,
+    })
+    const look = lookOf(none.setup)
+    expect(look.definition.codeTheme?.light).toBeUndefined()
+    expect(look.definition.codeTheme?.dark).toBe('dracula')
+    expect(look.modes.light?.knobs.map((k) => k.knob)).not.toContain(
+      'codeTheme',
+    )
+    // Reset to the preset gives the preset's code theme back
+    expect(canResetMode(none.setup, 'light')).toBe(true)
+    const back = run(
+      [{ _tag: 'SetCodeTheme', mode: 'light', value: undefined }],
+      none,
+    )
+    expect(back.setup.light).toEqual({ preset: 'solarized-light' })
+  })
+
   it('drops a code theme taken back to the preset, and keeps a name from JSON', () => {
     const named = readJson(
       DEFAULT_SETUP,
@@ -137,7 +162,7 @@ describe('editing a mode', () => {
       codeTheme: 'github-light',
     })
     const back = run(
-      [{ _tag: 'SetCodeTheme', mode: 'light', value: null }],
+      [{ _tag: 'SetCodeTheme', mode: 'light', value: undefined }],
       edited,
     )
     expect(back.setup.light).toEqual({

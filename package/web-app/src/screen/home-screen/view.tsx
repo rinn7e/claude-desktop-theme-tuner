@@ -290,6 +290,9 @@ const presetName = (id: string | undefined): string =>
     .concat(presetsOf('dark'))
     .find((p) => p.id === id)?.name ?? 'Custom'
 
+// The value of the None option: never a code theme id (ids have no colon)
+const NO_CODE_THEME = ':none'
+
 const codeThemeView = (model: Model, dispatch: Dispatcher<Msg>, mode: Mode) => {
   const choice = model.setup[mode]
   const fromPreset = presetsOf(mode).find(
@@ -303,12 +306,17 @@ const codeThemeView = (model: Model, dispatch: Dispatcher<Msg>, mode: Mode) => {
       )}
       <select
         aria-label={`${MODE_LABELS[mode]} code theme`}
-        value={choice?.codeTheme ?? ''}
+        value={
+          choice?.codeTheme === null ? NO_CODE_THEME : (choice?.codeTheme ?? '')
+        }
         onChange={(e) =>
           dispatch({
             _tag: 'SetCodeTheme',
             mode,
-            value: e.target.value || null,
+            value:
+              e.target.value === NO_CODE_THEME
+                ? null
+                : e.target.value || undefined,
           })
         }
         className='rounded-md border border-ui-line bg-ui-field px-[8px] py-[6px] font-mono text-xs outline-none focus:border-ui-brand'
@@ -318,6 +326,12 @@ const codeThemeView = (model: Model, dispatch: Dispatcher<Msg>, mode: Mode) => {
             ? `From the preset (${fromPreset})`
             : 'None: the picker of Claude stays free'}
         </option>
+        {/* With a preset that has a code theme, None is a choice of its own */}
+        {fromPreset || choice?.codeTheme === null ? (
+          <option value={NO_CODE_THEME}>
+            None: the picker of Claude stays free
+          </option>
+        ) : null}
         {/* A code theme from pasted JSON that the list does not have */}
         {choice?.codeTheme && !codeThemesOf(mode).includes(choice.codeTheme) ? (
           <option value={choice.codeTheme}>{choice.codeTheme}</option>

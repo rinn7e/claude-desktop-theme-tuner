@@ -53,7 +53,9 @@ export type Msg =
   | { _tag: 'PickPreset'; mode: Mode; id: string }
   // null takes the knob back to what the palette gives
   | { _tag: 'SetKnob'; mode: Mode; knob: KnobGroup; value: string | null }
-  | { _tag: 'SetCodeTheme'; mode: Mode; value: string | null }
+  // undefined: the preset's code theme; null: none, Claude's picker stays
+  // free; or an id
+  | { _tag: 'SetCodeTheme'; mode: Mode; value: string | null | undefined }
   // Back to the preset: every knob set over it goes
   | { _tag: 'ResetMode'; mode: Mode }
   | { _tag: 'SetContrast'; isMore: boolean }
