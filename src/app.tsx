@@ -185,10 +185,19 @@ const settingsMenuView = (model: Model, dispatch: Dispatcher<Msg>) => (
             type='button'
             role='menuitem'
             title='Copy a link that opens the tuner with this setup'
-            onClick={() => dispatch({ _tag: 'CopyLink' })}
+            onClick={() => dispatch({ _tag: 'CopyLink', as: 'link' })}
             className={`${MENU_ITEM} hover:bg-ui-field`}
           >
             <span aria-hidden='true'>🔗</span> Copy Share Link
+          </button>
+          <button
+            type='button'
+            role='menuitem'
+            title='Copy the /tuner command that applies this setup with the Theme Tuner mod in Claude Code'
+            onClick={() => dispatch({ _tag: 'CopyLink', as: 'mod' })}
+            className={`${MENU_ITEM} hover:bg-ui-field`}
+          >
+            <span aria-hidden='true'>⌘</span> Copy /tuner Command
           </button>
           <div className='hidden py-[4px] lg:block' role='separator'>
             <div className='h-px bg-ui-line' />
@@ -589,6 +598,52 @@ const modeColumnView = (
 // A menu path or key in a step, set apart from the prose around it
 const ui = (text: string) => <b className='font-semibold text-ui-ink'>{text}</b>
 
+// The Theme Tuner mod (mod/), installed from this repository, which is its
+// marketplace
+const MOD_MARKETPLACE = 'rinn7e/claude-desktop-theme-tuner'
+const MOD_INSTALL = `/plugin install theme-tuner --marketplace ${MOD_MARKETPLACE}`
+
+const code = (text: string) => (
+  <code className='rounded bg-ui-panel px-[5px] py-[1px] font-mono text-[0.75rem] text-ui-ink wrap-anywhere'>
+    {text}
+  </code>
+)
+
+// The easy way for Claude Code sessions: the mod keeps the theme across
+// restarts, also on mobile, with nothing pasted in DevTools
+const modSectionView = (dispatch: Dispatcher<Msg>) => (
+  <section className='flex shrink-0 flex-col gap-[10px] rounded-lg bg-ui-field p-[14px] text-sm leading-relaxed text-ui-ink-muted'>
+    <h3 className='text-sm font-semibold text-ui-ink'>
+      With the Theme Tuner mod (Claude Code sessions)
+    </h3>
+    <p>
+      Install it once. In a terminal session run {code(MOD_INSTALL)}; in the
+      desktop app click {ui('+')} next to the prompt, then {ui('Plugins')},{' '}
+      {ui('Add marketplace')} with {code(MOD_MARKETPLACE)}, then{' '}
+      {ui('Add plugin')}.
+    </p>
+    <p>
+      Then copy this setup as a command and send it in a Claude Code session.
+      The theme stays across restarts and shows on mobile too; {code('/tuner')}{' '}
+      opens the mod to switch presets or tune colors.
+    </p>
+    <div>
+      <button
+        type='button'
+        onClick={() => dispatch({ _tag: 'CopyLink', as: 'mod' })}
+        className='rounded-md bg-ui-brand px-[12px] py-[5px] text-xs font-medium text-ui-brand-ink'
+      >
+        Copy /tuner command
+      </button>
+    </div>
+    <p className='text-xs'>
+      The mod themes Claude Code sessions only. To theme the whole app (the Chat
+      tab and the full sidebar too), or for Thin arrows and Reduce motion, use
+      the snippet below.
+    </p>
+  </section>
+)
+
 const HELP_STEPS: { text: React.ReactNode; shot?: string }[] = [
   {
     text: (
@@ -673,6 +728,10 @@ const helpDialogView = (model: Model, dispatch: Dispatcher<Msg>) =>
             Close
           </button>
         </div>
+        {modSectionView(dispatch)}
+        <h3 className='text-sm font-semibold'>
+          With the snippet in DevTools (the whole app)
+        </h3>
         {/* shrink-0: the dialog scrolls instead of squashing the screenshots.
             Each step: a numbered badge, its text, and its screenshot on a
             gray tray so the screenshot's white edges don't blend in. */}

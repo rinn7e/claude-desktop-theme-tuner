@@ -22,7 +22,13 @@ import { themeCss } from './theme/css'
 import { type Mode, type PaletteKey, type Theme } from './theme/palette'
 import { presetById } from './theme/presets'
 import { REVERT_COMMAND, themeSnippet } from './theme/snippet'
-import { type CopyTarget, type Model, type Msg, type Slot } from './type'
+import {
+  type CopyTarget,
+  type Model,
+  type Msg,
+  type ShareAs,
+  type Slot,
+} from './type'
 
 // How long a copy button says "Copied"
 const COPIED_MS = 1600
@@ -338,11 +344,24 @@ export const handleLinkSetup = (model: Model, setup: LinkSetupResult): Model =>
 export const shareLinkOf = (model: Model, page: string): string =>
   page + linkHash(presetOf(model))
 
-const copyLinkCmd = (model: Model): Cmd<Msg> =>
+// The command that applies the setup with the Theme Tuner mod (mod/), which
+// reads the same link
+export const modCommandOf = (model: Model, page: string): string =>
+  `/tuner ${shareLinkOf(model, page)}`
+
+const copyLinkCmd = (model: Model, as: ShareAs): Cmd<Msg> =>
   Task.attempt(
-    Task.fromPromise(() => writeClipboard(shareLinkOf(model, pageUrl()))),
+    Task.fromPromise(() =>
+      writeClipboard(
+        as === 'mod'
+          ? modCommandOf(model, pageUrl())
+          : shareLinkOf(model, pageUrl()),
+      ),
+    ),
     (result): Msg =>
-      result.tag === 'Ok' ? { _tag: 'LinkCopied' } : { _tag: 'LinkCopyFailed' },
+      result.tag === 'Ok'
+        ? { _tag: 'LinkCopied', as }
+        : { _tag: 'LinkCopyFailed', as },
   )
 
 // When the browser refuses to copy, the link goes in the address bar instead
@@ -403,9 +422,12 @@ export const update = (msg: Msg, model: Model): [Model, Cmd<Msg>] => {
       // A link pasted into a tab that already has the tuner open
       return openHash(model, msg.hash)
     case 'CopyLink':
-      return [{ ...model, menuOpen: false }, copyLinkCmd(model)]
+      return [{ ...model, menuOpen: false }, copyLinkCmd(model, msg.as)]
     case 'LinkCopied': {
-      const text = 'Copied a link to this setup.'
+      const text =
+        msg.as === 'mod'
+          ? 'Copied the /tuner command: paste it in a Claude Code session with the Theme Tuner mod.'
+          : 'Copied a link to this setup.'
       return [
         { ...model, presetNotice: { kind: 'loaded', text } },
         clearNoticeCmd(text),
@@ -417,7 +439,10 @@ export const update = (msg: Msg, model: Model): [Model, Cmd<Msg>] => {
           ...model,
           presetNotice: {
             kind: 'error',
-            text: "Couldn't copy the link: copy it from the address bar.",
+            text:
+              msg.as === 'mod'
+                ? "Couldn't copy the command: type /tuner and paste the link from the address bar."
+                : "Couldn't copy the link: copy it from the address bar.",
           },
         },
         showLinkCmd(model),

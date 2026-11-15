@@ -12,6 +12,10 @@ export interface Slot {
 
 export type CopyTarget = 'theme' | 'revert'
 
+// How a setup is shared: a link that opens the tuner with it, or the /tuner
+// command that applies it with the Theme Tuner mod in Claude Code
+export type ShareAs = 'link' | 'mod'
+
 export interface Model {
   light: Slot
   dark: Slot
@@ -60,9 +64,9 @@ export type Msg =
   | { _tag: 'CloseMenu' }
   | { _tag: 'SavePreset' }
   | { _tag: 'HashChanged'; hash: string }
-  | { _tag: 'CopyLink' }
-  | { _tag: 'LinkCopied' }
-  | { _tag: 'LinkCopyFailed' }
+  | { _tag: 'CopyLink'; as: ShareAs }
+  | { _tag: 'LinkCopied'; as: ShareAs }
+  | { _tag: 'LinkCopyFailed'; as: ShareAs }
   | { _tag: 'LoadPresetFile'; file: File }
   | { _tag: 'PresetFileRead'; fileName: string; text: string }
   | { _tag: 'PresetFileUnreadable'; fileName: string }
