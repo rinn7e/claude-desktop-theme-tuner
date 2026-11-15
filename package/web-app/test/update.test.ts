@@ -30,6 +30,7 @@ const model: Model = {
   menuOpen: false,
   presetNotice: null,
   previewOnly: false,
+  isBannerShown: true,
 }
 
 describe('sub-updaters', () => {

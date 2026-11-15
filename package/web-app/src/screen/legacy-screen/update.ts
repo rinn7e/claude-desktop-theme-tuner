@@ -133,6 +133,7 @@ export const init = (): [Model, Cmd<Msg>] =>
       menuOpen: false,
       presetNotice: null,
       previewOnly: false,
+      isBannerShown: true,
     },
     window.location.hash,
   )
@@ -384,6 +385,8 @@ export const update = (msg: Msg, model: Model): [Model, Cmd<Msg>] => {
       return [{ ...model, menuOpen: !model.menuOpen }, Cmd.none()]
     case 'CloseMenu':
       return [{ ...model, menuOpen: false }, Cmd.none()]
+    case 'DismissBanner':
+      return [{ ...model, isBannerShown: false }, Cmd.none()]
     case 'SavePreset':
       return [
         { ...model, menuOpen: false },

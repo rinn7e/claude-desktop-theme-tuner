@@ -11,7 +11,9 @@ import shotSources from '../../asset/how-to-apply/3-sources.webp'
 import shotSnippets from '../../asset/how-to-apply/4-snippets.webp'
 import shotNewSnippet from '../../asset/how-to-apply/5-new-snippet.webp'
 import shotRun from '../../asset/how-to-apply/6-run.webp'
+import { type Screen, homeScreen } from '../../common/destination'
 import { HexInput } from '../../component/hex-input'
+import { Link } from '../../component/link'
 import {
   BAR,
   Dialog,
@@ -42,6 +44,7 @@ import { canReset, snippetDoesSomething, textFor } from './update'
 export interface AppProps {
   model: Model
   dispatch: Dispatcher<Msg>
+  navigate: (screen: Screen) => void
 }
 
 const MODES: { mode: Mode; label: string }[] = [
@@ -684,20 +687,58 @@ const presetNoticeView = (model: Model, dispatch: Dispatcher<Msg>) =>
 // The title bar stays put, like the snippet panel's tabs; below it, light and
 // dark side by side once the panel is wide enough (a container query, as the
 // panel is half the window), stacked below that, scrolling on their own
-const customizerView = (model: Model, dispatch: Dispatcher<Msg>) => (
-  <div className='flex flex-col lg:min-h-0 lg:flex-1'>
-    <div className='border-b border-ui-line'>{headerView(model, dispatch)}</div>
-    {presetNoticeView(model, dispatch)}
-    <div className='@container flex flex-col gap-[20px] p-[20px] lg:min-h-0 lg:flex-1 app-scroll lg:overflow-y-auto'>
-      <div className='grid grid-cols-1 gap-x-[24px] gap-y-[20px] @2xl:grid-cols-2'>
-        {MODES.map(({ mode, label }) =>
-          modeColumnView(model, dispatch, mode, label),
-        )}
-      </div>
-      {optionsView(model, dispatch)}
+// Points people here to the new tuner, made for the mods of Claude. Amber
+// with dark text, apart from the orange of the home's banner
+const bannerView = ({ model, dispatch, navigate }: AppProps) =>
+  model.isBannerShown ? (
+    <div
+      role='status'
+      className='flex items-center justify-between gap-[12px] bg-amber-300 px-[20px] py-[10px] text-xs text-amber-950'
+    >
+      <span>
+        <b className='font-semibold'>
+          Theme Tuner now supports the new Claude mods!
+        </b>{' '}
+        Theme Claude Code with no DevTools snippet, kept across restarts, in{' '}
+        <Link
+          screen={homeScreen}
+          navigate={navigate}
+          className='font-semibold underline underline-offset-2 hover:text-amber-800'
+        >
+          the new version
+        </Link>
+        .
+      </span>
+      <button
+        type='button'
+        onClick={() => dispatch({ _tag: 'DismissBanner' })}
+        className='shrink-0 rounded-md px-[8px] py-[2px] text-amber-900 hover:bg-amber-950/10 hover:text-amber-950'
+      >
+        Dismiss
+      </button>
     </div>
-  </div>
-)
+  ) : null
+
+const customizerView = (props: AppProps) => {
+  const { model, dispatch } = props
+  return (
+    <div className='flex flex-col lg:min-h-0 lg:flex-1'>
+      <div className='border-b border-ui-line'>
+        {headerView(model, dispatch)}
+      </div>
+      {bannerView(props)}
+      {presetNoticeView(model, dispatch)}
+      <div className='@container flex flex-col gap-[20px] p-[20px] lg:min-h-0 lg:flex-1 app-scroll lg:overflow-y-auto'>
+        <div className='grid grid-cols-1 gap-x-[24px] gap-y-[20px] @2xl:grid-cols-2'>
+          {MODES.map(({ mode, label }) =>
+            modeColumnView(model, dispatch, mode, label),
+          )}
+        </div>
+        {optionsView(model, dispatch)}
+      </div>
+    </div>
+  )
+}
 
 const creditView = (theme: Theme) =>
   theme.credit ? (
@@ -789,8 +830,9 @@ const previewOnlyView = (model: Model) => {
 
 // Two halves: the customizer over the code it produces, and the preview;
 // swapped, the customizer moves to the right on wide screens
-export const App = ({ model, dispatch }: AppProps) =>
-  model.previewOnly ? (
+export const App = (props: AppProps) => {
+  const { model, dispatch } = props
+  return model.previewOnly ? (
     previewOnlyView(model)
   ) : (
     <main className='grid min-h-full grid-cols-1 lg:h-full lg:grid-cols-2'>
@@ -799,10 +841,11 @@ export const App = ({ model, dispatch }: AppProps) =>
           model.swapped ? 'lg:order-last lg:border-l' : 'lg:border-r'
         }`}
       >
-        {customizerView(model, dispatch)}
+        {customizerView(props)}
         {codePanelView(model, dispatch)}
       </aside>
       {previewView(model)}
       {helpDialogView(model, dispatch)}
     </main>
   )
+}

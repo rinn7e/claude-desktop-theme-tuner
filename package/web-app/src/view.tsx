@@ -48,6 +48,7 @@ export const RootView = ({
         <LegacyView
           model={screen.model}
           dispatch={(msg) => dispatch({ _tag: 'LegacyMsg', msg })}
+          navigate={navigate}
         />
       )
     case 'NotFoundScreen':

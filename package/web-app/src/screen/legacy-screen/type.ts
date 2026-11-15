@@ -39,6 +39,8 @@ export interface Model {
   presetNotice: PresetNotice | null
   // Only the previews, for screenshots: opened with #view=preview
   previewOnly: boolean
+  // The banner that points to the new tuner, for the mods of Claude
+  isBannerShown: boolean
 }
 
 export interface PresetNotice {
@@ -62,6 +64,7 @@ export type Msg =
   | { _tag: 'CloseHelp' }
   | { _tag: 'ToggleMenu' }
   | { _tag: 'CloseMenu' }
+  | { _tag: 'DismissBanner' }
   | { _tag: 'SavePreset' }
   | { _tag: 'HashChanged'; hash: string }
   | { _tag: 'CopyLink'; as: ShareAs }
