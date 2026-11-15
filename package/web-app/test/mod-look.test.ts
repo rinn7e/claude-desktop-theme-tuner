@@ -12,6 +12,7 @@ import {
   parseSetup,
   resolveMode,
   resolveSetup,
+  sidebarBase,
 } from '../../claude-mod/hooks/look'
 import { makeColors } from '../../claude-mod/hooks/make-colors.js'
 import { type Model } from '../src/screen/legacy-screen/type'
@@ -35,6 +36,14 @@ const model: Model = {
   presetNotice: null,
   previewOnly: false,
 }
+
+describe('the sidebar of a light look', () => {
+  it('mixes with the canvas back into the frame', () => {
+    expect(sidebarBase('#eee8d5', '#fdf6e3')).toBe('#dfdac7')
+    // Each channel stays within 0 to 255
+    expect(sidebarBase('#101010', '#f0f0f0')).toBe('#000000')
+  })
+})
 
 describe('the Theme Tuner mod look', () => {
   // Claude paints none of a look its makeColors says it won't, so every
@@ -107,7 +116,9 @@ describe('the Theme Tuner mod look', () => {
     const modes = resolveSetup(checked.value)
     const def = lookDefinition(modes, { contrast: checked.value.contrast })
     expect(def.light?.gray.anchors).toMatchObject({
-      'surface-0': '#eee8d5',
+      // As far below the frame (#eee8d5) as the canvas (#fdf6e3) is above:
+      // Claude mixes the two half and half into the sidebar
+      'surface-0': '#dfdac7',
       'text-primary': '#002b36',
     })
     expect(def.dark?.gray.anchors['surface-3']).toBe('#353c4a')

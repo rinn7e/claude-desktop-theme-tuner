@@ -88,6 +88,20 @@ would have to ship with the mod or come from a fixed set. A scene is code (an
 SVG with CSS), so the mod would offer a fixed set of scenes by name, as the
 `theme-examples` plugin of Anthropic does.
 
+## How Claude paints the sidebar
+
+Read from the CSS of Claude (5.11492) with `snippets/mod-look.snippet.js` and
+a probe of the sidebar variables:
+
+- Light: `color-mix(in srgb, surface-0 50%, surface-1)`. The tuner sends
+  `surface-0` as far below the frame as the canvas is above it
+  (`sidebarBase` in `package/claude-mod/hooks/look.ts`), so the sidebar comes
+  out as the frame of the preset.
+- Dark: `color-mix(in srgb, page 80%, black)`, the page being `surface-1`. No
+  anchor moves it apart from the conversation.
+- Both modes check `--cds-fizzy-lake-color-sidebar` first, which a mod look
+  does not set.
+
 ## The sidebar is translucent
 
 The sidebar of Claude is a native macOS vibrancy panel, and Claude paints the
@@ -121,10 +135,10 @@ The 13 palette roles of a preset map to the knobs above as follows, under the
 knobs a mode sets directly; the rest are derived by `makeColors` or left to
 Claude:
 
-| Palette role                                                               | Knob                                                                                                 |
-| -------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| `frame`, `canvas`                                                          | `surface-0` and `surface-1`/`surface-2`, the darker first                                            |
-| `text`, `textSecondary`, `textMuted`                                       | `text-primary`, `text-secondary`, `text-muted`                                                       |
-| `accent`                                                                   | `roles.accent` of the mode                                                                           |
-| `raised`, `pressed`, `line`, `accentHover`, `onAccent`, `selected`, `wash` | not sent: derived by `makeColors`                                                                    |
-| the preset id                                                              | `codeTheme`, where Claude has a code theme of that name, unless the setup sets one (`null` for none) |
+| Palette role                                                               | Knob                                                                                                             |
+| -------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `frame`, `canvas`                                                          | `surface-1`/`surface-2` the lighter; `surface-0` the darker, in light mode set so the sidebar mixes to the frame |
+| `text`, `textSecondary`, `textMuted`                                       | `text-primary`, `text-secondary`, `text-muted`                                                                   |
+| `accent`                                                                   | `roles.accent` of the mode                                                                                       |
+| `raised`, `pressed`, `line`, `accentHover`, `onAccent`, `selected`, `wash` | not sent: derived by `makeColors`                                                                                |
+| the preset id                                                              | `codeTheme`, where Claude has a code theme of that name, unless the setup sets one (`null` for none)             |

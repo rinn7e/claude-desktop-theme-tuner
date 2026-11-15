@@ -104,7 +104,9 @@ const fromWords = (from: string): string =>
           ? 'made stronger so Claude paints it'
           : from === 'surface-1'
             ? 'as surface-1'
-            : `from the preset (${from})`
+            : from === 'frame, for the sidebar'
+              ? 'from the preset (frame), darker: Claude mixes it with surface-1 into the sidebar'
+              : `from the preset (${from})`
 
 const sectionTitle = (title: string, note?: string) => (
   <SectionTitle title={title} note={note} />

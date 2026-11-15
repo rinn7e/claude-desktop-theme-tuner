@@ -225,15 +225,20 @@ export const claudeTokens = (
     }
   }
   // Where Claude paints a part from more than one token, as the probe of a
-  // mod look found (snippets/mod-look.snippet.js): the sidebar is half
-  // surface-0, half surface-1 (and translucent over the macOS glass, which
-  // the preview leaves out); a selected or hovered row is a ghost fill; the
-  // composer is tinted with bg-neutral over the chat
+  // mod look found (snippets/mod-look.snippet.js): the sidebar (translucent
+  // over the macOS glass, which the preview leaves out), a selected or
+  // hovered row (a ghost fill), and the composer, tinted with bg-neutral
+  // over the chat
   const s0 = out['--cds-surface-0']
   const s1 = out['--cds-surface-1']
+  // Claude's own rules, read from the app: the light sidebar is half
+  // surface-0, half surface-1; the dark one is the page (surface-1)
+  // darkened by a fifth
   if (s0 && s1)
     out['--cds-fizzy-lake-color-sidebar'] =
-      `color-mix(in srgb, ${s0} 50%, ${s1})`
+      mode === 'light'
+        ? `color-mix(in srgb, ${s0} 50%, ${s1})`
+        : `color-mix(in srgb, ${s1} 80%, black)`
   if (out['--cds-fill-ghost-selected'])
     out['--df-selected'] = out['--cds-fill-ghost-selected']
   if (out['--cds-fill-ghost-hover'])

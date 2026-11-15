@@ -423,9 +423,33 @@ const luminance = (hex: string): number => {
 //
 // Claude also wants muted text no stronger than secondary; presets where the
 // two are a hair apart the wrong way send muted as secondary.
+// Claude paints its light sidebar half surface-0, half surface-1
+// (`color-mix(in srgb, surface-0 50%, surface-1)`, read from the app), and
+// the conversation surface-1. So that the sidebar comes out as the frame of
+// the palette, surface-0 is sent as far below the frame as the canvas is
+// above it, each channel kept to 0 to 255. The dark sidebar is the
+// conversation darkened by a fifth (`color-mix(in srgb, page 80%, black)`),
+// which no anchor moves.
+export const sidebarBase = (frame: string, canvas: string): string => {
+  const f = channels(frame)
+  const c = channels(canvas)
+  return `#${f
+    .map((v, i) =>
+      Math.min(255, Math.max(0, 2 * v - c[i]))
+        .toString(16)
+        .padStart(2, '0'),
+    )
+    .join('')}`
+}
+
 const anchorsOf = (mode: Mode, p: Palette) => {
   const frameIsDarker = luminance(p.frame) <= luminance(p.canvas)
-  const low = frameIsDarker ? p.frame : p.canvas
+  const low =
+    mode === 'light' && frameIsDarker
+      ? sidebarBase(p.frame, p.canvas)
+      : frameIsDarker
+        ? p.frame
+        : p.canvas
   const high = frameIsDarker ? p.canvas : p.frame
   const strength = (hex: string) =>
     mode === 'light' ? -luminance(hex) : luminance(hex)
@@ -601,7 +625,11 @@ export const knobsOf = (
   const { palette } = resolved
   const frameIsDarker = luminance(palette.frame) <= luminance(palette.canvas)
   const fromPalette: Record<AnchorKey, string | undefined> = {
-    'surface-0': frameIsDarker ? 'frame' : 'canvas',
+    'surface-0': frameIsDarker
+      ? mode === 'light'
+        ? 'frame, for the sidebar'
+        : 'frame'
+      : 'canvas',
     'surface-1': frameIsDarker ? 'canvas' : 'frame',
     'surface-2': frameIsDarker ? 'canvas' : 'frame',
     'surface-3': undefined,
