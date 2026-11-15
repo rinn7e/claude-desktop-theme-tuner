@@ -1,7 +1,7 @@
 # Mod look knobs
 
 Everything a mod look can set through `$.theme.set({ colors, backdrop, overrideColorScheme })`,
-and which of it the Theme Tuner mod (`mod/`) sets today. The plan: let the web
+and which of it the Theme Tuner mod (`package/claude-mod/`) sets today. The plan: let the web
 app edit every knob, carry them in the setup JSON (the share link format), and
 have the mod send them.
 
@@ -12,7 +12,7 @@ check these against the current types before building.
 ## How a look is made
 
 A look is not written token by token. `makeColors(definition)`
-(`mod/hooks/make-colors.js`) takes a few seeds and derives about 100 design
+(`package/claude-mod/hooks/make-colors.js`) takes a few seeds and derives about 100 design
 system tokens per mode, then `$.theme.set({ colors: theme })` sends them.
 Every knob below except the backdrop and `overrideColorScheme` is a field of
 that definition.
@@ -107,7 +107,7 @@ with macOS Reduce transparency on (System Settings, Accessibility, Display).
 
 - A problem from `makeColors` starting `Desktop won't paint` makes Desktop
   ignore the whole look. The usual cause: text too close to a surface,
-  often a dark `surface-3`. `fitLook` (`mod/hooks/look.ts`) lifts the primary
+  often a dark `surface-3`. `fitLook` (`package/claude-mod/hooks/look.ts`) lifts the primary
   text where that is the cause.
 - In both modes `surface-0` is the darkest surface and each later one is as
   light or lighter; in light mode `surface-2` and `surface-3` match where both

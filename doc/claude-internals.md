@@ -3,7 +3,7 @@
 What we learned about how the Claude desktop app paints itself, and how to
 investigate it when an update changes things. Checked against Claude 3.6556.2
 on macOS. What each token sets is explained next to it in
-`src/theme/tokens.ts` and `src/theme/css.ts`; this file covers what the code
+`package/web-app/src/theme/tokens.ts` and `package/web-app/src/theme/css.ts`; this file covers what the code
 can't: how the findings were made and the traps on the way.
 
 ## Where the colors come from
@@ -27,7 +27,7 @@ can't: how the findings were made and the traps on the way.
 
 ## Debugging a broken theme
 
-Use `snippets/diagnose.snippet.js` (a maintainer tool, not in the app). It
+Use `package/web-app/snippets/diagnose.snippet.js` (a maintainer tool, not in the app). It
 reports what paints each area, the variables in use, the rules behind the
 sidebar, the main colors and every layer around the composer.
 
@@ -51,11 +51,11 @@ Traps that cost us time:
 
 ## Claude's own colors
 
-`snippets/stock-colors.snippet.js` reads Claude's defaults for both modes (it
+`package/web-app/snippets/stock-colors.snippet.js` reads Claude's defaults for both modes (it
 flips `data-mode` for a moment) and resolves each variable to a color through
 a probe element. Run it with no theme applied. The results, and how
 translucent values were turned into solid ones, are in the `STOCK` comments in
-`src/theme/presets.ts`. Re-measure after a major Claude update.
+`package/web-app/src/theme/presets.ts`. Re-measure after a major Claude update.
 
 ## GPU and WindowServer load
 
@@ -96,19 +96,19 @@ translucent values were turned into solid ones, are in the `STOCK` comments in
   an inline `font-weight` (433.3 to 628.6), and `400` is the thinnest.
 - Every disclosure arrow is the same glyph, U+F011 (a filled triangle),
   turned by `--cds-icon-rotate` (90deg when open). The Context panel uses
-  U+E02A, a thin chevron. The Thin arrows option (`src/theme/arrows.ts`)
+  U+E02A, a thin chevron. The Thin arrows option (`package/web-app/src/theme/arrows.ts`)
   makes U+F011 transparent and paints U+E02A over it in a `::before`.
 - CSS cannot select by glyph, so the option lists each place the arrow is
   drawn (`data-group-caret`, `data-container-icon`, `data-tree-caret`,
   `data-panel-open`, the chat's status rows). After a Claude update, run
-  `snippets/arrows.snippet.js` and check that list against what it reports;
+  `package/web-app/snippets/arrows.snippet.js` and check that list against what it reports;
   an arrow the list misses stays a triangle.
 
 ## Mod themes (Claude Code sessions)
 
 - A mod sets a look with `$.theme.set({ colors })`, for the desktop and
   mobile apps; the terminal draws none. `colors` is about 100 design-system
-  tokens, built by `makeColors` (`mod/hooks/make-colors.js`, copied unchanged
+  tokens, built by `makeColors` (`package/claude-mod/hooks/make-colors.js`, copied unchanged
   from the mod-authoring skill) from anchors: `surface-0` to `surface-3`,
   `text-primary`, `text-secondary`, `text-muted`, and roles such as `accent`.
 - Its rules, which fail with no error in the app: `surface-0` is the darkest
@@ -117,8 +117,8 @@ translucent values were turned into solid ones, are in the `STOCK` comments in
   `text-secondary` is at least as strong as `text-muted`. A problem starting
   `Desktop won't paint` means Desktop ignores the whole look. A dark
   `surface-3` as light as a preset's raised color fails it, so the mod
-  leaves `surface-3` to `makeColors` (`mod/hooks/look.ts`).
+  leaves `surface-3` to `makeColors` (`package/claude-mod/hooks/look.ts`).
 - `codeTheme` takes Claude's own ids for its code themes. They are the
   preset ids, except `vscode-light`, `vscode-dark` and `one-dark-pro`
-  (`src/theme/mod-presets.ts`), read from the strings of the Claude Code
+  (`package/web-app/src/theme/mod-presets.ts`), read from the strings of the Claude Code
   script in Claude's web cache (`Code Cache/js`).

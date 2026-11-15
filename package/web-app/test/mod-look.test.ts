@@ -11,8 +11,8 @@ import {
   parseSetup,
   resolveMode,
   resolveSetup,
-} from '../mod/hooks/look'
-import { makeColors } from '../mod/hooks/make-colors.js'
+} from '../../claude-mod/hooks/look'
+import { makeColors } from '../../claude-mod/hooks/make-colors.js'
 import { linkHash } from '../src/storage/share-link'
 import { allPresets } from '../src/theme/presets'
 import { type Model } from '../src/type'

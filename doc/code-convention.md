@@ -3,12 +3,12 @@
 ## Architecture
 
 - The app follows the Elm Architecture with `react-tea-cup` and `tea-cup-fp`:
-  one `Model` (`src/type.ts`), changed only through `Msg` messages in
-  `src/update.ts`.
+  one `Model` (`package/web-app/src/type.ts`), changed only through `Msg` messages in
+  `package/web-app/src/update.ts`.
 - State changes go through small, pure sub-updaters (`handlePickPreset`,
   `handleSetColor`, ...) that return a new model; side effects (saving, copying)
   are commands.
-- The theme engine in `src/theme/` is pure: palettes in, strings out. The
+- The theme engine in `package/web-app/src/theme/` is pure: palettes in, strings out. The
   preview and the snippet both read from `deriveTokens`, so they cannot drift
   apart.
 
@@ -21,7 +21,7 @@
 
 ## Styling
 
-- Tailwind v4. The tuner's own colors are tokens in `src/asset/index.css`
+- Tailwind v4. The tuner's own colors are tokens in `package/web-app/src/asset/index.css`
   (`bg-ui-panel`, `text-ui-ink`, ...), with a dark variant for the OS dark mode.
 - Font sizes use `rem` (Tailwind's `text-xs` or `text-[0.75rem]`), never `px`,
   and nothing smaller than `text-[0.625rem]`.
@@ -34,9 +34,9 @@
 ## Data
 
 - What is read from `localStorage` is decoded with the `io-ts` codecs in
-  `src/storage/storage.ts`; invalid or old data falls back to the defaults.
+  `package/web-app/src/storage/storage.ts`; invalid or old data falls back to the defaults.
 
 ## Tests
 
-- Vitest, in `test/`. New or changed sub-updaters, theme functions and codecs
-  need tests. Every preset must pass the WCAG checks in `test/presets.test.ts`.
+- Vitest, in `package/web-app/test/`. New or changed sub-updaters, theme functions and codecs
+  need tests. Every preset must pass the WCAG checks in `package/web-app/test/presets.test.ts`.

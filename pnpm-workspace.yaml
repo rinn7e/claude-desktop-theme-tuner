@@ -1,0 +1,10 @@
+packages:
+  - 'package/web-app'
+
+# react-tea-cup imports react-dom but does not list it as a peer; listing it
+# here links react-dom beside it, which the build needs now that react-dom is
+# installed in package/web-app rather than at the root
+packageExtensions:
+  react-tea-cup:
+    peerDependencies:
+      react-dom: '*'

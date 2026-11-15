@@ -11,7 +11,7 @@ describe('mod/hooks/presets.ts', () => {
   // with `pnpm test -u`
   it('matches the presets', async () => {
     await expect(modPresetsSource()).toMatchFileSnapshot(
-      '../mod/hooks/presets.ts',
+      '../../claude-mod/hooks/presets.ts',
     )
   })
 })

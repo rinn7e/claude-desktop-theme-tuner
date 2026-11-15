@@ -12,14 +12,14 @@ Ideas and open work, in no particular order.
 
 ## Keeping up with Claude
 
-- After a major Claude update, run `snippets/diagnose.snippet.js` and the
+- After a major Claude update, run `package/web-app/snippets/diagnose.snippet.js` and the
   stock-colors probe again (see [claude-internals.md](claude-internals.md)),
-  and update `TESTED_CLAUDE_VERSION` in `src/theme/presets.ts` (shown in
+  and update `TESTED_CLAUDE_VERSION` in `package/web-app/src/theme/presets.ts` (shown in
   the title bar and the Claude presets' credit) and the version in the README.
 - When Claude adds or renames a code theme ("Code appearance" in its
-  settings), add it to `THEMES` in `scripts/code-themes.mjs` and to
-  `CLAUDE_ORDER` in `src/theme/presets.ts`, run `pnpm run code-themes`, and
-  update the list in `test/presets.test.ts`.
+  settings), add it to `THEMES` in `package/web-app/scripts/code-themes.mjs` and to
+  `CLAUDE_ORDER` in `package/web-app/src/theme/presets.ts`, run `pnpm --filter web-app code-themes`, and
+  update the list in `package/web-app/test/presets.test.ts`.
 - If Claude starts honoring the OS reduce-motion setting, or adds its own
   toggle, as asked in
   [anthropics/claude-code#94003](https://github.com/anthropics/claude-code/issues/94003),

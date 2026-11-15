@@ -36,5 +36,6 @@ marketplace** with `rinn7e/claude-desktop-theme-tuner`, then **Add plugin**.
 - `hooks/presets.ts`: generated from the web tuner's presets; do not edit.
 - `hooks/make-colors.js`: Claude's own, copied unchanged.
 
-Checks: `claude plugin validate mod` and `claude plugin test mod`, from the
+Checks: `claude plugin validate package/claude-mod` and
+`claude plugin test package/claude-mod`, from the
 repository root. See the [main README](../README.md#theme-claude-code-with-the-mod).

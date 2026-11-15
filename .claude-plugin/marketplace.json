@@ -4,7 +4,7 @@
   "plugins": [
     {
       "name": "theme-tuner",
-      "source": "./mod",
+      "source": "./package/claude-mod",
       "description": "Theme Claude Code in the desktop app with the Claude Desktop Theme Tuner presets."
     }
   ]

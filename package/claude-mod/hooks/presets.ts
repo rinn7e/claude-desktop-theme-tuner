@@ -3,7 +3,8 @@
  * SPDX-License-Identifier: MIT
  */
 
-// Generated from the web tuner's presets (src/theme/mod-presets.ts) by
+// Generated from the presets of the web app
+// (package/web-app/src/theme/mod-presets.ts) by its
 // test/mod-presets.test.ts: do not edit. `pnpm test -u` writes it again.
 
 import type { Mode, Palette } from './look'

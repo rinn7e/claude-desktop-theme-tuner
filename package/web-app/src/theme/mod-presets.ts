@@ -23,8 +23,8 @@ const WITHOUT_CODE_THEME = [
 export const codeThemeOf = (id: string): string | undefined =>
   WITHOUT_CODE_THEME.includes(id) ? undefined : (CODE_THEME_IDS[id] ?? id)
 
-// mod/hooks/presets.ts: every preset for the Theme Tuner mod, which cannot
-// import the web app. Kept in sync by test/mod-presets.test.ts.
+// package/claude-mod/hooks/presets.ts: every preset for the Theme Tuner mod,
+// which cannot import the web app. Kept in sync by test/mod-presets.test.ts.
 export const modPresetsSource = (): string => {
   const presets = allPresets().map(({ id, name, mode, palette }) => {
     const codeTheme = codeThemeOf(id)
@@ -35,7 +35,8 @@ export const modPresetsSource = (): string => {
  * SPDX-License-Identifier: MIT
  */
 
-// Generated from the web tuner's presets (src/theme/mod-presets.ts) by
+// Generated from the presets of the web app
+// (package/web-app/src/theme/mod-presets.ts) by its
 // test/mod-presets.test.ts: do not edit. \`pnpm test -u\` writes it again.
 
 import type { Mode, Palette } from './look'
