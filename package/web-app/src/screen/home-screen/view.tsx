@@ -17,7 +17,6 @@ import {
   type Setup,
 } from '../../../../claude-mod/hooks/look'
 import { type Screen, legacyScreen } from '../../common/destination'
-import { BASE_URL } from '../../common/env'
 import { HexInput } from '../../component/hex-input'
 import { Link } from '../../component/link'
 import {
@@ -26,6 +25,7 @@ import {
   Gear,
   HeaderLinks,
   LINK_BUTTON,
+  LogoBadge,
   MENU_ITEM,
   ModeHeader,
   OptionToggle,
@@ -116,11 +116,10 @@ const sectionTitle = (title: string, note?: string) => (
 // tuner: it lives on at /legacy
 const bannerView = ({ model, dispatch, navigate }: HomeViewProps) =>
   model.isBannerShown ? (
-    // Solid orange so nobody misses it; white on orange-700 keeps AA
-    // contrast for its small text
+    // Solid gray so nobody misses it, white on zinc-700 for AA contrast
     <div
       role='status'
-      className='flex items-center justify-between gap-[12px] bg-orange-700 px-[20px] py-[10px] text-xs text-white'
+      className='flex items-center justify-between gap-[12px] bg-zinc-700 px-[20px] py-[10px] text-xs text-white'
     >
       <span>
         <b className='font-semibold'>
@@ -131,7 +130,7 @@ const bannerView = ({ model, dispatch, navigate }: HomeViewProps) =>
         <Link
           screen={legacyScreen}
           navigate={navigate}
-          className='font-semibold underline underline-offset-2 hover:text-orange-100'
+          className='font-semibold underline underline-offset-2 hover:text-zinc-200'
         >
           /legacy
         </Link>
@@ -862,17 +861,10 @@ const settingsMenuView = (model: Model, dispatch: Dispatcher<Msg>) => (
 const headerView = (model: Model, dispatch: Dispatcher<Msg>) => (
   <header className={TITLE_BAR}>
     <span className='flex min-w-0 items-center gap-[10px]'>
-      {/* The logo lives in public/, served next to the page */}
-      <img
-        src={`${BASE_URL}logo.svg`}
-        alt=''
-        width={32}
-        height={32}
-        className='h-[32px] w-[32px] shrink-0'
-      />
+      <LogoBadge badge='V2' />
       <span className='flex min-w-0 items-baseline gap-[10px] overflow-hidden'>
         <h1 className='shrink-0 text-base font-semibold tracking-tight'>
-          Claude Desktop Theme Tuner V2
+          Claude Desktop Theme Tuner
         </h1>
         <span
           title={`Built against the mod API of Claude Code ${TESTED_CLAUDE_CODE}`}

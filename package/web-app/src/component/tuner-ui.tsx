@@ -291,3 +291,21 @@ export const Dialog = ({
     </div>
   </div>
 )
+
+// The logo of the tuner with a badge on its corner that names the version
+// (V2 on the home, legacy on the first tuner). The logo lives in public/,
+// served next to the page
+export const LogoBadge = ({ badge }: { badge: string }) => (
+  <span className='relative shrink-0'>
+    <img
+      src={`${import.meta.env.BASE_URL}logo.svg`}
+      alt=''
+      width={32}
+      height={32}
+      className='h-[32px] w-[32px]'
+    />
+    <span className='absolute -right-[6px] -bottom-[4px] rounded-full bg-ui-ink px-[4px] py-px text-[0.5625rem] leading-none font-semibold text-ui-page ring-2 ring-ui-panel'>
+      {badge}
+    </span>
+  </span>
+)

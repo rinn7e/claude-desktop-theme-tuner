@@ -20,6 +20,7 @@ import {
   Gear,
   HeaderLinks,
   LINK_BUTTON,
+  LogoBadge,
   MENU_ITEM,
   ModeHeader,
   OptionToggle,
@@ -159,14 +160,7 @@ const AGENT_GUIDE =
 const headerView = (model: Model, dispatch: Dispatcher<Msg>) => (
   <header className={TITLE_BAR}>
     <span className='flex min-w-0 items-center gap-[10px]'>
-      {/* The logo lives in public/, served next to the page */}
-      <img
-        src={`${import.meta.env.BASE_URL}logo.svg`}
-        alt=''
-        width={32}
-        height={32}
-        className='h-[32px] w-[32px] shrink-0'
-      />
+      <LogoBadge badge='legacy' />
       <span className='flex min-w-0 items-baseline gap-[10px] overflow-hidden'>
         <h1 className='shrink-0 text-base font-semibold tracking-tight'>
           Claude Desktop Theme Tuner
