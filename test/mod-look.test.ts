@@ -6,6 +6,7 @@ import { describe, expect, it } from 'vitest'
 
 import {
   fitLook,
+  knobsOf,
   lookDefinition,
   parseSetup,
   resolveMode,
@@ -58,6 +59,35 @@ describe('the Theme Tuner mod look', () => {
       )
     },
   )
+
+  it('lists the knobs it sends, by the names of Claude', () => {
+    const dimmed = resolveMode('dark', { preset: 'github-dark-dimmed' })
+    if (!dimmed.ok) throw new Error(dimmed.error)
+    const { definition } = fitLook(
+      lookDefinition({ dark: dimmed.value }),
+      makeColors,
+    )
+    const knobs = knobsOf('dark', dimmed.value.palette, definition)
+    expect(knobs.map((k) => k.knob)).toEqual([
+      'surface-0',
+      'surface-1',
+      'surface-2',
+      'text-primary',
+      'text-secondary',
+      'text-muted',
+      'roles.accent',
+      'codeTheme',
+    ])
+    expect(knobs[0]).toEqual({
+      knob: 'surface-0',
+      value: dimmed.value.palette.frame,
+      from: 'frame',
+    })
+    // Its text is lifted so Claude paints the look, and says so
+    expect(knobs[3]?.from).toBe('text, made stronger to paint')
+    expect(knobs[3]?.value).not.toBe(dimmed.value.palette.text)
+    expect(knobs[7]?.value).toBe('github-dark-dimmed')
+  })
 
   it('keeps the code theme of the preset', () => {
     const solarized = resolveMode('light', { preset: 'solarized-light' })

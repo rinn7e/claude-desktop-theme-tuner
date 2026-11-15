@@ -6,13 +6,14 @@ import { atom, read, update } from 'claude-code'
 import type { EngineInterface, Register, ThemeSetArgs } from 'claude-code'
 
 import {
+  type LookDefinition,
   type Mode,
   PALETTE_KEYS,
-  type PaletteKey,
   type Setup,
   checkSetup,
   fitLook,
   isPresetList,
+  knobsOf,
   lookDefinition,
   parseSetup,
   presetById,
@@ -51,17 +52,6 @@ const notice = atom(
   { plugin: 'theme-tuner', key: 'notice' } as const,
   null as string | null,
 )
-
-// The colors the look uses, which the pane lists per mode: what each
-// paints, and its key in the Theme JSON
-const SWATCHES: { key: PaletteKey; label: string }[] = [
-  { key: 'frame', label: 'Sidebar' },
-  { key: 'canvas', label: 'Chat' },
-  { key: 'text', label: 'Text' },
-  { key: 'textSecondary', label: 'Secondary' },
-  { key: 'textMuted', label: 'Muted' },
-  { key: 'accent', label: 'Accent' },
-]
 
 const TOOL_DESCRIPTION = `Sets the theme of the Claude desktop app (Claude Code sessions, light and dark mode) and keeps it for later sessions. Give a preset per mode, and optionally colors that override it.
 
@@ -286,11 +276,22 @@ export const register: Register = (on) => {
       return id && presetById(id) && id !== `claude-${m}` ? id : ''
     }
 
-    // A mode's picker over its colors: a row per color with its swatch,
-    // what it paints, its key in the Theme JSON and its value
+    // What the mod sends Claude now, after the fit, shown knob by knob
+    let sentLook: LookDefinition | null = null
+    try {
+      const def = lookDefinition(resolveSetup(setup))
+      if (def.light || def.dark) sentLook = fitLook(def, makeColors).definition
+    } catch {
+      sentLook = null
+    }
+
+    // A mode's picker over the knobs it sends: a row per knob with its
+    // swatch, its name in Claude, the value sent and the palette color it
+    // comes from
     const modeView = (m: Mode) => {
       const choice = setup[m]
       const resolved = choice ? resolveMode(m, choice) : undefined
+      const sent = sentLook
       return (
         <Box key={`${m}-mode`} flexDirection='column' gap={1}>
           <Select
@@ -300,24 +301,28 @@ export const register: Register = (on) => {
             value={valueOf(m)}
             onSelect={(v) => void pick(m, v)}
           />
-          {resolved?.ok ? (
+          {resolved?.ok && sent?.[m] ? (
             <Box flexDirection='column'>
-              {SWATCHES.map(({ key, label }) => (
-                <Box key={`${m}-${key}`} gap={1}>
-                  <Text backgroundColor={resolved.value.palette[key]}>
-                    {'    '}
-                  </Text>
-                  <Box width={10}>
-                    <Text>{label}</Text>
-                  </Box>
-                  <Box width={14}>
-                    <Text dimColor mono>
-                      {key}
+              {knobsOf(m, resolved.value.palette, sent).map(
+                ({ knob, value, from }) => (
+                  <Box key={`${m}-${knob}`} gap={1}>
+                    <Text
+                      backgroundColor={
+                        value.startsWith('#') ? value : undefined
+                      }
+                    >
+                      {'    '}
                     </Text>
+                    <Box width={15}>
+                      <Text mono>{knob}</Text>
+                    </Box>
+                    <Box width={9}>
+                      <Text mono>{value}</Text>
+                    </Box>
+                    <Text dimColor>{from}</Text>
                   </Box>
-                  <Text mono>{resolved.value.palette[key]}</Text>
-                </Box>
-              ))}
+                ),
+              )}
             </Box>
           ) : (
             <Text dimColor>Claude's own colors</Text>
@@ -332,6 +337,11 @@ export const register: Register = (on) => {
           {modeView('light')}
           {modeView('dark')}
         </Box>
+        <Text dimColor>
+          These are the knobs sent to Claude. It derives the rest (menus,
+          borders, hover, selection) from them, and draws the sidebar
+          translucent over the macOS glass.
+        </Text>
         {/* The whole setup as JSON, the format of a web tuner link: edit or
             paste it and press Enter. A link or preset ids work here too */}
         <Input

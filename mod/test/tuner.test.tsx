@@ -143,6 +143,13 @@ for (const surface of ['terminal', 'desktop'] as const) {
     expect(sent.store.get('setup')).toEqual({
       light: { preset: 'github-light' },
     })
+    // The knobs sent to Claude are listed with their values
+    expect((await ui.find({ type: 'Text', text: /^surface-0$/ }))?.text).toBe(
+      'surface-0',
+    )
+    expect(
+      (await ui.find({ type: 'Text', text: /^github-light$/ }))?.text,
+    ).toBe('github-light')
     // The JSON box applies a whole setup, colors included
     await ui.input({
       key: 'json',

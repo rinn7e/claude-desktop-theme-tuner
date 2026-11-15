@@ -327,6 +327,8 @@ type MakeColors<T> = (def: LookDefinition) => { theme: T; problems: string[] }
 
 export interface FittedLook<T> {
   theme: T
+  // The definition the theme was made from, the fit's changes included
+  definition: LookDefinition
   problems: string[]
   // What was changed so that Claude paints the look, in plain words
   adjusted: string[]
@@ -347,7 +349,8 @@ export const fitLook = <T>(
   for (let step = 0; step <= 8; step++) {
     const { theme, problems } = makeColors(current)
     const unpainted = problems.filter((l) => l.startsWith(UNPAINTED))
-    if (unpainted.length === 0) return { theme, problems, adjusted }
+    if (unpainted.length === 0)
+      return { theme, definition: current, problems, adjusted }
     const fromText = unpainted.filter((l) => l.includes('text-primary'))
     if (fromText.length === 0) throw new Error(unpainted[0])
     const next: LookDefinition = JSON.parse(JSON.stringify(current))
@@ -369,4 +372,57 @@ export const fitLook = <T>(
   throw new Error(
     "Claude won't paint this theme: its text is too close to its backgrounds.",
   )
+}
+
+// ---------- what the pane shows ----------
+
+export interface Knob {
+  // The name Claude gives the knob
+  knob: string
+  value: string
+  // The palette color it comes from, or what changed it
+  from: string
+}
+
+// The knobs a look sends for one mode, by the names of Claude, with the
+// values sent (after the fit) and the palette color each comes from
+export const knobsOf = (
+  mode: Mode,
+  palette: Palette,
+  def: LookDefinition,
+): Knob[] => {
+  const half = def[mode]
+  if (!half) return []
+  const a = half.gray.anchors
+  const frameIsDarker = luminance(palette.frame) <= luminance(palette.canvas)
+  const lower = frameIsDarker ? 'frame' : 'canvas'
+  const higher = frameIsDarker ? 'canvas' : 'frame'
+  const knobs: Knob[] = [
+    { knob: 'surface-0', value: a['surface-0'], from: lower },
+    { knob: 'surface-1', value: a['surface-1'], from: higher },
+    { knob: 'surface-2', value: a['surface-2'], from: higher },
+    {
+      knob: 'text-primary',
+      value: a['text-primary'],
+      from:
+        a['text-primary'] === palette.text
+          ? 'text'
+          : 'text, made stronger to paint',
+    },
+    {
+      knob: 'text-secondary',
+      value: a['text-secondary'],
+      from: 'textSecondary',
+    },
+    {
+      knob: 'text-muted',
+      value: a['text-muted'],
+      from:
+        a['text-muted'] === palette.textMuted ? 'textMuted' : 'textSecondary',
+    },
+    { knob: 'roles.accent', value: half.roles.accent, from: 'accent' },
+  ]
+  const code = def.codeTheme?.[mode]
+  if (code) knobs.push({ knob: 'codeTheme', value: code, from: 'the preset' })
+  return knobs
 }
