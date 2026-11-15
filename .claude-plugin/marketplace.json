@@ -1,0 +1,11 @@
+{
+  "name": "claude-desktop-theme-tuner",
+  "owner": { "name": "Moremi Vannak" },
+  "plugins": [
+    {
+      "name": "theme-tuner",
+      "source": "./mod",
+      "description": "Theme Claude Code in the desktop app with the Claude Desktop Theme Tuner presets."
+    }
+  ]
+}

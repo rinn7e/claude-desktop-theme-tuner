@@ -10,7 +10,8 @@ import globals from 'globals'
 import tseslint from 'typescript-eslint'
 
 export default tseslint.config([
-  globalIgnores(['dist']),
+  // The mod is checked by Claude's engine (`claude plugin validate mod`)
+  globalIgnores(['dist', 'mod']),
   {
     files: ['**/*.{ts,tsx}'],
     extends: [

@@ -1,1 +1,4 @@
 pnpm-lock.yaml
+mod/hooks/make-colors.js
+mod/hooks/make-colors.d.ts
+mod/hooks/presets.ts
