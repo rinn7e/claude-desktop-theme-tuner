@@ -322,7 +322,7 @@ export const VersionBadge = ({
   tone: keyof typeof BADGE_TONES
 }) => (
   <span
-    className={`absolute -right-[10px] -bottom-[12px] z-10 -rotate-[8deg] whitespace-nowrap rounded-full px-[7px] py-[2px] text-[0.625rem] leading-none font-bold tracking-wide shadow-sm ${BADGE_TONES[tone]}`}
+    className={`absolute -right-[10px] -bottom-[7px] z-10 -rotate-[8deg] whitespace-nowrap rounded-full px-[7px] py-[2px] text-[0.625rem] leading-none font-bold tracking-wide shadow-sm ${BADGE_TONES[tone]}`}
   >
     {label}
   </span>
