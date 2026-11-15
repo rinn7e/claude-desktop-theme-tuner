@@ -1,0 +1,109 @@
+# Legacy: the first tuner
+
+The first tuner lives on at
+[`/legacy`](https://rinn7e.com/claude-desktop-theme-tuner/legacy): 13 colors
+per mode with a live preview, copied as a DevTools snippet. It themes the
+whole desktop app, not only Claude Code sessions. Tested against Claude
+desktop 3.6556.2 on macOS (the version is shown in its title bar). The video
+shows it:
+
+[![Claude Desktop Theme Tuner: how to use it](https://img.youtube.com/vi/DfnZwI23iNM/maxresdefault.jpg)](https://www.youtube.com/watch?v=DfnZwI23iNM)
+
+## Features of the first tuner
+
+- **Tuning:** every color of a theme has a picker, with WCAG contrast checks
+  for the text and accent pairs. Edits are kept in your browser.
+- **Presets as files:** the gear menu saves both modes and the options to a
+  JSON file and loads one back. Loaded names and links are cleaned, so a
+  shared file cannot slip extra CSS into the snippet.
+- **Share links:** **Copy Share Link** puts the setup in the link itself
+  (`/legacy#theme=...`, which never reaches the server); opening it loads the
+  theme.
+- **Less GPU:** while Claude works, its looping animations (the shimmer on
+  its working text above all) keep the GPU and the WindowServer of macOS
+  busy, see
+  [anthropics/claude-code#94003](https://github.com/anthropics/claude-code/issues/94003).
+  The **Reduce motion** option switches on the own reduce-motion guard of
+  Claude, which the app never sets; it roughly halved the GPU load in our
+  test.
+- **Thin arrows:** the **Thin arrows** option draws the own thin chevron of
+  Claude in place of its filled triangle arrows, in the same `<style>`.
+- **Readable output:** the snippet is shown in full before you copy it. It
+  adds one `<style>` element and nothing else, and its CSS reads as plain CSS.
+
+## The mod and the snippet
+
+- The mod themes Claude Code sessions, in the desktop and mobile apps, and
+  stays. The snippet themes the whole desktop app (the Chat tab and the full
+  sidebar too) until Claude restarts, and alone has Thin arrows and Reduce
+  motion.
+- The snippet sets all 13 colors as they are; a mod look sends anchors and
+  seeds, and Claude derives the rest (a selected row and the message bubble
+  always come from the text color).
+
+## Apply a theme with the snippet
+
+The **How to apply** button of the first tuner walks through it, with a
+screenshot of each step (in `package/web-app/src/asset/how-to-apply/`):
+
+1. Turn on Developer Mode once: in Claude, **Help > Troubleshooting > Enable
+   Developer Mode**.
+2. Copy the theme snippet.
+3. In Claude, choose **Developer > Show Dev Tools** (Option+Cmd+I).
+4. In DevTools open **Sources**, click **>>** next to Page and Workspace, and
+   choose **Snippets**, then **+ New snippet**.
+5. Paste it, press Cmd+S to keep it, then Cmd+Enter to run it. The Console
+   says `[theme] applied`.
+
+The theme lasts until Claude restarts; after that, run the saved snippet
+again. The **Revert** tab has the one-line command that removes it.
+
+## Screenshots for an AI agent
+
+An agent can design themes with the first tuner and show you screenshots: it
+puts each theme in a link (`/legacy#theme=...`), and with `&view=preview` the
+link shows only the themed preview of Claude, which the agent screenshots.
+[llms.txt](../package/web-app/public/llms.txt) explains it. Running the snippet
+stays your step.
+
+## When a Claude update breaks the theme
+
+Updates rename or add color variables, and the surfaces using them go back to
+stock. Maintainers run `package/web-app/snippets/diagnose.snippet.js` in the
+Console the same way, with DevTools undocked (docked DevTools narrows the
+window, which collapses the sidebar). It copies a JSON report to the
+clipboard: what paints each area, the color variables in use, the rules
+behind each sidebar, and every surface still white or gray. Map the new names
+in `package/web-app/src/theme/tokens.ts`.
+
+## How the snippet works
+
+The UI of Claude takes its colors from CSS variables: the `--cds-*` of the
+design system, the older `--bg-*` and `--text-*` of claude.ai (HSL triples),
+and the `--df-*` of the Code tab frame. A theme is 13 semantic colors, and
+everything else is derived from them.
+
+| File                                               | Role                                                                                                                       |
+| -------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `package/web-app/src/theme/palette.ts`             | the semantic colors, their labels and the contrast pairs                                                                   |
+| `package/web-app/src/theme/presets.ts`             | the hand-tuned presets, their order, and approximate stock colors for an unthemed mode                                     |
+| `package/web-app/src/theme/code-themes.ts`         | the other code-theme presets, generated by `pnpm --filter web-app code-themes` (`package/web-app/scripts/code-themes.mjs`) |
+| `package/web-app/src/theme/tokens.ts`              | maps a palette onto every Claude variable the snippet sets                                                                 |
+| `package/web-app/src/theme/css.ts`                 | writes those variables under the light and dark selectors                                                                  |
+| `package/web-app/src/theme/snippet.ts`             | wraps the CSS into the paste-able script                                                                                   |
+| `package/web-app/src/preview/claude-mock.tsx`      | the preview, painted with the same variables (the home lays the tokens of Claude over them)                                |
+| `package/web-app/src/storage/preset-file.ts`       | the preset JSON file: saving, and checking a loaded one                                                                    |
+| `package/web-app/snippets/diagnose.snippet.js`     | for maintainers: reports the color variables of Claude after an update breaks the theme                                    |
+| `package/web-app/snippets/stock-colors.snippet.js` | reads the own default colors of Claude, for the Claude presets                                                             |
+| `package/web-app/snippets/arrows.snippet.js`       | lists every icon shape in Claude and where it shows, to find the bold arrows to restyle                                    |
+
+Three quirks shape the CSS, each explained where it is handled in the code:
+
+- Every declaration is `!important`, because Claude sets the same variables
+  with selectors of up to five parts (its dark mode ones most of all).
+- The frame re-sets its variables on its own sidebar and cards, so they are
+  set there too.
+- With macOS vibrancy the docked sidebar mixes a white tint over a
+  transparent window, so the tint is set to the frame color at 100%.
+
+Back to the [README](../README.md) for the current tuner and the mod.
