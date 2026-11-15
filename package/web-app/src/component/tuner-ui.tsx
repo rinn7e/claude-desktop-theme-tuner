@@ -308,10 +308,13 @@ export const Logo = () => (
 export const NEW_VERSION_TONE =
   'bg-linear-to-r from-violet-600 to-fuchsia-500 text-white'
 
+// The colors of the old version (the first tuner, at /legacy): its badge,
+// and the links to it from the home
+export const OLD_VERSION_TONE = 'bg-amber-300 text-amber-950'
+
 const BADGE_TONES = {
   new: NEW_VERSION_TONE,
-  // The first tuner, in the amber of its banner
-  old: 'bg-amber-300 text-amber-950',
+  old: OLD_VERSION_TONE,
 }
 
 // A badge that names the version, tilted under the end of the title and

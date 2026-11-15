@@ -28,6 +28,7 @@ import {
   Logo,
   MENU_ITEM,
   ModeHeader,
+  OLD_VERSION_TONE,
   OptionToggle,
   PresetChips,
   SectionTitle,
@@ -118,10 +119,10 @@ const sectionTitle = (title: string, note?: string) => (
 // tuner: it lives on at /legacy
 const bannerView = ({ model, dispatch, navigate }: HomeViewProps) =>
   model.isBannerShown ? (
-    // Solid gray so nobody misses it, white on zinc-700 for AA contrast
+    // Light gray as on the first tuner, so the amber link to it stands out
     <div
       role='status'
-      className='flex items-center justify-between gap-[12px] bg-zinc-700 px-[20px] py-[10px] text-xs text-white'
+      className='flex items-center justify-between gap-[12px] border-b border-ui-line bg-ui-field px-[20px] py-[10px] text-xs text-ui-ink'
     >
       <span>
         <b className='font-semibold'>
@@ -132,7 +133,7 @@ const bannerView = ({ model, dispatch, navigate }: HomeViewProps) =>
         <Link
           screen={legacyScreen}
           navigate={navigate}
-          className='font-semibold underline underline-offset-2 hover:text-zinc-200'
+          className={`${OLD_VERSION_TONE} rounded-full px-[8px] py-[1px] font-semibold whitespace-nowrap hover:opacity-90`}
         >
           /legacy
         </Link>
@@ -141,7 +142,7 @@ const bannerView = ({ model, dispatch, navigate }: HomeViewProps) =>
       <button
         type='button'
         onClick={() => dispatch({ _tag: 'DismissBanner' })}
-        className='shrink-0 rounded-md px-[8px] py-[2px] text-white/85 hover:bg-white/15 hover:text-white'
+        className='shrink-0 rounded-md px-[8px] py-[2px] text-ui-ink-muted hover:bg-ui-line/40 hover:text-ui-ink'
       >
         Dismiss
       </button>
