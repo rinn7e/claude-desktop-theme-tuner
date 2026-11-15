@@ -16,7 +16,7 @@ screenshot the link.
 App: https://rinn7e.com/claude-desktop-theme-tuner/
 First tuner: https://rinn7e.com/claude-desktop-theme-tuner/legacy
 Source (MIT): https://github.com/rinn7e/claude-desktop-theme-tuner
-Every knob of the mod: https://github.com/rinn7e/claude-desktop-theme-tuner/blob/main/doc/mod-knobs.md
+Every knob of the mod: https://github.com/rinn7e/claude-desktop-theme-tuner/blob/master/doc/mod-knobs.md
 
 ## The mod setup JSON
 

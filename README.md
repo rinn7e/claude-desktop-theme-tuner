@@ -240,7 +240,7 @@ Code: `claude plugin validate package/claude-mod` and
 preset, `pnpm test -u` writes them again. `package/claude-mod/hooks/make-colors.js` is
 Claude's own, copied unchanged from the mod-authoring skill: copy it again
 when Claude updates. `pnpm run build` writes a static site to `package/web-app/dist/`; every push
-to `main` deploys it to GitHub Pages (`.github/workflows/pages.yml`). Follow the
+to `master` deploys it to GitHub Pages (`.github/workflows/pages.yml`). Follow the
 [code convention](doc/code-convention.md). Open work is in the
 [future plan](doc/future-plan.md).
 
