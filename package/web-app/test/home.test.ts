@@ -173,9 +173,14 @@ describe('editing a mode', () => {
   })
 
   it('compensates for the sidebar glass by default, and stops when asked', () => {
-    expect(DEFAULT_SETUP.compensateGlass).toBe(true)
+    // On unless turned off, so the default setup does not name it
+    expect(DEFAULT_SETUP.compensateGlass).toBeUndefined()
     const off = run([{ _tag: 'SetCompensateGlass', isOn: false }])
-    expect(off.setup.compensateGlass).toBeUndefined()
+    expect(off.setup.compensateGlass).toBe(false)
+    expect(checkSetup(JSON.parse(JSON.stringify(off.setup)))).toEqual({
+      ok: true,
+      value: off.setup,
+    })
     // The light surface-0 is aimed through the glass only while it is on
     expect(
       lookOf(off.setup).definition.light?.gray.anchors['surface-0'],
@@ -183,11 +188,7 @@ describe('editing a mode', () => {
       lookOf(DEFAULT_SETUP).definition.light?.gray.anchors['surface-0'],
     )
     const on = run([{ _tag: 'SetCompensateGlass', isOn: true }], off)
-    expect(on.setup.compensateGlass).toBe(true)
-    expect(checkSetup(JSON.parse(JSON.stringify(on.setup)))).toEqual({
-      ok: true,
-      value: on.setup,
-    })
+    expect(on.setup.compensateGlass).toBeUndefined()
   })
 
   it('makes only setups the mod accepts', () => {

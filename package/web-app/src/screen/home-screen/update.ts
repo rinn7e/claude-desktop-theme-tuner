@@ -30,12 +30,11 @@ const SWAPPED_KEY = 'claude-theme-tuner:home-swapped:v1'
 // How long a copy button says "Copied"
 const COPIED_MS = 1600
 
-// What a first visit shows: a theme for each mode, to start from, with the
-// light sidebar compensated for the macOS glass (most Macs show it)
+// What a first visit shows: a theme for each mode, to start from (the light
+// sidebar is compensated for the macOS glass unless a setup turns it off)
 export const DEFAULT_SETUP: Setup = {
   light: { preset: 'solarized-light' },
   dark: { preset: 'dracula' },
-  compensateGlass: true,
 }
 
 // The stored setup, or the default when there is none or it no longer
@@ -351,8 +350,9 @@ export const update = (msg: Msg, model: Model): [Model, Cmd<Msg>] => {
     }
     case 'SetCompensateGlass': {
       const next = { ...setup }
-      if (msg.isOn) next.compensateGlass = true
-      else delete next.compensateGlass
+      // On is the default, so only off is written
+      if (msg.isOn) delete next.compensateGlass
+      else next.compensateGlass = false
       return withSetup(model, next)
     }
     case 'SetBackdrop': {

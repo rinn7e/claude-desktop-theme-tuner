@@ -237,7 +237,7 @@ export const register: Register = (on) => {
           compensateGlass: {
             type: 'boolean',
             description:
-              'Aim the light sidebar at the frame color as it shows through the translucent macOS sidebar glass.',
+              'On by default: the light sidebar is aimed at the frame color as it shows through the translucent macOS sidebar glass. false sends the frame as it is (for Reduce transparency).',
           },
           backdrop: BACKDROP_SCHEMA,
         },

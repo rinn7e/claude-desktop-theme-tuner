@@ -60,13 +60,14 @@ describe('the sidebar of a light look', () => {
   })
 
   it('keeps the setting in the setup, and refuses a wrong one', () => {
+    // On unless turned off, so only off is kept
     expect(checkSetup({ compensateGlass: true })).toEqual({
       ok: true,
-      value: { compensateGlass: true },
+      value: {},
     })
     expect(checkSetup({ compensateGlass: false })).toEqual({
       ok: true,
-      value: {},
+      value: { compensateGlass: false },
     })
     expect(checkSetup({ compensateGlass: 'yes' }).ok).toBe(false)
   })
@@ -161,9 +162,10 @@ describe('the Theme Tuner mod look', () => {
     const modes = resolveSetup(checked.value)
     const def = lookDefinition(modes, { contrast: checked.value.contrast })
     expect(def.light?.gray.anchors).toMatchObject({
-      // As far below the frame (#eee8d5) as the canvas (#fdf6e3) is above:
-      // Claude mixes the two half and half into the sidebar
-      'surface-0': '#dfdac7',
+      // As far below the frame (#eee8d5), as it shows through the macOS
+      // glass (#f0e8cb), as the canvas (#fdf6e3) is above: Claude mixes the
+      // two half and half into the sidebar
+      'surface-0': '#e3dab3',
       'text-primary': '#002b36',
     })
     expect(def.dark?.gray.anchors['surface-3']).toBe('#353c4a')

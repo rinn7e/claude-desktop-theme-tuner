@@ -99,9 +99,10 @@ export interface Setup {
   // Stronger borders and focus rings
   contrast?: 'more'
   backdrop?: Backdrop
-  // Send the light sidebar so that it comes out as the frame through the
-  // sidebar glass of macOS (see sidebarBase)
-  compensateGlass?: true
+  // The light sidebar is sent so that it comes out as the frame through the
+  // sidebar glass of macOS (see sidebarBase); false sends the frame as it is,
+  // for Reduce transparency
+  compensateGlass?: false
 }
 
 // One mode, resolved: the colors to draw with, what to call them, and the
@@ -338,7 +339,8 @@ export const checkSetup = (raw: unknown): Result<Setup> => {
   if (raw.compensateGlass !== undefined) {
     if (typeof raw.compensateGlass !== 'boolean')
       return { ok: false, error: 'compensateGlass is true, false or left out.' }
-    if (raw.compensateGlass) setup.compensateGlass = true
+    // On unless turned off, so only off is kept
+    if (!raw.compensateGlass) setup.compensateGlass = false
   }
   if (raw.backdrop !== undefined) {
     const backdrop = checkBackdrop(raw.backdrop)
@@ -443,8 +445,8 @@ const luminance = (hex: string): number => {
 // macOS sidebar glass, so the screen shows a little of the glass: #eee8d5
 // was measured as #ede8dc over a light glass of about #eae8ee. With
 // `compensateGlass` the sidebar is aimed at the color that comes out as the
-// frame through that glass instead. It only holds while the glass looks so
-// (a light wallpaper, light mode).
+// frame through that glass instead, unless the setup turns it off. It only
+// holds while the glass looks so (a light wallpaper, light mode).
 export const SIDEBAR_OPACITY = 0.72
 export const LIGHT_GLASS = '#eae8ee'
 
@@ -489,7 +491,9 @@ const anchorsOf = (mode: Mode, p: Palette, options: LookOptions) => {
   const frameIsDarker = luminance(p.frame) <= luminance(p.canvas)
   const low =
     mode === 'light' && frameIsDarker
-      ? sidebarBase(p.frame, p.canvas, options)
+      ? sidebarBase(p.frame, p.canvas, {
+          compensateGlass: options.compensateGlass !== false,
+        })
       : frameIsDarker
         ? p.frame
         : p.canvas
@@ -568,12 +572,13 @@ export interface LookDefinition {
 // What a setup sets for the whole look
 export interface LookOptions {
   contrast?: 'more'
+  // On unless false
   compensateGlass?: boolean
 }
 
 export const lookOptionsOf = (setup: Setup): LookOptions => ({
   contrast: setup.contrast,
-  compensateGlass: setup.compensateGlass === true,
+  compensateGlass: setup.compensateGlass !== false,
 })
 
 export const lookDefinition = (

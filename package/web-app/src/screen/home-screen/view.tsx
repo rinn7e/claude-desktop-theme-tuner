@@ -737,15 +737,15 @@ const bothModesView = (setup: Setup, dispatch: Dispatcher<Msg>) => (
           <>
             On a Mac, Claude lets a little of the glass show through its light
             sidebar. This sends a color that comes out as the frame over a light
-            glass. Leave it off with Reduce transparency on (
-            <code className='font-mono'>compensateGlass: true</code>)
+            glass. On by default; turn it off with Reduce transparency on (
+            <code className='font-mono'>compensateGlass: false</code>)
           </>
         }
-        isOn={setup.compensateGlass === true}
+        isOn={setup.compensateGlass !== false}
         onToggle={() =>
           dispatch({
             _tag: 'SetCompensateGlass',
-            isOn: setup.compensateGlass !== true,
+            isOn: setup.compensateGlass === false,
           })
         }
       />

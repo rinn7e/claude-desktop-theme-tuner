@@ -103,9 +103,10 @@ a probe of the sidebar variables:
   does not set.
 - On a Mac with transparency on, the sidebar is drawn at 72% over the macOS
   glass: `#eee8d5` was measured as `#ede8dc` over a light glass of about
-  `#eae8ee`. The setup option `compensateGlass` aims the light sidebar so
-  that it shows as the frame through that glass (`throughGlass`); the home
-  preview lays the same glass under its light sidebar.
+  `#eae8ee`. The mod aims the light sidebar so that it shows as the frame
+  through that glass (`throughGlass`), unless the setup says
+  `"compensateGlass": false`; the home preview lays the same glass under its
+  light sidebar.
 
 ## The sidebar is translucent
 
