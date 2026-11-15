@@ -20,16 +20,13 @@
   <a href="LICENSE"><img src="https://img.shields.io/github/license/rinn7e/claude-desktop-theme-tuner" alt="License: MIT"></a>
 </p>
 
-Design a theme for the Claude desktop app with a live preview, and apply it
-with the Theme Tuner mod of Claude Code: no DevTools, kept across restarts,
-shown on mobile too. Light and dark mode each get their own theme, and the app
-follows your OS between them. The first tuner, with its DevTools snippet, lives
-on at [`/legacy`](https://rinn7e.com/claude-desktop-theme-tuner/legacy) (see
-[doc/legacy.md](doc/legacy.md)).
-
-**Open the app: [rinn7e.com/claude-desktop-theme-tuner](https://rinn7e.com/claude-desktop-theme-tuner/)**,
-install the [Theme Tuner mod](#theme-claude-code-with-the-mod), or
+Tune every knob Claude gives a theme with a live preview of the app, then
+[install the Theme Tuner mod](#theme-claude-code-with-the-mod) and send one
+`/tuner` command: no DevTools, kept across restarts, shown on mobile too. Or
 [let your AI agent design a theme for you](#design-a-theme-with-an-ai-agent).
+The first tuner, with its DevTools snippet, lives on at
+[`/legacy`](https://rinn7e.com/claude-desktop-theme-tuner/legacy) (see
+[doc/legacy.md](doc/legacy.md)).
 
 <p align="center">
   <img src="doc/screenshot.png" alt="The home: the knobs of each mode over the /tuner command on the left, light and dark previews of Claude on the right">
