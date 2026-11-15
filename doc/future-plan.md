@@ -30,3 +30,15 @@ Ideas and open work, in no particular order.
 - **A truer preview**: the mock is hand-made and drifts from the real app over
   time. A preview built from a saved copy of Claude's markup would follow it
   more closely.
+- **Every mod knob in the web app**: the Theme Tuner mod sends only the
+  surfaces, the three texts, the accent and the code theme. A mod look also
+  takes the danger, success, warning and pro roles (which also color code),
+  the git colors, more contrast, the menu surface, the gray ramp and a
+  backdrop (a color, gradient, vector, image or animated scene with frosted
+  glass). Let the web app edit each, carry them in the setup JSON as
+  optional fields, and have the mod send them; the knobs, their shapes and
+  their rules are in [mod-knobs.md](mod-knobs.md). A "Copy Theme JSON"
+  button would then feed the Theme JSON box of the mod pane.
+- **Check Thin arrows on new builds**: Claude 4.x on 15 Nov 2026 already drew
+  thin chevrons in the sidebar with no snippet. If that holds, the Thin arrows
+  option can go.
