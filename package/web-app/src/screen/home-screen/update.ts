@@ -30,10 +30,12 @@ const SWAPPED_KEY = 'claude-theme-tuner:home-swapped:v1'
 // How long a copy button says "Copied"
 const COPIED_MS = 1600
 
-// What a first visit shows: a theme for each mode, to start from
+// What a first visit shows: a theme for each mode, to start from, with the
+// light sidebar compensated for the macOS glass (most Macs show it)
 export const DEFAULT_SETUP: Setup = {
   light: { preset: 'solarized-light' },
   dark: { preset: 'dracula' },
+  compensateGlass: true,
 }
 
 // The stored setup, or the default when there is none or it no longer

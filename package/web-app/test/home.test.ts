@@ -172,21 +172,22 @@ describe('editing a mode', () => {
     })
   })
 
-  it('compensates for the sidebar glass when asked', () => {
-    const on = run([{ _tag: 'SetCompensateGlass', isOn: true }])
+  it('compensates for the sidebar glass by default, and stops when asked', () => {
+    expect(DEFAULT_SETUP.compensateGlass).toBe(true)
+    const off = run([{ _tag: 'SetCompensateGlass', isOn: false }])
+    expect(off.setup.compensateGlass).toBeUndefined()
+    // The light surface-0 is aimed through the glass only while it is on
+    expect(
+      lookOf(off.setup).definition.light?.gray.anchors['surface-0'],
+    ).not.toBe(
+      lookOf(DEFAULT_SETUP).definition.light?.gray.anchors['surface-0'],
+    )
+    const on = run([{ _tag: 'SetCompensateGlass', isOn: true }], off)
     expect(on.setup.compensateGlass).toBe(true)
     expect(checkSetup(JSON.parse(JSON.stringify(on.setup)))).toEqual({
       ok: true,
       value: on.setup,
     })
-    // The light surface-0 is aimed through the glass
-    expect(
-      lookOf(on.setup).definition.light?.gray.anchors['surface-0'],
-    ).not.toBe(
-      lookOf(DEFAULT_SETUP).definition.light?.gray.anchors['surface-0'],
-    )
-    const off = run([{ _tag: 'SetCompensateGlass', isOn: false }], on)
-    expect(off.setup.compensateGlass).toBeUndefined()
   })
 
   it('makes only setups the mod accepts', () => {
@@ -276,7 +277,8 @@ describe('the Theme JSON box', () => {
   it('merges preset ids into the modes they name', () => {
     const read = readJson(DEFAULT_SETUP, 'nord')
     expect(read).toEqual({
-      setup: { light: DEFAULT_SETUP.light, dark: { preset: 'nord' } },
+      // The rest of the setup stays, the glass option too
+      setup: { ...DEFAULT_SETUP, dark: { preset: 'nord' } },
       error: null,
     })
   })
