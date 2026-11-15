@@ -36,7 +36,7 @@ export type TunerSetup = {
   contrast?: 'more'
   backdrop?: TunerBackdrop
   /** false: no aiming of the light sidebar through the macOS glass (on by default). */
-  compensateGlass?: boolean
+  compensateGlass?: false
 }
 
 declare module 'claude-code' {

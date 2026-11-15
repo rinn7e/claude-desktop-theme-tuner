@@ -28,6 +28,21 @@ marketplace** with `rinn7e/claude-desktop-theme-tuner`, then **Add plugin**.
 - Ask Claude for a theme: the mod gives it a `set_theme` tool.
 - `/tuner off` goes back to Claude's own colors.
 
+## What it does
+
+The mod runs in Claude Code and only themes it. Its hooks module
+(`hooks/register.tsx`) uses:
+
+- `$.theme.set` and `$.theme.clear`, to apply the look and to turn it off
+- its own state and store (`$.state`, `$.store`), to keep the setup across
+  sessions
+- `$.command.register` for `/tuner`, `$.tool.register` for the `set_theme`
+  tool, and `$.ui` for its pane and its status line
+
+It reads no files, runs no processes, reads no environment variables and
+sends nothing over the network: the presets and Claude's own `makeColors`
+ship in the plugin folder.
+
 ## Files
 
 - `hooks/register.tsx`: the commands, the tool, the pane and the start of a

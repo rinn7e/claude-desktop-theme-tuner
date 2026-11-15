@@ -455,7 +455,9 @@ export const throughGlass = (frame: string): string => {
   const f = channels(frame)
   const g = channels(LIGHT_GLASS)
   return toHex(
-    f.map((v, i) => (v - (1 - SIDEBAR_OPACITY) * g[i]) / SIDEBAR_OPACITY),
+    f.map(
+      (v, i) => (v - (1 - SIDEBAR_OPACITY) * (g[i] ?? 0)) / SIDEBAR_OPACITY,
+    ),
   )
 }
 
@@ -464,7 +466,7 @@ export const onGlass = (color: string): string => {
   const c = channels(color)
   const g = channels(LIGHT_GLASS)
   return toHex(
-    c.map((v, i) => SIDEBAR_OPACITY * v + (1 - SIDEBAR_OPACITY) * g[i]),
+    c.map((v, i) => SIDEBAR_OPACITY * v + (1 - SIDEBAR_OPACITY) * (g[i] ?? 0)),
   )
 }
 
@@ -484,7 +486,7 @@ export const sidebarBase = (
 ): string => {
   const f = channels(compensateGlass ? throughGlass(frame) : frame)
   const c = channels(canvas)
-  return toHex(f.map((v, i) => 2 * v - c[i]))
+  return toHex(f.map((v, i) => 2 * v - (c[i] ?? 0)))
 }
 
 const anchorsOf = (mode: Mode, p: Palette, options: LookOptions) => {
@@ -715,8 +717,10 @@ const isPinned = (def: LookDefinition): boolean =>
 
 // The pinned steps to try, most first: a step can fail a contrast check of
 // Claude the seed alone passes (a light link color, a pale hover)
+const ALL_PARTS: AccentPart[] = ['link', 'fill', 'hover']
+
 const PINNINGS: AccentPart[][] = [
-  ['link', 'fill', 'hover'],
+  ALL_PARTS,
   ['fill', 'hover'],
   ['link', 'fill'],
   ['fill'],
@@ -744,7 +748,7 @@ export const fitLook = <T>(
   for (const keep of PINNINGS) {
     try {
       const fitted = fitText(pinning(def, keep), makeColors)
-      const dropped = PINNINGS[0].filter((part) => !keep.includes(part))
+      const dropped = ALL_PARTS.filter((part) => !keep.includes(part))
       if (!dropped.length) return fitted
       const what = dropped.map((part) => PART_WORDS[part]).join(' and ')
       const notes = MODES.filter(
