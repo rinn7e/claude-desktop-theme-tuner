@@ -22,7 +22,9 @@ own theme, and the app follows your OS between them. Tested against Claude
 desktop 3.6556.2 on macOS (the version is shown in the app's title bar).
 
 **Open the app: [rinn7e.com/claude-desktop-theme-tuner](https://rinn7e.com/claude-desktop-theme-tuner/)**,
-or [let your AI agent design a theme for you](#design-a-theme-with-an-ai-agent).
+install the [Theme Tuner mod](#theme-claude-code-with-the-mod) to theme Claude
+Code sessions with no DevTools, or
+[let your AI agent design a theme for you](#design-a-theme-with-an-ai-agent).
 
 <p align="center">
   <img src="doc/screenshot.png" alt="The tuner: customizer and snippet on the left, light and dark previews of the Claude app on the right">
@@ -50,6 +52,10 @@ or [let your AI agent design a theme for you](#design-a-theme-with-an-ai-agent).
 - **Share links:** the gear menu's **Copy Share Link** puts the setup in the
   link itself (`#theme=...`, which never reaches the server); opening it loads
   the theme.
+- **A Claude Code mod:** the
+  [Theme Tuner mod](#theme-claude-code-with-the-mod) applies the presets and
+  links with no DevTools, keeps them across restarts and shows them on mobile
+  too.
 - **Made for AI agents:** an agent can design themes for you and show you
   screenshots, without clicking through the page; see
   [Design a theme with an AI agent](#design-a-theme-with-an-ai-agent).
@@ -94,7 +100,52 @@ through the page:
 Applying stays your step: the snippet runs in your Claude app, so you copy and
 run it yourself.
 
-## Apply a theme
+## Theme Claude Code with the mod
+
+Claude Code on desktop can be themed by a mod (a plugin with hooks), and the
+Theme Tuner is one: the same presets, kept across restarts and shown on
+mobile too, with nothing pasted in DevTools. It lives in [`mod/`](mod/), and
+this repository is its marketplace.
+
+Install it once. At the prompt of a terminal session:
+
+```
+/plugin install theme-tuner --marketplace rinn7e/claude-desktop-theme-tuner
+```
+
+In the desktop app: click **+** next to the prompt, then **Plugins**, **Add
+marketplace** with `rinn7e/claude-desktop-theme-tuner`, then **Add plugin**.
+
+Then, in a Claude Code session:
+
+- `/tuner` opens the mod: a preset for each mode, the colors of the look to
+  tune, a field for a tuner link, and **Turn off**.
+- `/tuner solarized-light dracula` applies presets by id, and changes only
+  the modes it names (`/tuner list` names them); `/tuner <link>` applies a
+  whole setup from the web tuner: its **How to
+  apply** dialog and the gear menu copy that command (**Copy /tuner
+  Command**).
+- Or ask Claude ("make it Solarized with a magenta accent"): the mod gives it
+  a `set_theme` tool that takes the same JSON as a share link.
+- `/tuner off` goes back to Claude's own colors.
+
+The mod and the snippet differ in reach:
+
+- The mod themes Claude Code sessions, in the desktop and mobile apps, and
+  stays. The snippet themes the whole desktop app (the Chat tab and the full
+  sidebar too) until Claude restarts, and alone has Thin arrows and Reduce
+  motion.
+- A mod look takes a few colors and Claude derives the rest: the sidebar and
+  chat surfaces, the three texts and the accent go across, and the code
+  theme of the preset's name (every preset that matches one of Claude's code
+  themes sets it, except Claude's own colors, which leave the mode to the
+  app). The snippet sets all 13 colors as they are.
+- Claude refuses to paint a look whose text is too close to its
+  backgrounds, so the mod checks each look with Claude's own `makeColors`
+  and, where one would not paint, makes its text a little stronger and says
+  so. Every preset paints (`test/mod-look.test.ts`).
+
+## Apply a theme with the snippet
 
 The app's **How to apply** button walks through it, with a screenshot of each
 step (in `src/asset/how-to-apply/`):
@@ -162,7 +213,12 @@ pnpm run dev
 ```
 
 Checks: `pnpm run check`, `pnpm run lint`, `pnpm run format:check`,
-`pnpm run test`. `pnpm run build` writes a static site to `dist/`; every push
+`pnpm run test`. The mod has its own, run by Claude Code: `claude plugin
+validate mod` and `claude plugin test mod`. Its presets
+(`mod/hooks/presets.ts`) are generated from the web app's: after changing a
+preset, `pnpm test -u` writes them again. `mod/hooks/make-colors.js` is
+Claude's own, copied unchanged from the mod-authoring skill: copy it again
+when Claude updates. `pnpm run build` writes a static site to `dist/`; every push
 to `main` deploys it to GitHub Pages (`.github/workflows/pages.yml`). Follow the
 [code convention](doc/code-convention.md). Open work is in the
 [future plan](doc/future-plan.md).

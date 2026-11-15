@@ -129,6 +129,27 @@ take a screenshot; never fill in the color fields one by one.
 3. Build one `&view=preview` link per variant and screenshot each.
 4. Show the user the screenshots, each with its link without `&view=preview`.
 5. The user opens the one they like. The tuner loads it and explains how to
-   apply it: copy the snippet, then run it in Claude's DevTools (Help >
-   Troubleshooting > Enable Developer Mode). Applying it is the user's step,
-   since it runs code in their Claude app.
+   apply it: with the Theme Tuner mod (below), or by copying the snippet and
+   running it in Claude's DevTools (Help > Troubleshooting > Enable Developer
+   Mode). Running the snippet is the user's step, since it runs code in their
+   Claude app.
+
+## Applying a theme with the Theme Tuner mod
+
+In Claude Code on desktop, the Theme Tuner mod applies a theme with no
+DevTools, and keeps it across restarts. The user installs it once:
+
+    /plugin install theme-tuner --marketplace rinn7e/claude-desktop-theme-tuner
+
+Then, in a Claude Code session:
+
+- The user sends `/tuner <link>` with any link above (or `/tuner
+  solarized-light dracula`, preset ids per mode), or `/tuner` to open its
+  pane.
+- An agent in that session calls the mod's tool, `set_theme` (full name
+  `mcp__theme-tuner__set_theme`), with the same JSON as the link: `light`
+  and `dark`, each `{ preset, name, colors }`.
+
+The mod sends Claude the frame and canvas surfaces, the three texts and the
+accent; Claude derives the rest. It themes Claude Code sessions only; the
+snippet themes the whole app.

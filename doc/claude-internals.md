@@ -103,3 +103,22 @@ translucent values were turned into solid ones, are in the `STOCK` comments in
   `data-panel-open`, the chat's status rows). After a Claude update, run
   `snippets/arrows.snippet.js` and check that list against what it reports;
   an arrow the list misses stays a triangle.
+
+## Mod themes (Claude Code sessions)
+
+- A mod sets a look with `$.theme.set({ colors })`, for the desktop and
+  mobile apps; the terminal draws none. `colors` is about 100 design-system
+  tokens, built by `makeColors` (`mod/hooks/make-colors.js`, copied unchanged
+  from the mod-authoring skill) from anchors: `surface-0` to `surface-3`,
+  `text-primary`, `text-secondary`, `text-muted`, and roles such as `accent`.
+- Its rules, which fail with no error in the app: `surface-0` is the darkest
+  surface in both modes; in light mode `surface-2` and `surface-3` match
+  where both are given;
+  `text-secondary` is at least as strong as `text-muted`. A problem starting
+  `Desktop won't paint` means Desktop ignores the whole look. A dark
+  `surface-3` as light as a preset's raised color fails it, so the mod
+  leaves `surface-3` to `makeColors` (`mod/hooks/look.ts`).
+- `codeTheme` takes Claude's own ids for its code themes. They are the
+  preset ids, except `vscode-light`, `vscode-dark` and `one-dark-pro`
+  (`src/theme/mod-presets.ts`), read from the strings of the Claude Code
+  script in Claude's web cache (`Code Cache/js`).
