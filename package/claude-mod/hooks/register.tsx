@@ -144,13 +144,25 @@ const prepare = (setup: Setup): Prepared => {
   return { look: { colors: theme, ...backdrop }, label: def.label, adjusted }
 }
 
+// Claude's own colors as a look: makeColors fills every input a look leaves
+// out with Claude's stock value, so a look with no knobs is the stock one.
+// Sent in place of $.theme.clear(), which the plugin directory's checks do
+// not know yet; a later session sends nothing, as no setup is kept.
+const OWN_COLORS: ThemeSetArgs = {
+  colors: makeColors({ label: "Claude's own colors", roles: {} }).theme,
+}
+
+const ownColors = async ($: EngineInterface): Promise<void> => {
+  await $.theme.set(OWN_COLORS)
+}
+
 // Sends a prepared look and says what came of it
 const send = async (
   $: EngineInterface,
   { look, label, adjusted }: Prepared,
 ): Promise<string> => {
   if (look === null) {
-    await $.theme.clear()
+    await ownColors($)
     return OFF
   }
   const set = await $.theme.set(look)
@@ -162,7 +174,7 @@ const send = async (
 
 // What the person or the model chose: checked and built first, then kept
 // for every session, then sent, and what came of it shown in the pane.
-// Clearing the theme here is the person's own ask.
+// Turning the theme off here is the person's own ask.
 const choose = async ($: EngineInterface, setup: Setup): Promise<string> => {
   let prepared: Prepared
   try {
@@ -182,7 +194,7 @@ const choose = async ($: EngineInterface, setup: Setup): Promise<string> => {
 const turnOff = async ($: EngineInterface): Promise<string> => {
   await $.store.delete(SETUP_KEY)
   await update($, setupState, () => ({}))
-  await $.theme.clear()
+  await ownColors($)
   await update($, notice, () => OFF)
   return OFF
 }
@@ -266,8 +278,8 @@ export const register: Register = (on) => {
     })
     const setup = await storedSetup($)
     await update($, setupState, () => setup)
-    // Only a look is sent here: clearing at a start would wipe another
-    // mod's theme in every session
+    // Only a look is sent here: sending Claude's own colors at a start
+    // would replace another mod's theme in every session
     try {
       const prepared = prepare(setup)
       if (prepared.look !== null) await send($, prepared)

@@ -21,14 +21,15 @@ const PANE = {
   },
 } as const
 
-// What the mod sent: every theme.set's colors, theme.clear calls, the store
-type Sent = { sets: unknown[]; clears: number; store: Map<string, unknown> }
+// What the mod sent: every theme.set of a look, the sets of Claude's own
+// colors (how the mod turns a look off), the store
+type Sent = { sets: unknown[]; offs: number; store: Map<string, unknown> }
 
 const engine = (
   on: Parameters<Parameters<typeof test>[1]>[1],
   stored?: unknown,
 ): Sent => {
-  const sent: Sent = { sets: [], clears: 0, store: new Map() }
+  const sent: Sent = { sets: [], offs: 0, store: new Map() }
   if (stored !== undefined) sent.store.set('setup', stored)
   on('command.register', (_, e) => ({ value: { command: e.name } }))
   on('tool.register', (_, e) => ({
@@ -46,12 +47,10 @@ const engine = (
     return { value: undefined }
   })
   on('theme.set', (_, e) => {
-    sent.sets.push(e)
+    if (JSON.stringify(e).includes(`"label":"Claude's own colors"`))
+      sent.offs += 1
+    else sent.sets.push(e)
     return { value: { isDrawn: true, requestId: 'theme' } }
-  })
-  on('theme.clear', () => {
-    sent.clears += 1
-    return { value: { isDrawn: false, reason: 'cleared' } }
   })
   return sent
 }
@@ -66,11 +65,11 @@ test('a setup kept from an earlier session is sent at the start', async ($, on) 
   expect(JSON.stringify(sent.sets[0])).toContain('Solarized Light')
 })
 
-test('nothing is sent, or cleared, when no setup was kept', async ($, on) => {
+test('nothing is sent when no setup was kept', async ($, on) => {
   const sent = engine(on)
   await start($)
   expect(sent.sets).toHaveLength(0)
-  expect(sent.clears).toBe(0)
+  expect(sent.offs).toBe(0)
 })
 
 test('/theme-tuner applies presets by id, as its alias /tuner does', async ($, on) => {
@@ -123,11 +122,11 @@ test('/tuner says why it refuses, and keeps nothing', async ($, on) => {
   expect(sent.sets).toHaveLength(0)
 })
 
-test('/tuner off clears the theme and the kept setup', async ($, on) => {
+test("/tuner off sends Claude's own colors and drops the kept setup", async ($, on) => {
   const sent = engine(on, { dark: { preset: 'nord' } })
   await start($)
   await $.command.run({ command: 'tuner', args: 'off' })
-  expect(sent.clears).toBe(1)
+  expect(sent.offs).toBe(1)
   expect(sent.store.has('setup')).toBe(false)
 })
 
@@ -178,18 +177,18 @@ for (const surface of ['terminal', 'desktop'] as const) {
       'The light theme has an invalid color (accent).',
     )
     await ui.press({ key: 'off' })
-    expect(sent.clears).toBe(1)
+    expect(sent.offs).toBe(1)
     expect(sent.store.has('setup')).toBe(false)
     await ui.unmount()
   })
 }
 
-test("a setup of Claude's own colors clears nothing at the start", async ($, on) => {
-  // Clearing at a start would wipe another mod's theme in every session
+test("a setup of Claude's own colors sends nothing at the start", async ($, on) => {
+  // Sending at a start would replace another mod's theme in every session
   const sent = engine(on, { light: { preset: 'claude-light' } })
   await start($)
   expect(sent.sets).toHaveLength(0)
-  expect(sent.clears).toBe(0)
+  expect(sent.offs).toBe(0)
 })
 
 test('preset ids replace only the modes they name', async ($, on) => {

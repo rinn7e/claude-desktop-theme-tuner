@@ -34,15 +34,31 @@ marketplace** with `rinn7e/claude-desktop-theme-tuner`, then **Add plugin**.
 The mod runs in Claude Code and only themes it. Its hooks module
 (`hooks/register.tsx`) uses:
 
-- `$.theme.set` and `$.theme.clear`, to apply the look and to turn it off
+- `$.theme.set`, to apply the look, and to turn it off by sending the own
+  colors of Claude (built by `makeColors` from no knobs)
 - its own state and store (`$.state`, `$.store`), to keep the setup across
   sessions
-- `$.command.register` for `/theme-tuner` and its short alias `/tuner`, `$.tool.register` for the `set_theme`
-  tool, and `$.ui` for its pane and its status line
+- `$.command.register` for `/theme-tuner` and its short alias `/tuner`,
+  `$.tool.register` for the `set_theme` tool, and `$.ui` for its pane and its
+  status line
 
-It reads no files, runs no processes, reads no environment variables and
-sends nothing over the network: the presets and Claude's own `makeColors`
-ship in the plugin folder.
+Its hooks:
+
+- `session.start` sends the kept look, if there is one, and registers the
+  commands and the tool.
+- `command.run` answers only its own commands, `/theme-tuner` and `/tuner`.
+- `tool.call` answers only its own tool,
+  `mcp__rinn7e-theme-tuner__set_theme`: the mod is that tool, so it stands in
+  for no other tool. Its answer says what was set, with a link to the web
+  tuner for the person to open.
+- `ui.render` draws its own pane.
+
+It reads no files, no credentials and no conversation, runs no processes,
+reads no environment variables and sends nothing anywhere: no network call,
+and nothing leaves the session but the look it sets. The presets and the own
+`makeColors` of Claude ship in the plugin folder. The long hex string in
+`hooks/make-colors.js` is the stock colors of Claude, part of that file as
+the mod-authoring skill of Claude Code ships it, copied unchanged.
 
 ## Files
 
