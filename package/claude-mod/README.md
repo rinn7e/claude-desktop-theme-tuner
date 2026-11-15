@@ -9,7 +9,7 @@ one for each of Claude's code themes, light and dark, kept across restarts.
 At the prompt of a terminal session:
 
 ```
-/plugin install theme-tuner --marketplace rinn7e/claude-desktop-theme-tuner
+/plugin install rinn7e-theme-tuner --marketplace rinn7e/claude-desktop-theme-tuner
 ```
 
 In the desktop app: click **+** next to the prompt, then **Plugins**, **Add

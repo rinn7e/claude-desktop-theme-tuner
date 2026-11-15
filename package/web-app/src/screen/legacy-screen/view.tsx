@@ -420,7 +420,7 @@ const ui = (text: string) => <b className='font-semibold text-ui-ink'>{text}</b>
 // The Theme Tuner mod (mod/), installed from this repository, which is its
 // marketplace
 const MOD_MARKETPLACE = 'rinn7e/claude-desktop-theme-tuner'
-const MOD_INSTALL = `/plugin install theme-tuner --marketplace ${MOD_MARKETPLACE}`
+const MOD_INSTALL = `/plugin install rinn7e-theme-tuner --marketplace ${MOD_MARKETPLACE}`
 
 const code = (text: string) => (
   <code className='rounded bg-ui-panel px-[5px] py-[1px] font-mono text-[0.75rem] text-ui-ink wrap-anywhere'>

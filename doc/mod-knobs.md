@@ -19,15 +19,15 @@ that definition.
 
 ## Colors (the `makeColors` definition)
 
-| Knob            | Shape                                               | What it changes                                                                                                                                          | Used now            |
-| --------------- | --------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------- |
-| `label`         | text, 1 to 64 characters                            | The name of the look in the pickers of Claude                                                                                                            | yes                 |
-| `id`            | lowercase id, up to 32 characters                   | The id of the look                                                                                                                                       | yes (`theme-tuner`) |
-| `light`, `dark` | a mode each, below                                  | The colors of that mode; a mode left out keeps the colors of Claude                                                                                      | yes                 |
-| `only`          | `light` or `dark`                                   | A look made for one mode: surfaces act as if `overrideColorScheme` named it                                                                              | no                  |
-| `codeTheme`     | `{ light, dark }`, ids of the code themes of Claude | The code highlighting per mode; Claude locks its picker for a mode it sets                                                                               | yes                 |
-| `contrast`      | `more`                                              | Stronger borders and focus rings: borders and rings take 55% of the text color instead of 10%, strong ones 70% and 85% instead of 20% and 40% (measured) | yes                 |
-| `roles`         | the five roles, below                               | One color per role for both modes; a role of a mode replaces it there                                                                                    | per mode only       |
+| Knob            | Shape                                               | What it changes                                                                                                                                          | Used now                   |
+| --------------- | --------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
+| `label`         | text, 1 to 64 characters                            | The name of the look in the pickers of Claude                                                                                                            | yes                        |
+| `id`            | lowercase id, up to 32 characters                   | The id of the look                                                                                                                                       | yes (`rinn7e-theme-tuner`) |
+| `light`, `dark` | a mode each, below                                  | The colors of that mode; a mode left out keeps the colors of Claude                                                                                      | yes                        |
+| `only`          | `light` or `dark`                                   | A look made for one mode: surfaces act as if `overrideColorScheme` named it                                                                              | no                         |
+| `codeTheme`     | `{ light, dark }`, ids of the code themes of Claude | The code highlighting per mode; Claude locks its picker for a mode it sets                                                                               | yes                        |
+| `contrast`      | `more`                                              | Stronger borders and focus rings: borders and rings take 55% of the text color instead of 10%, strong ones 70% and 85% instead of 20% and 40% (measured) | yes                        |
+| `roles`         | the five roles, below                               | One color per role for both modes; a role of a mode replaces it there                                                                                    | per mode only              |
 
 ### A mode (`light` or `dark`)
 

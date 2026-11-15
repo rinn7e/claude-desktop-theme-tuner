@@ -36,7 +36,7 @@ import { PRESETS } from './presets'
 
 // The command (tuner) and the tool (set_theme) are written as literals where
 // they are registered and matched, so `claude plugin validate` reads them
-const PANE = 'theme-tuner'
+const PANE = 'rinn7e-theme-tuner'
 // The store key of the setup, the same in every session
 const SETUP_KEY = 'setup'
 const WEB = 'https://rinn7e.com/claude-desktop-theme-tuner/'
@@ -46,14 +46,14 @@ const OFF = "Theme off: Claude's own colors."
 const CUSTOM = 'custom'
 
 const setupState = atom(
-  { plugin: 'theme-tuner', key: 'setup' } as const,
+  { plugin: 'rinn7e-theme-tuner', key: 'setup' } as const,
   {},
   {
     shape: 'setup-1',
   },
 )
 const notice = atom(
-  { plugin: 'theme-tuner', key: 'notice' } as const,
+  { plugin: 'rinn7e-theme-tuner', key: 'notice' } as const,
   null as string | null,
 )
 
@@ -270,24 +270,28 @@ export const register: Register = (on) => {
   })
 
   // The tool's input fields arrive on the event itself, beside `tool`
-  on('tool.call', { tool: 'mcp__theme-tuner__set_theme' }, async ($, e) => {
-    const { light, dark, contrast, backdrop, compensateGlass } = e as Record<
-      string,
-      unknown
-    >
-    const checked = checkSetup({
-      light,
-      dark,
-      contrast,
-      backdrop,
-      compensateGlass,
-    })
-    if (!checked.ok) return { result: checked.error }
-    const said = await choose($, checked.value)
-    return {
-      result: `${said} The person can fine-tune it in the web tuner: ${tunerLink(WEB, checked.value)}`,
-    }
-  }).catch(() => ({
+  on(
+    'tool.call',
+    { tool: 'mcp__rinn7e-theme-tuner__set_theme' },
+    async ($, e) => {
+      const { light, dark, contrast, backdrop, compensateGlass } = e as Record<
+        string,
+        unknown
+      >
+      const checked = checkSetup({
+        light,
+        dark,
+        contrast,
+        backdrop,
+        compensateGlass,
+      })
+      if (!checked.ok) return { result: checked.error }
+      const said = await choose($, checked.value)
+      return {
+        result: `${said} The person can fine-tune it in the web tuner: ${tunerLink(WEB, checked.value)}`,
+      }
+    },
+  ).catch(() => ({
     result: 'The Theme Tuner could not set the theme. Try `/tuner` instead.',
   }))
 

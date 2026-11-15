@@ -64,7 +64,7 @@ const MODE_LABELS: Record<Mode, string> = { light: 'Light', dark: 'Dark' }
 // The Theme Tuner mod, installed from this repository, which is its
 // marketplace
 const MARKETPLACE = 'rinn7e/claude-desktop-theme-tuner'
-const INSTALL = `/plugin install theme-tuner --marketplace ${MARKETPLACE}`
+const INSTALL = `/plugin install rinn7e-theme-tuner --marketplace ${MARKETPLACE}`
 
 // What each knob colors in Claude, by its name in Claude
 const ANCHOR_INFO: Record<AnchorKey, string> = {

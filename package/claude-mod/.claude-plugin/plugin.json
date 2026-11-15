@@ -1,7 +1,8 @@
 {
-  "name": "theme-tuner",
+  "name": "rinn7e-theme-tuner",
+  "displayName": "Theme Tuner",
   "version": "0.1.0",
-  "description": "Theme Claude Code in the desktop app: 34 presets matching Claude's code themes, light and dark, tuned in a pane or from a Claude Desktop Theme Tuner link. /tuner opens it.",
+  "description": "Theme Claude Code in the desktop app: 34 presets matching the code themes of Claude, light and dark, and every knob of a look, designed on the Claude Desktop Theme Tuner. /tuner applies and opens it.",
   "author": { "name": "Moremi Vannak" },
   "homepage": "https://rinn7e.com/claude-desktop-theme-tuner/",
   "repository": "https://github.com/rinn7e/claude-desktop-theme-tuner",

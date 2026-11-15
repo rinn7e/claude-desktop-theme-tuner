@@ -1,11 +1,12 @@
 {
   "name": "claude-desktop-theme-tuner",
   "owner": { "name": "Moremi Vannak" },
+  "description": "The Theme Tuner mod for Claude Code, made with the Claude Desktop Theme Tuner (rinn7e.com/claude-desktop-theme-tuner).",
   "plugins": [
     {
-      "name": "theme-tuner",
+      "name": "rinn7e-theme-tuner",
       "source": "./package/claude-mod",
-      "description": "Theme Claude Code in the desktop app with the Claude Desktop Theme Tuner presets."
+      "description": "Theme Claude Code in the desktop app with the presets and every knob of the Claude Desktop Theme Tuner."
     }
   ]
 }

@@ -8,9 +8,9 @@ import { expect, test } from 'claude-code/testing'
 // on `$` is answered `{ value }`.
 
 const PANE = {
-  plugin: 'theme-tuner',
+  plugin: 'rinn7e-theme-tuner',
   component: 'Pane',
-  requestId: 'theme-tuner',
+  requestId: 'rinn7e-theme-tuner',
   props: {
     title: 'Theme Tuner',
     isFocused: false,
@@ -32,7 +32,7 @@ const engine = (
   if (stored !== undefined) sent.store.set('setup', stored)
   on('command.register', (_, e) => ({ value: { command: e.name } }))
   on('tool.register', (_, e) => ({
-    value: { tool: `mcp__theme-tuner__${e.name}` },
+    value: { tool: `mcp__rinn7e-theme-tuner__${e.name}` },
   }))
   on('ui.open', () => ({ value: { isPlaced: true } }))
   on('session.start', (_, e) => ({ cwd: e.cwd }))
@@ -124,7 +124,7 @@ test('the model sets a theme with the tool', async ($, on) => {
   const sent = engine(on)
   await start($)
   const ran = await $.tool.call({
-    tool: 'mcp__theme-tuner__set_theme',
+    tool: 'mcp__rinn7e-theme-tuner__set_theme',
     dark: { preset: 'tokyo-night', colors: { accent: '#ff79c6' } },
   })
   expect(String(ran.result)).toContain('Theme set: Tokyo Night.')
@@ -202,7 +202,7 @@ test('long names still make a look Claude takes', async ($, on) => {
   await start($)
   const name = 'A rather long name for my own theme of the day'
   await $.tool.call({
-    tool: 'mcp__theme-tuner__set_theme',
+    tool: 'mcp__rinn7e-theme-tuner__set_theme',
     light: { preset: 'github-light', name },
     dark: { preset: 'github-dark', name },
   })
@@ -240,7 +240,7 @@ test('the model sets every knob, and the backdrop reaches Claude', async ($, on)
   const sent = engine(on)
   await start($)
   await $.tool.call({
-    tool: 'mcp__theme-tuner__set_theme',
+    tool: 'mcp__rinn7e-theme-tuner__set_theme',
     light: {
       preset: 'solarized-light',
       roles: { danger: '#dc322f' },
@@ -264,7 +264,7 @@ test("a code theme of null leaves Claude's picker free for the mode", async ($, 
   const sent = engine(on)
   await start($)
   await $.tool.call({
-    tool: 'mcp__theme-tuner__set_theme',
+    tool: 'mcp__rinn7e-theme-tuner__set_theme',
     light: { preset: 'solarized-light', codeTheme: null },
     dark: { preset: 'dracula' },
   })

@@ -22,7 +22,7 @@ Every knob of the mod: https://github.com/rinn7e/claude-desktop-theme-tuner/blob
 
 What the home page writes, and what the mod takes: in its pane, as
 `/tuner <JSON>`, or from an agent through its `set_theme` tool (full name
-`mcp__theme-tuner__set_theme`), whose input is this JSON.
+`mcp__rinn7e-theme-tuner__set_theme`), whose input is this JSON.
 
     {
       "light": {
@@ -211,7 +211,7 @@ Elsewhere, with the first tuner:
 In Claude Code on desktop, the Theme Tuner mod applies a theme with no
 DevTools, and keeps it across restarts. The user installs it once:
 
-    /plugin install theme-tuner --marketplace rinn7e/claude-desktop-theme-tuner
+    /plugin install rinn7e-theme-tuner --marketplace rinn7e/claude-desktop-theme-tuner
 
 Then, in a Claude Code session:
 

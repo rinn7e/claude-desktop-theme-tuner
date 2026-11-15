@@ -41,7 +41,7 @@ export type TunerSetup = {
 
 declare module 'claude-code' {
   interface PluginState {
-    'theme-tuner': {
+    'rinn7e-theme-tuner': {
       setup: Shaped<TunerSetup>
       notice: string | null
     }

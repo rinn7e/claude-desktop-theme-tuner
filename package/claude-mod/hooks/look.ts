@@ -592,7 +592,10 @@ export const lookDefinition = (
     MODES.flatMap((m) => (modes[m] ? [modes[m].name] : [])).join(' / ') ||
     'Theme Tuner'
   // makeColors takes a label of 1 to 64 characters
-  const def: LookDefinition = { label: label.slice(0, 64), id: 'theme-tuner' }
+  const def: LookDefinition = {
+    label: label.slice(0, 64),
+    id: 'rinn7e-theme-tuner',
+  }
   const codeTheme: { light?: string; dark?: string } = {}
   for (const mode of MODES) {
     const resolved = modes[mode]

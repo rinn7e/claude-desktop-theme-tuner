@@ -75,7 +75,7 @@ and this repository is its marketplace.
 Install it once. At the prompt of a terminal session:
 
 ```
-/plugin install theme-tuner --marketplace rinn7e/claude-desktop-theme-tuner
+/plugin install rinn7e-theme-tuner --marketplace rinn7e/claude-desktop-theme-tuner
 ```
 
 In the desktop app: click **+** next to the prompt, then **Plugins**, **Add
