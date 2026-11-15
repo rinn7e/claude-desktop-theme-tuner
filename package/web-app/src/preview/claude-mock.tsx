@@ -193,7 +193,7 @@ const chatView = (thin: boolean) => (
 
 const composerView = () => (
   <div className='px-[24px] pb-[16px]'>
-    <div className='flex flex-col gap-[10px] rounded-2xl border border-[var(--cds-border-strong)] bg-[var(--cds-surface-3)] px-[14px] py-[10px]'>
+    <div className='flex flex-col gap-[10px] rounded-2xl border border-[var(--cds-border-strong)] bg-[var(--mock-composer,var(--cds-surface-3))] px-[14px] py-[10px]'>
       <span className='text-[0.8125rem] text-[var(--cds-text-muted)]'>
         Type / for commands
       </span>

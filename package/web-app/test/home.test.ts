@@ -383,6 +383,23 @@ describe('the look of a setup', () => {
     )
   })
 
+  it('paints the parts the probe of the real app found as Claude does', () => {
+    // Rosé Pine Dawn, as measured in Claude (snippets/mod-look.snippet.js)
+    const tokens = claudeTokens(
+      lookOf({ light: { preset: 'rose-pine-dawn' } }),
+      'light',
+    )
+    expect(tokens['--cds-surface-1']).toBe('#fffaf3')
+    expect(tokens['--cds-text-secondary']).toBe('#6f6c87')
+    expect(tokens['--cds-text-muted']).toBe('#6f6c87')
+    expect(tokens['--df-selected']).toBe('rgba(83, 78, 117, 0.1)')
+    expect(tokens['--df-hover']).toBe('rgba(83, 78, 117, 0.05)')
+    expect(tokens['--mock-composer']).toBe('rgba(83, 78, 117, 0.05)')
+    expect(tokens['--cds-fizzy-lake-color-sidebar']).toBe(
+      'color-mix(in srgb, #faf4ed 50%, #fffaf3)',
+    )
+  })
+
   it("paints a mode the look leaves out with Claude's own tokens", () => {
     const tokens = claudeTokens(
       lookOf({ light: { preset: 'solarized-light' } }),

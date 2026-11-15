@@ -224,5 +224,20 @@ export const claudeTokens = (
       // A token that needs an input the look lacks
     }
   }
+  // Where Claude paints a part from more than one token, as the probe of a
+  // mod look found (snippets/mod-look.snippet.js): the sidebar is half
+  // surface-0, half surface-1 (and translucent over the macOS glass, which
+  // the preview leaves out); a selected or hovered row is a ghost fill; the
+  // composer is tinted with bg-neutral over the chat
+  const s0 = out['--cds-surface-0']
+  const s1 = out['--cds-surface-1']
+  if (s0 && s1)
+    out['--cds-fizzy-lake-color-sidebar'] =
+      `color-mix(in srgb, ${s0} 50%, ${s1})`
+  if (out['--cds-fill-ghost-selected'])
+    out['--df-selected'] = out['--cds-fill-ghost-selected']
+  if (out['--cds-fill-ghost-hover'])
+    out['--df-hover'] = out['--cds-fill-ghost-hover']
+  if (out['--cds-bg-neutral']) out['--mock-composer'] = out['--cds-bg-neutral']
   return out
 }
