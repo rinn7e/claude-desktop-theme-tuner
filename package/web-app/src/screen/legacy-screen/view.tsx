@@ -686,13 +686,13 @@ const presetNoticeView = (model: Model, dispatch: Dispatcher<Msg>) =>
 // The title bar stays put, like the snippet panel's tabs; below it, light and
 // dark side by side once the panel is wide enough (a container query, as the
 // panel is half the window), stacked below that, scrolling on their own
-// Points people here to the new tuner, made for the mods of Claude. Amber
-// with dark text, apart from the orange of the home's banner
+// Points people here to the new tuner, made for the mods of Claude: light
+// gray, so the violet link to the new version stands out
 const bannerView = ({ model, dispatch, navigate }: AppProps) =>
   model.isBannerShown ? (
     <div
       role='status'
-      className='flex items-center justify-between gap-[12px] bg-amber-300 px-[20px] py-[10px] text-xs text-amber-950'
+      className='flex items-center justify-between gap-[12px] border-b border-ui-line bg-ui-field px-[20px] py-[10px] text-xs text-ui-ink'
     >
       <span>
         <b className='font-semibold'>
@@ -711,7 +711,7 @@ const bannerView = ({ model, dispatch, navigate }: AppProps) =>
       <button
         type='button'
         onClick={() => dispatch({ _tag: 'DismissBanner' })}
-        className='shrink-0 rounded-md px-[8px] py-[2px] text-amber-900 hover:bg-amber-950/10 hover:text-amber-950'
+        className='shrink-0 rounded-md px-[8px] py-[2px] text-ui-ink-muted hover:bg-ui-line/40 hover:text-ui-ink'
       >
         Dismiss
       </button>
