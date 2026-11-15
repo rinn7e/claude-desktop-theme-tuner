@@ -43,7 +43,6 @@ export type Msg =
   // Themes a mode, from its default preset, or leaves it to Claude
   | { _tag: 'SetModeOn'; mode: Mode; isOn: boolean }
   | { _tag: 'PickPreset'; mode: Mode; id: string }
-  | { _tag: 'SetName'; mode: Mode; name: string }
   // null takes the knob back to what the palette gives
   | { _tag: 'SetKnob'; mode: Mode; knob: KnobGroup; value: string | null }
   | { _tag: 'SetCodeTheme'; mode: Mode; value: string | null }

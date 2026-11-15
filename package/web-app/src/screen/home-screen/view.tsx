@@ -30,6 +30,7 @@ import { claudeMockView } from '../../preview/claude-mock'
 import {
   type Look,
   MODES,
+  backdropCss,
   codeThemesOf,
   knobValue,
   lookOf,
@@ -278,26 +279,6 @@ const presetView = (model: Model, dispatch: Dispatcher<Msg>, mode: Mode) => {
   )
 }
 
-const nameView = (model: Model, dispatch: Dispatcher<Msg>, mode: Mode) => {
-  const choice = model.setup[mode]
-  return (
-    <section className='flex flex-col gap-[8px]'>
-      {sectionTitle('label', 'The name in the pickers of Claude.')}
-      <input
-        type='text'
-        aria-label={`${MODE_LABELS[mode]} label`}
-        maxLength={60}
-        value={choice?.name ?? ''}
-        placeholder={presetName(choice?.preset)}
-        onChange={(e) =>
-          dispatch({ _tag: 'SetName', mode, name: e.target.value })
-        }
-        className='rounded-md border border-ui-line bg-ui-field px-[8px] py-[5px] text-sm text-ui-ink outline-none focus:border-ui-brand'
-      />
-    </section>
-  )
-}
-
 const presetName = (id: string | undefined): string =>
   presetsOf('light')
     .concat(presetsOf('dark'))
@@ -469,7 +450,6 @@ const modeColumnView = (
         <>
           {statusView(look, mode)}
           {presetView(model, dispatch, mode)}
-          {nameView(model, dispatch, mode)}
           {look.modes[mode]?.isStock ? (
             <p className='text-xs text-ui-ink-muted'>
               Claude&apos;s own colors: the mod leaves this mode to Claude until
@@ -513,7 +493,7 @@ const backdropView = (setup: Setup, dispatch: Dispatcher<Msg>) => {
     <section className='flex flex-col gap-[8px]'>
       {sectionTitle(
         'Backdrop',
-        'What is behind the conversation. The preview does not draw it.',
+        'What is behind the conversation; the preview draws it there too. Claude also frosts its panels over it.',
       )}
       <div className='flex gap-[6px]'>
         {tab('none', 'None', null)}
@@ -843,7 +823,9 @@ const previewCardView = (look: Look, model: Model, mode: Mode) => {
       {/* The mock keeps its desktop proportions; narrow screens scroll it
           sideways. The padding leaves room for its shadow */}
       <div className='app-scroll flex min-h-0 w-full flex-1 overflow-x-auto p-[16px]'>
-        {claudeMockView(previewPalette(look, mode))}
+        {claudeMockView(previewPalette(look, mode), {
+          backdrop: backdropCss(model.setup.backdrop),
+        })}
       </div>
     </div>
   )

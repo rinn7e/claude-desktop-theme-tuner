@@ -255,11 +255,6 @@ export const update = (msg: Msg, model: Model): [Model, Cmd<Msg>] => {
         pickPreset(setup, msg.mode, msg.id),
       )
     }
-    case 'SetName':
-      return withSetup(
-        model,
-        editMode(setup, msg.mode, (c) => ({ ...c, name: msg.name })),
-      )
     case 'SetKnob':
       return withSetup(
         model,

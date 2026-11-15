@@ -242,13 +242,16 @@ const sidePanelView = (thin: boolean) => (
 
 // `fill` takes the parent's height at any width (the screenshot view);
 // otherwise a fixed height on narrow screens, where the panes stack.
-// `thinArrows` draws the arrows the way the Thin arrows option does
+// `thinArrows` draws the arrows the way the Thin arrows option does.
+// `backdrop` (a CSS background) is drawn behind the conversation, where a
+// mod look's backdrop shows
 export const claudeMockView = (
   palette: Palette,
   {
     fill = false,
     thinArrows = false,
-  }: { fill?: boolean; thinArrows?: boolean } = {},
+    backdrop,
+  }: { fill?: boolean; thinArrows?: boolean; backdrop?: string } = {},
 ) => (
   <div
     className={`flex ${fill ? 'h-full' : 'h-[28rem] lg:h-full'} w-full min-w-[38rem] shrink-0 overflow-hidden rounded-xl shadow-[0_2px_12px_rgba(0,0,0,0.10),0_1px_3px_rgba(0,0,0,0.06)] ring-1 ring-black/10 bg-[var(--cds-surface-1)]`}
@@ -257,7 +260,10 @@ export const claudeMockView = (
     {sidebarView(thinArrows)}
     {/* A div, not <main>: the page's main content is the tuner, and text
         readers (and agents) that pick <main> should land there */}
-    <div className='flex min-w-0 flex-1 flex-col'>
+    <div
+      className='flex min-w-0 flex-1 flex-col'
+      style={backdrop ? { background: backdrop } : undefined}
+    >
       {topBarView()}
       {chatView(thinArrows)}
       {composerView()}

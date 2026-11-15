@@ -35,8 +35,7 @@ Ideas and open work, in no particular order.
   backdrop. Not yet: the gray ramp (`gray.stops`), `only`,
   `overrideColorScheme`, and vector, image and scene backdrops (an image
   needs its file in the mod folder, a scene is code, so both would come from
-  a fixed set); see [mod-knobs.md](mod-knobs.md). The preview of the home does
-  not draw the backdrop either.
+  a fixed set); see [mod-knobs.md](mod-knobs.md).
 - **Check Thin arrows on new builds**: Claude 4.x on 15 Nov 2026 already drew
   thin chevrons in the sidebar with no snippet. If that holds, the Thin arrows
   option can go.

@@ -7,6 +7,7 @@
 // and the makeColors of Claude), so the knobs and problems shown are the
 // ones the mod meets.
 import {
+  type Backdrop,
   type Knob,
   type LookDefinition,
   type Mode,
@@ -151,4 +152,21 @@ export const previewPalette = (look: Look, mode: Mode): Palette => {
     accentHover: d['role-accent-450'] ?? base.accentHover,
     onAccent: d['role-accent-on'] ?? base.onAccent,
   }
+}
+
+// The backdrop as a CSS background for the preview. A design system name
+// (surface-0) is one of the variables the mock sets. Claude also frosts its
+// panels over a backdrop, which the preview leaves out.
+export const backdropCss = (
+  backdrop: Backdrop | undefined,
+): string | undefined => {
+  if (!backdrop) return undefined
+  if ('color' in backdrop)
+    return backdrop.color.startsWith('#')
+      ? backdrop.color
+      : `var(--cds-${backdrop.color})`
+  const { stops, angle, shape } = backdrop.gradient
+  return shape === 'radial'
+    ? `radial-gradient(circle, ${stops.join(', ')})`
+    : `linear-gradient(${angle ?? 180}deg, ${stops.join(', ')})`
 }

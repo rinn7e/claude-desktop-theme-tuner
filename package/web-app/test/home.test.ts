@@ -6,6 +6,7 @@ import { describe, expect, it } from 'vitest'
 
 import { type Setup, checkSetup, parseSetup } from '../../claude-mod/hooks/look'
 import {
+  backdropCss,
   codeThemesOf,
   lookOf,
   presetsOf,
@@ -113,29 +114,35 @@ describe('editing a mode', () => {
     expect(edited.setup.light).toEqual(DEFAULT_SETUP.light)
   })
 
-  it('drops an empty name and a code theme taken back to the preset', () => {
-    const edited = run([
-      { _tag: 'SetName', mode: 'light', name: 'Paper' },
-      { _tag: 'SetCodeTheme', mode: 'light', value: 'github-light' },
-    ])
+  it('drops a code theme taken back to the preset, and keeps a name from JSON', () => {
+    const named = readJson(
+      DEFAULT_SETUP,
+      '{"light":{"preset":"solarized-light","name":"Paper"}}',
+    ).setup
+    const edited = run(
+      [{ _tag: 'SetCodeTheme', mode: 'light', value: 'github-light' }],
+      {
+        ...model,
+        setup: named,
+      },
+    )
     expect(edited.setup.light).toEqual({
       preset: 'solarized-light',
       name: 'Paper',
       codeTheme: 'github-light',
     })
     const back = run(
-      [
-        { _tag: 'SetName', mode: 'light', name: '' },
-        { _tag: 'SetCodeTheme', mode: 'light', value: null },
-      ],
+      [{ _tag: 'SetCodeTheme', mode: 'light', value: null }],
       edited,
     )
-    expect(back.setup.light).toEqual({ preset: 'solarized-light' })
+    expect(back.setup.light).toEqual({
+      preset: 'solarized-light',
+      name: 'Paper',
+    })
   })
 
   it('makes only setups the mod accepts', () => {
     const edited = run([
-      { _tag: 'SetName', mode: 'dark', name: 'Night' },
       {
         _tag: 'SetKnob',
         mode: 'dark',
@@ -299,6 +306,20 @@ describe('the look of a setup', () => {
     expect(look.definition.light).toBeUndefined()
     expect(look.definition.codeTheme).toBeUndefined()
     expect(look.modes.light?.knobs.map((k) => k.knob)).toContain('surface-0')
+  })
+
+  it('draws the backdrop in the preview as CSS', () => {
+    expect(backdropCss(undefined)).toBeUndefined()
+    expect(backdropCss({ color: '#112233' })).toBe('#112233')
+    expect(backdropCss({ color: 'surface-0' })).toBe('var(--cds-surface-0)')
+    expect(
+      backdropCss({ gradient: { stops: ['#000000', '#ffffff'], angle: 90 } }),
+    ).toBe('linear-gradient(90deg, #000000, #ffffff)')
+    expect(
+      backdropCss({
+        gradient: { stops: ['#000000', '#ffffff'], shape: 'radial' },
+      }),
+    ).toBe('radial-gradient(circle, #000000, #ffffff)')
   })
 
   it('offers the code themes of each mode once', () => {
