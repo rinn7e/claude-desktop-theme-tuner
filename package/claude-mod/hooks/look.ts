@@ -184,11 +184,12 @@ export const resolveMode = (mode: Mode, raw: unknown): Result<Resolved> => {
     (typeof raw.codeTheme !== 'string' || !CODE_THEME.test(raw.codeTheme))
   )
     return { ok: false, error: `The ${mode} code theme is invalid.` }
+  // A code theme set directly needs a look to carry it
   const setsKnobs =
     Object.keys(anchors.value).length +
       Object.keys(roles.value).length +
       Object.keys(git.value).length >
-    0
+      0 || raw.codeTheme !== undefined
   if (!isRecord(colors))
     return { ok: false, error: `The ${mode} colors are invalid.` }
   for (const [key, value] of Object.entries(colors)) {
@@ -437,6 +438,17 @@ const anchorsOf = (mode: Mode, p: Palette) => {
   }
 }
 
+// Claude keeps the surfaces in order (each as light as the one before it or
+// lighter), and the palette sends surface-2 as surface-1: a surface-1 set
+// alone takes surface-2 along, or a lighter chat would break the order and
+// Claude would paint nothing
+const surfacesFollowing = (
+  set: Partial<Record<AnchorKey, string>>,
+): Partial<Record<AnchorKey, string>> =>
+  set['surface-1'] !== undefined && set['surface-2'] === undefined
+    ? { 'surface-2': set['surface-1'] }
+    : {}
+
 // A mode of the definition: its gray anchors (surface-0 and text-primary
 // always), its roles (the accent always) and any git colors
 export interface LookMode {
@@ -472,12 +484,16 @@ export const lookDefinition = (
   const codeTheme: { light?: string; dark?: string } = {}
   for (const mode of MODES) {
     const resolved = modes[mode]
-    if (!resolved) continue
+    // A stock mode is left to the app, its code theme too
+    if (!resolved || resolved.isStock) continue
     if (resolved.codeTheme) codeTheme[mode] = resolved.codeTheme
-    if (resolved.isStock) continue
     def[mode] = {
       gray: {
-        anchors: { ...anchorsOf(mode, resolved.palette), ...resolved.anchors },
+        anchors: {
+          ...anchorsOf(mode, resolved.palette),
+          ...surfacesFollowing(resolved.anchors),
+          ...resolved.anchors,
+        },
       },
       roles: { accent: resolved.palette.accent, ...resolved.roles },
       ...(Object.keys(resolved.git).length ? { git: resolved.git } : {}),
@@ -597,10 +613,14 @@ export const knobsOf = (
     if (value === undefined) continue
     const from =
       resolved.anchors[key] !== undefined
-        ? 'set'
-        : key === 'text-primary' && value !== palette.text
-          ? 'text, made stronger to paint'
-          : (fromPalette[key] ?? 'set')
+        ? key === 'text-primary' && value !== resolved.anchors[key]
+          ? 'set, made stronger to paint'
+          : 'set'
+        : key === 'surface-2' && resolved.anchors['surface-1'] !== undefined
+          ? 'surface-1'
+          : key === 'text-primary' && value !== palette.text
+            ? 'text, made stronger to paint'
+            : (fromPalette[key] ?? 'set')
     knobs.push({ knob: key, value, from })
   }
   for (const key of ROLE_KEYS) {
