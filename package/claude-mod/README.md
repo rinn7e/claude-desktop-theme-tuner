@@ -34,8 +34,7 @@ marketplace** with `rinn7e/claude-desktop-theme-tuner`, then **Add plugin**.
 The mod runs in Claude Code and only themes it. Its hooks module
 (`hooks/register.tsx`) uses:
 
-- `$.theme.set`, to apply the look, and to turn it off by sending the own
-  colors of Claude (built by `makeColors` from no knobs)
+- `$.theme.set` and `$.theme.clear`, to apply the look and to turn it off
 - its own state and store (`$.state`, `$.store`), to keep the setup across
   sessions
 - `$.command.register` for `/theme-tuner` and its short alias `/tuner`,
