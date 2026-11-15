@@ -2,7 +2,7 @@
  * Copyright (C) 2026 Moremi Vannak
  * SPDX-License-Identifier: MIT
  */
-import { expect, test } from 'claude-code/testing'
+import { type TestBody, expect, test } from 'claude-code/testing'
 
 // Nothing sits beneath the mod: each hook here stands for the engine. A call
 // on `$` is answered `{ value }`.
@@ -21,13 +21,17 @@ const PANE = {
   },
 } as const
 
+// What the engine stamps on a command run in a session: the tests run each
+// command as a plugin would, on the main screen of an 80 column terminal
+const RUN = {
+  origin: { kind: 'plugin', name: 'rinn7e-theme-tuner' },
+  presentation: { isFullscreen: false, columns: 80 },
+} as const
+
 // What the mod sent: every theme.set's colors, theme.clear calls, the store
 type Sent = { sets: unknown[]; clears: number; store: Map<string, unknown> }
 
-const engine = (
-  on: Parameters<Parameters<typeof test>[1]>[1],
-  stored?: unknown,
-): Sent => {
+const engine = (on: Parameters<TestBody>[1], stored?: unknown): Sent => {
   const sent: Sent = { sets: [], clears: 0, store: new Map() }
   if (stored !== undefined) sent.store.set('setup', stored)
   on('command.register', (_, e) => ({ value: { command: e.name } }))
@@ -56,7 +60,7 @@ const engine = (
   return sent
 }
 
-const start = ($: Parameters<Parameters<typeof test>[1]>[0]) =>
+const start = ($: Parameters<TestBody>[0]) =>
   $.session.start({ cwd: '/', surface: 'desktop', isInteractive: true })
 
 test('a setup kept from an earlier session is sent at the start', async ($, on) => {
@@ -77,6 +81,7 @@ test('/theme-tuner applies presets by id, as its alias /tuner does', async ($, o
   const sent = engine(on)
   await start($)
   const { text } = await $.command.run({
+    ...RUN,
     command: 'theme-tuner',
     args: 'nord',
   })
@@ -88,6 +93,7 @@ test('/tuner applies presets by id and keeps them', async ($, on) => {
   const sent = engine(on)
   await start($)
   const { text } = await $.command.run({
+    ...RUN,
     command: 'tuner',
     args: 'solarized-light dracula',
   })
@@ -108,7 +114,7 @@ test('/tuner applies a web tuner share link', async ($, on) => {
         light: { preset: 'solarized-light', colors: { accent: '#C0009F' } },
       }),
     )
-  await $.command.run({ command: 'tuner', args: link })
+  await $.command.run({ ...RUN, command: 'tuner', args: link })
   expect(sent.store.get('setup')).toEqual({
     light: { preset: 'solarized-light', colors: { accent: '#c0009f' } },
   })
@@ -117,7 +123,11 @@ test('/tuner applies a web tuner share link', async ($, on) => {
 test('/tuner says why it refuses, and keeps nothing', async ($, on) => {
   const sent = engine(on)
   await start($)
-  const { text } = await $.command.run({ command: 'tuner', args: 'nope' })
+  const { text } = await $.command.run({
+    ...RUN,
+    command: 'tuner',
+    args: 'nope',
+  })
   expect(text).toContain('No preset "nope"')
   expect(sent.store.has('setup')).toBe(false)
   expect(sent.sets).toHaveLength(0)
@@ -126,7 +136,7 @@ test('/tuner says why it refuses, and keeps nothing', async ($, on) => {
 test('/tuner off clears the theme and the kept setup', async ($, on) => {
   const sent = engine(on, { dark: { preset: 'nord' } })
   await start($)
-  await $.command.run({ command: 'tuner', args: 'off' })
+  await $.command.run({ ...RUN, command: 'tuner', args: 'off' })
   expect(sent.clears).toBe(1)
   expect(sent.store.has('setup')).toBe(false)
 })
@@ -195,12 +205,13 @@ test("a setup of Claude's own colors clears nothing at the start", async ($, on)
 test('preset ids replace only the modes they name', async ($, on) => {
   const sent = engine(on, { light: { preset: 'solarized-light' } })
   await start($)
-  await $.command.run({ command: 'tuner', args: 'dracula' })
+  await $.command.run({ ...RUN, command: 'tuner', args: 'dracula' })
   expect(sent.store.get('setup')).toEqual({
     light: { preset: 'solarized-light' },
     dark: { preset: 'dracula' },
   })
   const { text } = await $.command.run({
+    ...RUN,
     command: 'tuner',
     args: 'dracula nord',
   })
