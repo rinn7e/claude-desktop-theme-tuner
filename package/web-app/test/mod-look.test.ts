@@ -5,6 +5,7 @@
 import { describe, expect, it } from 'vitest'
 
 import {
+  checkSetup,
   fitLook,
   knobsOf,
   lookDefinition,
@@ -67,7 +68,7 @@ describe('the Theme Tuner mod look', () => {
       lookDefinition({ dark: dimmed.value }),
       makeColors,
     )
-    const knobs = knobsOf('dark', dimmed.value.palette, definition)
+    const knobs = knobsOf('dark', dimmed.value, definition)
     expect(knobs.map((k) => k.knob)).toEqual([
       'surface-0',
       'surface-1',
@@ -87,6 +88,79 @@ describe('the Theme Tuner mod look', () => {
     expect(knobs[3]?.from).toBe('text, made stronger to paint')
     expect(knobs[3]?.value).not.toBe(dimmed.value.palette.text)
     expect(knobs[7]?.value).toBe('github-dark-dimmed')
+  })
+
+  it('sends the knobs a mode sets directly over the palette', () => {
+    const checked = checkSetup({
+      light: {
+        preset: 'solarized-light',
+        // In light mode surface-3 must match surface-2: only dark sets it
+        anchors: { 'text-primary': '#002B36' },
+        roles: { danger: '#dc322f' },
+        git: { added: '#859900' },
+        codeTheme: 'github-light',
+      },
+      dark: { preset: 'nord', anchors: { 'surface-3': '#353c4a' } },
+      contrast: 'more',
+    })
+    if (!checked.ok) throw new Error(checked.error)
+    const modes = resolveSetup(checked.value)
+    const def = lookDefinition(modes, { contrast: checked.value.contrast })
+    expect(def.light?.gray.anchors).toMatchObject({
+      'surface-0': '#eee8d5',
+      'text-primary': '#002b36',
+    })
+    expect(def.dark?.gray.anchors['surface-3']).toBe('#353c4a')
+    expect(def.light?.roles).toEqual({ accent: '#ad461b', danger: '#dc322f' })
+    expect(def.light?.git).toEqual({ added: '#859900' })
+    expect(def.codeTheme).toEqual({ light: 'github-light', dark: 'nord' })
+    expect(def.contrast).toBe('more')
+    const light = modes.light
+    if (!light) throw new Error('no light mode')
+    const knobs = knobsOf('light', light, def)
+    expect(knobs.find((k) => k.knob === 'text-primary')?.from).toBe('set')
+    expect(knobs.find((k) => k.knob === 'roles.danger')?.from).toBe('set')
+    expect(knobs.find((k) => k.knob === 'git.added')?.value).toBe('#859900')
+    expect(knobs.find((k) => k.knob === 'codeTheme')?.from).toBe('set')
+    // It still paints, as the presets do
+    expect(() => fitLook(def, makeColors)).not.toThrow()
+  })
+
+  it("tunes Claude's own colors once a knob is set", () => {
+    const own = resolveSetup({ dark: { preset: 'claude-dark' } })
+    expect(lookDefinition(own).dark).toBeUndefined()
+    const tuned = resolveSetup({
+      dark: { preset: 'claude-dark', roles: { accent: '#ff79c6' } },
+    })
+    expect(lookDefinition(tuned).dark?.roles.accent).toBe('#ff79c6')
+  })
+
+  it.each([
+    [
+      { light: { preset: 'solarized-light', anchors: { page: '#ffffff' } } },
+      'Unknown anchor "page"',
+    ],
+    [
+      { light: { preset: 'solarized-light', roles: { danger: 'red' } } },
+      'invalid color (danger)',
+    ],
+    [{ contrast: 'less' }, 'The contrast is "more"'],
+    [{ backdrop: { gradient: { stops: ['#ffffff'] } } }, '2 to 16 colors'],
+    [{ backdrop: { color: 'url(evil)' } }, 'backdrop color'],
+  ])('refuses the knobs of %j', (raw, error) => {
+    const checked = checkSetup(raw)
+    expect(checked.ok ? '' : checked.error).toContain(error)
+  })
+
+  it('keeps a backdrop, a color or a gradient', () => {
+    const checked = checkSetup({
+      backdrop: { gradient: { stops: ['#FDF6E3', '#eee8d5'], angle: 135 } },
+    })
+    expect(checked.ok && checked.value.backdrop).toEqual({
+      gradient: { stops: ['#fdf6e3', '#eee8d5'], angle: 135 },
+    })
+    const named = checkSetup({ backdrop: { color: 'surface-0' } })
+    expect(named.ok && named.value.backdrop).toEqual({ color: 'surface-0' })
   })
 
   it('keeps the code theme of the preset', () => {

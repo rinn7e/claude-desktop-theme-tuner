@@ -9,11 +9,32 @@ export type TunerModeChoice = {
   name?: string
   /** The colors that differ from the preset, by palette role, as #rrggbb. */
   colors?: Partial<Record<string, string>>
+  /** Knobs of Claude set directly: surfaces and texts, by their names. */
+  anchors?: Partial<Record<string, string>>
+  /** Role colors: accent, danger, success, warning, pro. */
+  roles?: Partial<Record<string, string>>
+  /** Git colors for diffs and pull request states. */
+  git?: Partial<Record<string, string>>
+  /** A code theme id of Claude, over the preset's own. */
+  codeTheme?: string
 }
+
+export type TunerBackdrop =
+  | { color: string }
+  | {
+      gradient: {
+        stops: string[]
+        angle?: number
+        shape?: 'linear' | 'radial'
+      }
+    }
 
 export type TunerSetup = {
   light?: TunerModeChoice
   dark?: TunerModeChoice
+  /** Stronger borders and focus rings. */
+  contrast?: 'more'
+  backdrop?: TunerBackdrop
 }
 
 declare module 'claude-code' {

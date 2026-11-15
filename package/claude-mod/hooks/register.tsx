@@ -6,9 +6,12 @@ import { atom, read, update } from 'claude-code'
 import type { EngineInterface, Register, ThemeSetArgs } from 'claude-code'
 
 import {
+  ANCHOR_KEYS,
+  GIT_KEYS,
   type LookDefinition,
   type Mode,
   PALETTE_KEYS,
+  ROLE_KEYS,
   type Setup,
   checkSetup,
   fitLook,
@@ -63,9 +66,17 @@ Dark presets: ${PRESETS.filter((p) => p.mode === 'dark')
   .join(', ')}.
 claude-light and claude-dark are Claude's own colors. A mode left out keeps Claude's own colors.
 
-Colors are #rrggbb by palette role: frame (sidebar), canvas (chat area), text, textSecondary (labels, Claude's thinking), textMuted (hints), accent (links, buttons). Keep text at 7:1 on frame and canvas, textSecondary dimmer than text, and the accent readable as link text (4.5:1 on canvas): darken a bright accent. Without a preset all 13 roles are needed (also raised, pressed, line, accentHover, onAccent, selected, wash). The same JSON as a Claude Desktop Theme Tuner link (${WEB}llms.txt).`
+Colors are #rrggbb by palette role: frame (sidebar), canvas (chat area), text, textSecondary (labels, Claude's thinking), textMuted (hints), accent (links, buttons). Keep text at 7:1 on frame and canvas, textSecondary dimmer than text, and the accent readable as link text (4.5:1 on canvas): darken a bright accent. Without a preset all 13 roles are needed (also raised, pressed, line, accentHover, onAccent, selected, wash). A mode can also set the knobs of Claude directly: anchors (surface-0 to surface-3, text-primary, text-secondary, text-muted), roles (accent, danger, success, warning, pro) and git colors, and the setup contrast "more" and a backdrop. The same JSON as the Claude Desktop Theme Tuner writes (${WEB}llms.txt).`
 
 // A misspelled key is refused, not dropped
+// A record of #rrggbb colors under the given keys
+const hexKnobs = (keys: readonly string[], description: string) => ({
+  type: 'object',
+  description,
+  propertyNames: { enum: [...keys] },
+  additionalProperties: { type: 'string', pattern: '^#[0-9a-fA-F]{6}$' },
+})
+
 const MODE_SCHEMA = {
   type: 'object',
   additionalProperties: false,
@@ -78,7 +89,26 @@ const MODE_SCHEMA = {
       propertyNames: { enum: [...PALETTE_KEYS] },
       additionalProperties: { type: 'string', pattern: '^#[0-9a-fA-F]{6}$' },
     },
+    anchors: hexKnobs(
+      ANCHOR_KEYS,
+      'Knobs of Claude set directly: surfaces (0 page and sidebar, 1 cards, 2 panels, 3 menus) and texts.',
+    ),
+    roles: hexKnobs(
+      ROLE_KEYS,
+      'Role colors: accent (links, buttons), danger, success, warning, pro; they also color code.',
+    ),
+    git: hexKnobs(GIT_KEYS, 'Git colors for diffs and pull request states.'),
+    codeTheme: {
+      type: 'string',
+      description: 'A code theme id of Claude, such as solarized-light.',
+    },
   },
+}
+
+const BACKDROP_SCHEMA = {
+  description:
+    'What is behind the conversation: { color } or { gradient: { stops, angle, shape } }.',
+  type: 'object',
 }
 
 // The setup the store holds now: every session shares it, so an edit starts
@@ -97,10 +127,16 @@ type Prepared = {
 }
 
 const prepare = (setup: Setup): Prepared => {
-  const def = lookDefinition(resolveSetup(setup))
-  if (!def.light && !def.dark) return { look: null, label: '', adjusted: [] }
+  const def = lookDefinition(resolveSetup(setup), { contrast: setup.contrast })
+  const backdrop: Pick<ThemeSetArgs, 'backdrop'> = setup.backdrop
+    ? { backdrop: setup.backdrop as ThemeSetArgs['backdrop'] }
+    : {}
+  if (!def.light && !def.dark)
+    return setup.backdrop
+      ? { look: backdrop, label: 'Backdrop', adjusted: [] }
+      : { look: null, label: '', adjusted: [] }
   const { theme, adjusted } = fitLook(def, makeColors)
-  return { look: { colors: theme }, label: def.label, adjusted }
+  return { look: { colors: theme, ...backdrop }, label: def.label, adjusted }
 }
 
 // Sends a prepared look and says what came of it
@@ -189,7 +225,15 @@ export const register: Register = (on) => {
       inputSchema: {
         type: 'object',
         additionalProperties: false,
-        properties: { light: MODE_SCHEMA, dark: MODE_SCHEMA },
+        properties: {
+          light: MODE_SCHEMA,
+          dark: MODE_SCHEMA,
+          contrast: {
+            enum: ['more'],
+            description: 'Stronger borders and focus rings.',
+          },
+          backdrop: BACKDROP_SCHEMA,
+        },
       },
     })
     const setup = await storedSetup($)
@@ -220,8 +264,8 @@ export const register: Register = (on) => {
 
   // The tool's input fields arrive on the event itself, beside `tool`
   on('tool.call', { tool: 'mcp__theme-tuner__set_theme' }, async ($, e) => {
-    const { light, dark } = e as { light?: unknown; dark?: unknown }
-    const checked = checkSetup({ light, dark })
+    const { light, dark, contrast, backdrop } = e as Record<string, unknown>
+    const checked = checkSetup({ light, dark, contrast, backdrop })
     if (!checked.ok) return { result: checked.error }
     const said = await choose($, checked.value)
     return {
@@ -279,7 +323,9 @@ export const register: Register = (on) => {
     // What the mod sends Claude now, after the fit, shown knob by knob
     let sentLook: LookDefinition | null = null
     try {
-      const def = lookDefinition(resolveSetup(setup))
+      const def = lookDefinition(resolveSetup(setup), {
+        contrast: setup.contrast,
+      })
       if (def.light || def.dark) sentLook = fitLook(def, makeColors).definition
     } catch {
       sentLook = null
@@ -303,26 +349,22 @@ export const register: Register = (on) => {
           />
           {resolved?.ok && sent?.[m] ? (
             <Box flexDirection='column'>
-              {knobsOf(m, resolved.value.palette, sent).map(
-                ({ knob, value, from }) => (
-                  <Box key={`${m}-${knob}`} gap={1}>
-                    <Text
-                      backgroundColor={
-                        value.startsWith('#') ? value : undefined
-                      }
-                    >
-                      {'    '}
-                    </Text>
-                    <Box width={15}>
-                      <Text mono>{knob}</Text>
-                    </Box>
-                    <Box width={9}>
-                      <Text mono>{value}</Text>
-                    </Box>
-                    <Text dimColor>{from}</Text>
+              {knobsOf(m, resolved.value, sent).map(({ knob, value, from }) => (
+                <Box key={`${m}-${knob}`} gap={1}>
+                  <Text
+                    backgroundColor={value.startsWith('#') ? value : undefined}
+                  >
+                    {'    '}
+                  </Text>
+                  <Box width={15}>
+                    <Text mono>{knob}</Text>
                   </Box>
-                ),
-              )}
+                  <Box width={9}>
+                    <Text mono>{value}</Text>
+                  </Box>
+                  <Text dimColor>{from}</Text>
+                </Box>
+              ))}
             </Box>
           ) : (
             <Text dimColor>Claude's own colors</Text>

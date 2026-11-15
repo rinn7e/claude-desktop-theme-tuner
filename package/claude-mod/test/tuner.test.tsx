@@ -235,3 +235,27 @@ test('a look no preset names shows as Custom', async ($, on) => {
   ).toContain('"name": "Mine"')
   await ui.unmount()
 })
+
+test('the model sets every knob, and the backdrop reaches Claude', async ($, on) => {
+  const sent = engine(on)
+  await start($)
+  await $.tool.call({
+    tool: 'mcp__theme-tuner__set_theme',
+    light: {
+      preset: 'solarized-light',
+      roles: { danger: '#dc322f' },
+    },
+    dark: { preset: 'nord', anchors: { 'surface-3': '#353c4a' } },
+    contrast: 'more',
+    backdrop: { gradient: { stops: ['#fdf6e3', '#eee8d5'], angle: 135 } },
+  })
+  const set = sent.sets[0] as {
+    backdrop?: unknown
+    colors?: { contrast?: string }
+  }
+  expect(set.backdrop).toEqual({
+    gradient: { stops: ['#fdf6e3', '#eee8d5'], angle: 135 },
+  })
+  expect(set.colors?.contrast).toBe('more')
+  expect(sent.store.get('setup')).toMatchObject({ contrast: 'more' })
+})
