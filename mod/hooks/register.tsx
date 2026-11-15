@@ -47,27 +47,21 @@ const setupState = atom(
     shape: 'setup-1',
   },
 )
-const editing = atom(
-  { plugin: 'theme-tuner', key: 'editing' } as const,
-  'light' as Mode,
-)
 const notice = atom(
   { plugin: 'theme-tuner', key: 'notice' } as const,
   null as string | null,
 )
 
-// The colors the look uses, in the order the pane lists them, with what
-// each paints in Claude
-const FIELDS: { key: PaletteKey; label: string }[] = [
+// The colors the look uses, which the pane lists per mode: what each
+// paints, and its key in the Theme JSON
+const SWATCHES: { key: PaletteKey; label: string }[] = [
   { key: 'frame', label: 'Sidebar' },
   { key: 'canvas', label: 'Chat' },
   { key: 'text', label: 'Text' },
-  { key: 'textSecondary', label: 'Secondary text' },
-  { key: 'textMuted', label: 'Muted text' },
+  { key: 'textSecondary', label: 'Secondary' },
+  { key: 'textMuted', label: 'Muted' },
   { key: 'accent', label: 'Accent' },
 ]
-
-const HEX = /^#[0-9a-f]{6}$/i
 
 const TOOL_DESCRIPTION = `Sets the theme of the Claude desktop app (Claude Code sessions, light and dark mode) and keeps it for later sessions. Give a preset per mode, and optionally colors that override it.
 
@@ -250,45 +244,17 @@ export const register: Register = (on) => {
   on('ui.render', { component: 'Pane', requestId: PANE }, async ($, e) => {
     const { Box, Button, Input, Link, Select, Text } = $.ui.resolve(e)
     const setup = await read($, setupState)
-    const mode = await read($, editing)
     const said = await read($, notice)
-    const choice = setup[mode]
-    const resolved = choice ? resolveMode(mode, choice) : undefined
-    const palette = resolved?.ok ? resolved.value.palette : undefined
 
-    // The handlers start from the stored setup, not the one drawn: two quick
-    // edits, or an edit in another session, are not lost
-
-    // A preset picked for a mode starts from its own colors
+    // A preset picked for a mode starts from its own colors. It starts from
+    // the stored setup, not the one drawn, so an edit in another session is
+    // not lost
     const pick = async (m: Mode, id: string) => {
       if (id === CUSTOM) return
       const next = { ...(await storedSetup($)) }
       if (id === '') delete next[m]
       else next[m] = { preset: id }
       await choose($, next)
-    }
-
-    // A color typed for the mode being edited overrides its preset's
-    const setColor = async (key: PaletteKey, value: string) => {
-      const hex = value.trim().toLowerCase()
-      if (!HEX.test(hex)) {
-        await update($, notice, () => `"${value}" is not a #rrggbb color.`)
-        return
-      }
-      const latest = await storedSetup($)
-      const current = latest[mode] ?? {
-        preset: mode === 'light' ? 'claude-light' : 'claude-dark',
-      }
-      await choose($, {
-        ...latest,
-        [mode]: { ...current, colors: { ...current.colors, [key]: hex } },
-      })
-    }
-
-    const resetColors = async () => {
-      const latest = await storedSetup($)
-      const preset = latest[mode]?.preset
-      if (preset) await choose($, { ...latest, [mode]: { preset } })
     }
 
     // A mode's picker: Claude's own colors, its presets, and the look
@@ -320,66 +286,69 @@ export const register: Register = (on) => {
       return id && presetById(id) && id !== `claude-${m}` ? id : ''
     }
 
+    // A mode's picker over its colors: a row per color with its swatch,
+    // what it paints, its key in the Theme JSON and its value
+    const modeView = (m: Mode) => {
+      const choice = setup[m]
+      const resolved = choice ? resolveMode(m, choice) : undefined
+      return (
+        <Box key={`${m}-mode`} flexDirection='column' gap={1}>
+          <Select
+            key={m}
+            label={m === 'light' ? 'Light' : 'Dark'}
+            options={presetOptions(m)}
+            value={valueOf(m)}
+            onSelect={(v) => void pick(m, v)}
+          />
+          {resolved?.ok ? (
+            <Box flexDirection='column'>
+              {SWATCHES.map(({ key, label }) => (
+                <Box key={`${m}-${key}`} gap={1}>
+                  <Text backgroundColor={resolved.value.palette[key]}>
+                    {'    '}
+                  </Text>
+                  <Box width={10}>
+                    <Text>{label}</Text>
+                  </Box>
+                  <Box width={14}>
+                    <Text dimColor mono>
+                      {key}
+                    </Text>
+                  </Box>
+                  <Text mono>{resolved.value.palette[key]}</Text>
+                </Box>
+              ))}
+            </Box>
+          ) : (
+            <Text dimColor>Claude's own colors</Text>
+          )}
+        </Box>
+      )
+    }
+
     return (
       <Box flexDirection='column' gap={1}>
-        <Select
-          key='light'
-          label='Light'
-          options={presetOptions('light')}
-          value={valueOf('light')}
-          onSelect={(v) => void pick('light', v)}
-        />
-        <Select
-          key='dark'
-          label='Dark'
-          options={presetOptions('dark')}
-          value={valueOf('dark')}
-          onSelect={(v) => void pick('dark', v)}
-        />
-        <Select
-          key='editing'
-          label='Colors of'
-          options={[
-            { value: 'light', label: 'Light mode' },
-            { value: 'dark', label: 'Dark mode' },
-          ]}
-          value={mode}
-          onSelect={(v) => void update($, editing, () => v as Mode)}
-        />
-        {palette ? (
-          <Box flexDirection='column'>
-            {FIELDS.map(({ key, label }) => (
-              <Input
-                key={`${mode}-${key}`}
-                label={label}
-                value={palette[key]}
-                placeholder='#rrggbb'
-                submitLabel='set'
-                onSubmit={(v) => void setColor(key, v)}
-              />
-            ))}
-          </Box>
-        ) : (
-          <Text dimColor>
-            {mode === 'light' ? 'Light' : 'Dark'} mode keeps Claude's own
-            colors: pick a preset to tune it.
-          </Text>
-        )}
+        <Box flexWrap='wrap' columnGap={6} rowGap={1}>
+          {modeView('light')}
+          {modeView('dark')}
+        </Box>
+        {/* The whole setup as JSON, the format of a web tuner link: edit or
+            paste it and press Enter. A link or preset ids work here too */}
         <Input
-          key='paste'
-          label='Apply'
-          placeholder='A tuner link, or presets: solarized-light dracula'
+          key='json'
+          label='Theme JSON'
+          value={JSON.stringify(setup, null, 2)}
+          rows={10}
+          placeholder='{ "light": { "preset": "solarized-light", "colors": { "accent": "#c0009f" } } }'
           submitLabel='apply'
           onSubmit={(v) => void chooseText($, v)}
         />
+        <Text dimColor>
+          Paste JSON copied from the web tuner, a tuner link, or preset ids, and
+          press Enter. Colors are #rrggbb by role: frame, canvas, text,
+          textSecondary, textMuted, accent.
+        </Text>
         <Box gap={1}>
-          {choice?.preset && choice.colors ? (
-            <Button
-              key='reset'
-              label='Reset colors'
-              onPress={() => void resetColors()}
-            />
-          ) : null}
           <Button key='off' label='Turn off' onPress={() => void turnOff($)} />
         </Box>
         <Link

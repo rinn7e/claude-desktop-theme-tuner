@@ -135,7 +135,7 @@ test('the model sets a theme with the tool', async ($, on) => {
 })
 
 for (const surface of ['terminal', 'desktop'] as const) {
-  test(`the pane picks presets and tunes a color, on ${surface}`, async ($, on) => {
+  test(`the pane picks presets and applies JSON, on ${surface}`, async ($, on) => {
     const sent = engine(on)
     await start($)
     const ui = await $.ui.mount({ ...PANE, surface })
@@ -143,13 +143,21 @@ for (const surface of ['terminal', 'desktop'] as const) {
     expect(sent.store.get('setup')).toEqual({
       light: { preset: 'github-light' },
     })
-    await ui.input({ key: 'light-accent', text: '#123456' })
+    // The JSON box applies a whole setup, colors included
+    await ui.input({
+      key: 'json',
+      text: '{"light": {"preset": "github-light", "colors": {"accent": "#123456"}}, "dark": {"preset": "nord"}}',
+    })
     expect(sent.store.get('setup')).toEqual({
       light: { preset: 'github-light', colors: { accent: '#123456' } },
+      dark: { preset: 'nord' },
     })
-    await ui.input({ key: 'light-text', text: 'blue' })
-    expect((await ui.find({ type: 'Text', text: /not a #rrggbb/ }))?.text).toBe(
-      '"blue" is not a #rrggbb color.',
+    await ui.input({
+      key: 'json',
+      text: '{"light": {"preset": "github-light", "colors": {"accent": "blue"}}}',
+    })
+    expect((await ui.find({ type: 'Text', text: /invalid color/ }))?.text).toBe(
+      'The light theme has an invalid color (accent).',
     )
     await ui.press({ key: 'off' })
     expect(sent.clears).toBe(1)
@@ -194,7 +202,7 @@ test('long names still make a look Claude takes', async ($, on) => {
   expect(sent.sets).toHaveLength(1)
 })
 
-test('a look no preset names shows as Custom, with no Reset', async ($, on) => {
+test('a look no preset names shows as Custom', async ($, on) => {
   const palette = {
     frame: '#eeeeee',
     canvas: '#ffffff',
@@ -215,6 +223,8 @@ test('a look no preset names shows as Custom, with no Reset', async ($, on) => {
   const ui = await $.ui.mount({ ...PANE, surface: 'desktop' })
   const light = await ui.find({ type: 'Select', key: 'light' })
   expect(light?.props.value).toBe('custom')
-  expect(await ui.find({ type: 'Button', key: 'reset' })).toBeUndefined()
+  expect(
+    String((await ui.find({ type: 'Input', key: 'json' }))?.props.value),
+  ).toContain('"name": "Mine"')
   await ui.unmount()
 })

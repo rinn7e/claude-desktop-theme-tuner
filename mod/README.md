@@ -17,8 +17,9 @@ marketplace** with `rinn7e/claude-desktop-theme-tuner`, then **Add plugin**.
 
 ## Use
 
-- `/tuner` opens the pane: a preset per mode, the colors to tune, a field
-  for a tuner link, and **Turn off**.
+- `/tuner` opens the pane: a preset per mode, the colors of each with their
+  keys, a **Theme JSON** box (edit or paste a setup, a link or preset ids,
+  then Enter), and **Turn off**.
 - `/tuner solarized-light dracula` applies presets by id, and changes only
   the modes it names; `/tuner list` names them.
 - `/tuner <link>` applies a setup copied from the web tuner (**Copy /tuner

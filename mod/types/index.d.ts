@@ -1,6 +1,6 @@
 // The Theme Tuner mod's values in $.state: the setup the person picked
-// (the JSON of a web tuner share link), the mode the pane's color fields
-// edit, and the last thing the pane has to say.
+// (the JSON of a web tuner share link) and the last thing the pane has to
+// say.
 
 export type TunerModeChoice = {
   /** A preset id, such as `solarized-light`; absent for all 13 colors given. */
@@ -20,7 +20,6 @@ declare module 'claude-code' {
   interface PluginState {
     'theme-tuner': {
       setup: Shaped<TunerSetup>
-      editing: 'light' | 'dark'
       notice: string | null
     }
   }
