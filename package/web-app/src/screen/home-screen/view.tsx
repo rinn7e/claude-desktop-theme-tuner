@@ -116,17 +116,22 @@ const sectionTitle = (title: string, note?: string) => (
 // tuner: it lives on at /legacy
 const bannerView = ({ model, dispatch, navigate }: HomeViewProps) =>
   model.isBannerShown ? (
+    // Solid orange so nobody misses it; white on orange-700 keeps AA
+    // contrast for its small text
     <div
       role='status'
-      className='flex items-center justify-between gap-[12px] border-b border-ui-line bg-ui-field px-[20px] py-[8px] text-xs text-ui-ink-muted'
+      className='flex items-center justify-between gap-[12px] bg-orange-700 px-[20px] py-[10px] text-xs text-white'
     >
       <span>
-        Here from the video or an old link? The first tuner, with its DevTools
-        snippet, is now at{' '}
+        <b className='font-semibold'>
+          Claude Desktop Theme Tuner is now updated to work with the new Claude
+          mods!
+        </b>{' '}
+        The old version, with its DevTools snippet, is still at{' '}
         <Link
           screen={legacyScreen}
           navigate={navigate}
-          className='font-medium text-ui-ink underline'
+          className='font-semibold underline underline-offset-2 hover:text-orange-100'
         >
           /legacy
         </Link>
@@ -135,7 +140,7 @@ const bannerView = ({ model, dispatch, navigate }: HomeViewProps) =>
       <button
         type='button'
         onClick={() => dispatch({ _tag: 'DismissBanner' })}
-        className='shrink-0 text-ui-ink-faint hover:text-ui-ink'
+        className='shrink-0 rounded-md px-[8px] py-[2px] text-white/85 hover:bg-white/15 hover:text-white'
       >
         Dismiss
       </button>
