@@ -16,8 +16,12 @@
   <a href="LICENSE"><img src="https://img.shields.io/github/license/rinn7e/claude-desktop-theme-tuner" alt="License: MIT"></a>
 </p>
 
-Pick a color theme for the Claude desktop app, tune its colors with a live
-preview, and copy it as a DevTools snippet. Light and dark mode each get their
+Design a theme for the Claude desktop app with a live preview. The home page
+designs it for the Theme Tuner mod of Claude Code: the surfaces, texts, roles,
+git colors and code theme of each mode, the contrast and a backdrop, written as
+a JSON setup the mod applies. The first tuner, at
+[`/legacy`](https://rinn7e.com/claude-desktop-theme-tuner/legacy), tunes 13
+colors and copies them as a DevTools snippet. Light and dark mode each get their
 own theme, and the app follows your OS between them. Tested against Claude
 desktop 3.6556.2 on macOS (the version is shown in the app's title bar).
 
@@ -35,6 +39,16 @@ Code sessions with no DevTools, or
 [![Claude Desktop Theme Tuner: how to use it](https://img.youtube.com/vi/DfnZwI23iNM/maxresdefault.jpg)](https://www.youtube.com/watch?v=DfnZwI23iNM)
 
 ## Features
+
+- **A designer for the mod (the home page):** per mode a preset, then each
+  knob of Claude: the four surfaces, the three texts, the five roles, the
+  seven git colors and the code theme; for both modes more contrast and a
+  backdrop (a color or a gradient). Each knob shows the value sent and where
+  it comes from. The page runs Claude's own `makeColors`, so it says when
+  Claude would refuse the theme and why, and it copies the **Theme JSON** or
+  a `/tuner` command. Edits are kept in your browser.
+
+The first tuner, at `/legacy`:
 
 - **Presets:** one for every code theme in Claude's "Code appearance" setting,
   in the same order, so the app can match its code blocks: Claude Light and
@@ -92,8 +106,9 @@ through the page:
 1. It writes each theme as JSON (a preset plus the colors it changes; every
    preset's colors are in [presets.json](package/web-app/public/presets.json)) and checks the
    contrast rules the tuner's own presets follow.
-2. It puts each theme in a link (`#theme=...`). With `&view=preview`, the link
-   shows only the themed preview of Claude, which the agent screenshots.
+2. It puts each theme in a link of the first tuner (`/legacy#theme=...`).
+   With `&view=preview`, the link shows only the themed preview of Claude,
+   which the agent screenshots.
 3. It sends you the screenshots, each with its link. Open the one you like:
    the tuner loads it, and you apply it as below.
 
@@ -123,11 +138,11 @@ Then, in a Claude Code session:
   and **Turn off**.
 - `/tuner solarized-light dracula` applies presets by id, and changes only
   the modes it names (`/tuner list` names them); `/tuner <link>` applies a
-  whole setup from the web tuner: its **How to
-  apply** dialog and the gear menu copy that command (**Copy /tuner
-  Command**).
+  whole setup from the first tuner (its **How to apply** dialog and the
+  gear menu copy that command); `/tuner <JSON>` applies a setup from the
+  home page (**Copy /tuner command**).
 - Or ask Claude ("make it Solarized with a magenta accent"): the mod gives it
-  a `set_theme` tool that takes the same JSON as a share link.
+  a `set_theme` tool that takes the setup JSON.
 - `/tuner off` goes back to Claude's own colors.
 
 The mod and the snippet differ in reach:

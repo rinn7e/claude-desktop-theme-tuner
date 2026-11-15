@@ -1,18 +1,76 @@
 # Claude Desktop Theme Tuner: a guide for AI agents
 
-The tuner themes the Claude desktop app. A theme is 13 colors per mode
-(light and dark). The tuner shows a live preview of Claude in those colors
-and writes a DevTools snippet that the user runs in Claude to apply it.
+The tuner themes the Claude desktop app, in two ways:
 
-You never need to click through the page. Describe a theme as JSON, put it in
-a link, and open or screenshot the link.
+- The Theme Tuner mod of Claude Code (the home page of the app designs for
+  it): a setup JSON, applied in a Claude Code session with no DevTools. It
+  sets the surfaces, texts, five roles, git colors and code theme of each
+  mode, the contrast and a color or gradient backdrop.
+- The first tuner, at /legacy: 13 colors per mode, a live preview of Claude,
+  and a DevTools snippet the user runs in Claude to apply it.
+
+You never need to click through the page. With the mod, call its tool with
+the JSON (below). With the first tuner, put a theme in a link, and open or
+screenshot the link.
 
 App: https://rinn7e.com/claude-desktop-theme-tuner/
+First tuner: https://rinn7e.com/claude-desktop-theme-tuner/legacy
 Source (MIT): https://github.com/rinn7e/claude-desktop-theme-tuner
+Every knob of the mod: https://github.com/rinn7e/claude-desktop-theme-tuner/blob/main/doc/mod-knobs.md
 
-## The link
+## The mod setup JSON
 
-    https://rinn7e.com/claude-desktop-theme-tuner/#theme=<JSON, URI-encoded>
+What the home page writes, and what the mod takes: in its pane, as
+`/tuner <JSON>`, or from an agent through its `set_theme` tool (full name
+`mcp__theme-tuner__set_theme`), whose input is this JSON.
+
+    {
+      "light": {
+        "preset": "solarized-light",
+        "name": "Paper",
+        "anchors": { "surface-0": "#ede7d4" },
+        "roles": { "accent": "#c0009f" }
+      },
+      "dark": {
+        "preset": "dracula",
+        "roles": { "danger": "#ff5555" },
+        "git": { "added": "#50fa7b" },
+        "codeTheme": "dracula"
+      },
+      "contrast": "more",
+      "backdrop": { "gradient": { "stops": ["#1e1e2e", "#45475a"], "angle": 135 } }
+    }
+
+- `light`, `dark`: each optional. A mode left out keeps Claude's own colors.
+- `preset`, `name`, `colors`: as in the link of the first tuner (below);
+  the 13 colors map to the knobs, and Claude derives the rest.
+- `anchors`: `surface-0` (sidebar and page, the darkest surface),
+  `surface-1` (the conversation), `surface-2` (panels), `surface-3` (menus),
+  `text-primary`, `text-secondary`, `text-muted`. Each wins over what the
+  preset gives.
+- `roles`: `accent`, `danger`, `success`, `warning`, `pro`, a seed each:
+  Claude keeps the hue and sets the lightness. Keep the meaning (danger a
+  red, success a green, warning an amber).
+- `git`: `added`, `removed`, `modified`, `merged`, `closed`, `conflicting`,
+  `draft`.
+- `codeTheme`: the id of one of Claude's code themes; by default the one of
+  the preset's name, where Claude has one.
+- `contrast`: `"more"` for stronger borders and focus rings.
+- `backdrop`: `{ "color": "#rrggbb" }`, or `{ "gradient": { "stops": [2 to
+  16 colors], "angle": 0 to 360, "shape": "linear" or "radial" } }`.
+
+Claude refuses a whole look that breaks its rules, and the tool answers with
+the reason: the surfaces run from `surface-0`, the darkest, each as light
+as the one before it or lighter, in both modes (a `surface-1` set alone takes
+`surface-2` along); in light mode `surface-3` equals `surface-2` (leave it
+out); `text-muted` is no stronger than `text-secondary`; text needs enough
+contrast on every surface.
+
+## The first tuner (/legacy)
+
+### The link
+
+    https://rinn7e.com/claude-desktop-theme-tuner/legacy#theme=<JSON, URI-encoded>
 
 Add `&view=preview` to show only the preview of Claude, for screenshots. It
 fills the window up to 1280px wide, so a window at least 700px wide shows the
@@ -43,9 +101,9 @@ The JSON:
 
 Build the link with encodeURIComponent, for example:
 
-    node -e 'const theme = {light: {preset: "solarized-light", colors: {accent: "#c0009f"}}}; console.log("https://rinn7e.com/claude-desktop-theme-tuner/#theme=" + encodeURIComponent(JSON.stringify(theme)) + "&view=preview")'
+    node -e 'const theme = {light: {preset: "solarized-light", colors: {accent: "#c0009f"}}}; console.log("https://rinn7e.com/claude-desktop-theme-tuner/legacy#theme=" + encodeURIComponent(JSON.stringify(theme)) + "&view=preview")'
 
-## The 13 colors
+### The 13 colors
 
 Surfaces:
 - `frame`: sidebar, title bar, menus
@@ -68,7 +126,7 @@ Lists and washes:
 - `selected`: the selected sidebar row; hover uses it at 27%
 - `wash`: the user's message bubbles and neutral tints, applied at 10%
 
-## Rules for a good theme
+### Rules for a good theme
 
 Contrast is WCAG contrast ratio. The tuner's own presets all pass these:
 
@@ -84,7 +142,7 @@ Contrast is WCAG contrast ratio. The tuner's own presets all pass these:
   reads apart from its replies; `textMuted` no brighter than `textSecondary`.
 - `raised` and `pressed` visibly different from `canvas` and `frame`.
 
-The full tuner (the link without `&view=preview`) shows these checks for the
+The first tuner (the link without `&view=preview`) shows these checks for the
 current theme.
 
 ## Presets
@@ -108,7 +166,7 @@ one-dark, dracula, dracula-soft, catppuccin-mocha, nord, solarized-dark,
 vitesse-dark, min-dark, monokai, tokyo-night, night-owl, rose-pine, ayu-dark,
 slack-dark, gruvbox-dark, groovy-lambda-black
 
-## Screenshots
+## Screenshots of the first tuner
 
 With a browser tool, open the `&view=preview` link and wait for an element
 with the `data-ready` attribute. From a shell, Playwright does it in one
@@ -122,6 +180,12 @@ in your browser tool instead. In a browser tool, navigate to each link and
 take a screenshot; never fill in the color fields one by one.
 
 ## Recipe: "design me a theme"
+
+In a Claude Code session with the mod: write the setup JSON from the user's
+request and call `set_theme`. Claude paints it at once, so the user sees it
+and asks for changes; send the whole setup again each time.
+
+Elsewhere, with the first tuner:
 
 1. Pick a starting preset from the user's request (its colors are in
    presets.json), or write all 13 colors.
@@ -146,10 +210,7 @@ Then, in a Claude Code session:
 - The user sends `/tuner <link>` with any link above (or `/tuner
   solarized-light dracula`, preset ids per mode), or `/tuner` to open its
   pane.
-- An agent in that session calls the mod's tool, `set_theme` (full name
-  `mcp__theme-tuner__set_theme`), with the same JSON as the link: `light`
-  and `dark`, each `{ preset, name, colors }`.
+- An agent in that session calls the mod's tool, `set_theme`, with the setup
+  JSON above (the link's JSON is a setup too).
 
-The mod sends Claude the frame and canvas surfaces, the three texts and the
-accent; Claude derives the rest. It themes Claude Code sessions only; the
-snippet themes the whole app.
+The mod themes Claude Code sessions only; the snippet themes the whole app.

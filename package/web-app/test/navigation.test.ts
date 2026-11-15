@@ -82,7 +82,7 @@ describe('moving between screens', () => {
       { _tag: 'HomeMsg', msg: { _tag: 'DismissBanner' } },
       home,
     )
-    expect(after.screen).toEqual({
+    expect(after.screen).toMatchObject({
       _tag: 'HomeScreen',
       model: { isBannerShown: false },
     })

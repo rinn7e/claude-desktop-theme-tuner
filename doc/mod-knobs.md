@@ -1,9 +1,9 @@
 # Mod look knobs
 
 Everything a mod look can set through `$.theme.set({ colors, backdrop, overrideColorScheme })`,
-and which of it the Theme Tuner mod (`package/claude-mod/`) sets today. The plan: let the web
-app edit every knob, carry them in the setup JSON (the share link format), and
-have the mod send them.
+and which of it the Theme Tuner mod (`package/claude-mod/`) sets. The home page of the web app
+edits every knob the mod sets and writes them in the setup JSON, which the
+mod takes in its pane, as `/tuner <JSON>` or through its `set_theme` tool.
 
 Read from the mod API of Claude Code 2.1.325 (`look.md`, `make-colors.d.ts` and
 the `ThemeSetArgs` types of the mod-authoring skill). The API is early access:
@@ -19,30 +19,30 @@ that definition.
 
 ## Colors (the `makeColors` definition)
 
-| Knob            | Shape                                               | What it changes                                                             | Used now              |
-| --------------- | --------------------------------------------------- | --------------------------------------------------------------------------- | --------------------- |
-| `label`         | text, 1 to 64 characters                            | The name of the look in the pickers of Claude                               | yes                   |
-| `id`            | lowercase id, up to 32 characters                   | The id of the look                                                          | yes (`theme-tuner`)   |
-| `light`, `dark` | a mode each, below                                  | The colors of that mode; a mode left out keeps the colors of Claude         | yes                   |
-| `only`          | `light` or `dark`                                   | A look made for one mode: surfaces act as if `overrideColorScheme` named it | no                    |
-| `codeTheme`     | `{ light, dark }`, ids of the code themes of Claude | The code highlighting per mode; Claude locks its picker for a mode it sets  | yes                   |
-| `contrast`      | `more`                                              | Stronger borders and focus rings                                            | no                    |
-| `roles`         | the five roles, below                               | One color per role for both modes; a role of a mode replaces it there       | accent only, per mode |
+| Knob            | Shape                                               | What it changes                                                             | Used now            |
+| --------------- | --------------------------------------------------- | --------------------------------------------------------------------------- | ------------------- |
+| `label`         | text, 1 to 64 characters                            | The name of the look in the pickers of Claude                               | yes                 |
+| `id`            | lowercase id, up to 32 characters                   | The id of the look                                                          | yes (`theme-tuner`) |
+| `light`, `dark` | a mode each, below                                  | The colors of that mode; a mode left out keeps the colors of Claude         | yes                 |
+| `only`          | `light` or `dark`                                   | A look made for one mode: surfaces act as if `overrideColorScheme` named it | no                  |
+| `codeTheme`     | `{ light, dark }`, ids of the code themes of Claude | The code highlighting per mode; Claude locks its picker for a mode it sets  | yes                 |
+| `contrast`      | `more`                                              | Stronger borders and focus rings                                            | yes                 |
+| `roles`         | the five roles, below                               | One color per role for both modes; a role of a mode replaces it there       | per mode only       |
 
 ### A mode (`light` or `dark`)
 
-| Knob                          | Shape                                                        | What it changes                                     | Used now                                                                                         |
-| ----------------------------- | ------------------------------------------------------------ | --------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| `gray.anchors.surface-0`      | hex, required                                                | The darkest surface: the page and the sidebar       | yes (the darker of frame and canvas)                                                             |
-| `gray.anchors.surface-1`      | hex                                                          | Cards                                               | yes (the lighter of frame and canvas)                                                            |
-| `gray.anchors.surface-2`      | hex                                                          | Panels                                              | yes (as surface-1)                                                                               |
-| `gray.anchors.surface-3`      | hex                                                          | Menus                                               | no (derived: a dark surface-3 as light as the raised color of a preset fails the contrast check) |
-| `gray.anchors.text-primary`   | hex, required                                                | The strongest text                                  | yes (text)                                                                                       |
-| `gray.anchors.text-secondary` | hex                                                          | Labels, list rows, the thinking of Claude           | yes (textSecondary)                                                                              |
-| `gray.anchors.text-muted`     | hex                                                          | Hints, timestamps                                   | yes (textMuted)                                                                                  |
-| `gray.stops`                  | `{ step: hex }` on the gray ramp (0 lightest to 900 darkest) | The whole gray ramp, for finer control than anchors | no                                                                                               |
-| `roles`                       | the five roles, below                                        | The roles of this mode alone                        | accent                                                                                           |
-| `git`                         | the seven git colors, below                                  | Diffs and pull request badges                       | no                                                                                               |
+| Knob                          | Shape                                                        | What it changes                                     | Used now                                                                                                                                                |
+| ----------------------------- | ------------------------------------------------------------ | --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `gray.anchors.surface-0`      | hex, required                                                | The darkest surface: the page and the sidebar       | yes (set, or the darker of frame and canvas)                                                                                                            |
+| `gray.anchors.surface-1`      | hex                                                          | Cards                                               | yes (set, or the lighter of frame and canvas)                                                                                                           |
+| `gray.anchors.surface-2`      | hex                                                          | Panels                                              | yes (set, or as surface-1)                                                                                                                              |
+| `gray.anchors.surface-3`      | hex                                                          | Menus                                               | when set (otherwise derived: a dark surface-3 as light as the raised color of a preset fails the contrast check; in light mode it must equal surface-2) |
+| `gray.anchors.text-primary`   | hex, required                                                | The strongest text                                  | yes (set, or text)                                                                                                                                      |
+| `gray.anchors.text-secondary` | hex                                                          | Labels, list rows, the thinking of Claude           | yes (set, or textSecondary)                                                                                                                             |
+| `gray.anchors.text-muted`     | hex                                                          | Hints, timestamps                                   | yes (set, or textMuted)                                                                                                                                 |
+| `gray.stops`                  | `{ step: hex }` on the gray ramp (0 lightest to 900 darkest) | The whole gray ramp, for finer control than anchors | no                                                                                                                                                      |
+| `roles`                       | the five roles, below                                        | The roles of this mode alone                        | yes (the accent always, the others when set)                                                                                                            |
+| `git`                         | the seven git colors, below                                  | Diffs and pull request badges                       | when set                                                                                                                                                |
 
 ### Roles
 
@@ -52,10 +52,10 @@ design system keeps the hue of a seed and sets the lightness.
 | Role      | What it colors                  | Code highlighting it drives | Used now |
 | --------- | ------------------------------- | --------------------------- | -------- |
 | `accent`  | Links, buttons, focus, progress | keywords                    | yes      |
-| `danger`  | Errors, destructive actions     | names                       | no       |
-| `success` | Success marks                   | strings                     | no       |
-| `warning` | Warnings                        | variables                   | no       |
-| `pro`     | Pro and plan marks              | literals                    | no       |
+| `danger`  | Errors, destructive actions     | names                       | when set |
+| `success` | Success marks                   | strings                     | when set |
+| `warning` | Warnings                        | variables                   | when set |
+| `pro`     | Pro and plan marks              | literals                    | when set |
 
 Keep the meaning: `danger` stays a red, `success` a green, `warning` an amber,
 tuned toward the look.
@@ -64,7 +64,7 @@ tuned toward the look.
 
 `added`, `removed`, `modified`, `merged`, `closed`, `conflicting`, `draft`:
 one hex each, for diffs and pull request states. `makeColors` refuses `git` at
-the top level of the definition. None is used now.
+the top level of the definition. The mod sends those a mode sets.
 
 ## Backdrop (`$.theme.set({ backdrop })`)
 
@@ -82,8 +82,8 @@ What is behind the conversation. One of:
 frosted over the backdrop. `blur` is 0 to 64 points (default 16), `tint` a raw
 color (default the panel color), `opacity` 0 to 1 (default 0.6).
 
-For the web app: a color, gradient or vector backdrop is plain data and fits
-the setup JSON. An image needs its file in the mod folder, so a picked image
+The mod sends a color or a gradient backdrop from the setup JSON. A vector
+backdrop is plain data too and would fit it. An image needs its file in the mod folder, so a picked image
 would have to ship with the mod or come from a fixed set. A scene is code (an
 SVG with CSS), so the mod would offer a fixed set of scenes by name, as the
 `theme-examples` plugin of Anthropic does.
@@ -115,10 +115,11 @@ with macOS Reduce transparency on (System Settings, Accessibility, Display).
 - A wrong token name in `colors`, or a scene with no `Backdrop` render hook,
   draws nothing and says nothing.
 
-## What the tuner maps today
+## What a preset gives
 
-The 13 palette roles of the web app map to the knobs above as follows; the rest
-are derived by `makeColors` or left to Claude:
+The 13 palette roles of a preset map to the knobs above as follows, under the
+knobs a mode sets directly; the rest are derived by `makeColors` or left to
+Claude:
 
 | Palette role                                                               | Knob                                                      |
 | -------------------------------------------------------------------------- | --------------------------------------------------------- |

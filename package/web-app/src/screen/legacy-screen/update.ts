@@ -4,6 +4,7 @@
  */
 import { Cmd, Task } from 'tea-cup-fp'
 
+import { writeClipboard } from '../../common/clipboard'
 import {
   type PresetFile,
   decodePresetFile,
@@ -144,33 +145,6 @@ const saveCmd = (model: Model): Cmd<Msg> =>
     }),
     (): Msg => ({ _tag: 'NoOp' }),
   )
-
-// The older way to copy, for when the Clipboard API is refused (an unfocused
-// or insecure page)
-const legacyCopy = (text: string): boolean => {
-  const area = document.createElement('textarea')
-  area.value = text
-  area.setAttribute('readonly', '')
-  area.style.position = 'fixed'
-  area.style.opacity = '0'
-  document.body.appendChild(area)
-  area.select()
-  try {
-    return document.execCommand('copy')
-  } catch {
-    return false
-  } finally {
-    area.remove()
-  }
-}
-
-const writeClipboard = async (text: string): Promise<void> => {
-  try {
-    await navigator.clipboard.writeText(text)
-  } catch {
-    if (!legacyCopy(text)) throw new Error('copy refused')
-  }
-}
 
 const copyCmd = (text: string, target: CopyTarget): Cmd<Msg> =>
   Task.attempt(

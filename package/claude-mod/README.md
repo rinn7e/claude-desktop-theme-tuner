@@ -22,8 +22,9 @@ marketplace** with `rinn7e/claude-desktop-theme-tuner`, then **Add plugin**.
   then Enter), and **Turn off**.
 - `/tuner solarized-light dracula` applies presets by id, and changes only
   the modes it names; `/tuner list` names them.
-- `/tuner <link>` applies a setup copied from the web tuner (**Copy /tuner
-  Command**).
+- `/tuner <JSON>` applies a setup designed on the home page of the web tuner
+  (**Copy /tuner command**), and `/tuner <link>` one from its first tuner at
+  `/legacy`.
 - Ask Claude for a theme: the mod gives it a `set_theme` tool.
 - `/tuner off` goes back to Claude's own colors.
 

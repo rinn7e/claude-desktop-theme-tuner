@@ -2,7 +2,7 @@
  * Copyright (C) 2026 Moremi Vannak
  * SPDX-License-Identifier: MIT
  */
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { type Dispatcher } from 'tea-cup-fp'
 
 import shotDeveloperMode from '../../asset/how-to-apply/1-enable-developer-mode.webp'
@@ -11,8 +11,15 @@ import shotSources from '../../asset/how-to-apply/3-sources.webp'
 import shotSnippets from '../../asset/how-to-apply/4-snippets.webp'
 import shotNewSnippet from '../../asset/how-to-apply/5-new-snippet.webp'
 import shotRun from '../../asset/how-to-apply/6-run.webp'
+import { HexInput } from '../../component/hex-input'
+import {
+  ModeHeader,
+  OptionToggle,
+  PresetChips,
+  SectionTitle,
+} from '../../component/tuner-ui'
 import { claudeMockView } from '../../preview/claude-mock'
-import { contrast, isHex } from '../../theme/color'
+import { contrast } from '../../theme/color'
 import {
   CONTRAST_CHECKS,
   type Mode,
@@ -38,36 +45,6 @@ const MODES: { mode: Mode; label: string }[] = [
 const LABELS: Record<PaletteKey, string> = Object.fromEntries(
   PALETTE_GROUPS.flatMap((g) => g.keys.map((k) => [k.key, k.label])),
 ) as Record<PaletteKey, string>
-
-// A hex field that keeps what is typed until it is a full color, so a
-// half-typed value is never thrown away or sent
-const HexInput = ({
-  value,
-  onChange,
-}: {
-  value: string
-  onChange: (hex: string) => void
-}) => {
-  const [draft, setDraft] = useState(value)
-  useEffect(() => setDraft(value), [value])
-  return (
-    <input
-      type='text'
-      spellCheck={false}
-      aria-label='Hex color'
-      value={draft}
-      onChange={(e) => {
-        const next = e.target.value.trim()
-        setDraft(next)
-        if (isHex(next)) onChange(next)
-      }}
-      onBlur={() => setDraft(value)}
-      className={`w-[5.5rem] rounded-md border bg-ui-field px-[8px] py-[4px] font-mono text-xs uppercase outline-none focus:border-ui-brand ${
-        isHex(draft) ? 'border-ui-line' : 'border-ui-bad'
-      }`}
-    />
-  )
-}
 
 // The two panel bars (the customizer's title bar and the snippet's tab bar)
 // share one shape, so they are the same height
@@ -313,21 +290,14 @@ const modeHeaderView = (
 ) => {
   const slot = model[mode]
   return (
-    <label className='flex cursor-pointer items-center justify-between gap-[12px] rounded-lg bg-ui-field px-[12px] py-[10px]'>
-      <span className='flex min-w-0 flex-col gap-[2px]'>
-        <span className='text-sm font-semibold'>{label}</span>
-        <span className='truncate text-xs text-ui-ink-faint'>
-          {slot.enabled ? slot.theme.name : 'Stock, left as Claude ships it'}
-        </span>
-      </span>
-      <input
-        type='checkbox'
-        aria-label={`Theme ${label.toLowerCase()}`}
-        checked={slot.enabled}
-        onChange={() => dispatch({ _tag: 'ToggleSlot', mode })}
-        className='h-[18px] w-[18px] shrink-0 accent-ui-brand'
-      />
-    </label>
+    <ModeHeader
+      label={label}
+      subtitle={
+        slot.enabled ? slot.theme.name : 'Stock, left as Claude ships it'
+      }
+      isOn={slot.enabled}
+      onToggle={() => dispatch({ _tag: 'ToggleSlot', mode })}
+    />
   )
 }
 
@@ -338,18 +308,7 @@ const optionView = (
   checked: boolean,
   onChange: () => void,
 ) => (
-  <label className='flex cursor-pointer items-center justify-between gap-[12px] rounded-lg border border-ui-line px-[12px] py-[10px]'>
-    <span className='flex flex-col gap-[2px]'>
-      <span className='text-sm font-medium'>{label}</span>
-      <span className='text-xs text-ui-ink-faint'>{note}</span>
-    </span>
-    <input
-      type='checkbox'
-      checked={checked}
-      onChange={onChange}
-      className='h-[18px] w-[18px] shrink-0 accent-ui-brand'
-    />
-  </label>
+  <OptionToggle label={label} note={note} isOn={checked} onToggle={onChange} />
 )
 
 const optionsView = (model: Model, dispatch: Dispatcher<Msg>) => (
@@ -393,65 +352,18 @@ const optionsView = (model: Model, dispatch: Dispatcher<Msg>) => (
 )
 
 // A preset in miniature: its canvas, frame, text and accent
-const swatchView = (theme: Theme) => (
-  <span className='flex h-[14px] w-[40px] shrink-0 overflow-hidden rounded-full ring-1 ring-black/10'>
-    {(['canvas', 'frame', 'text', 'accent'] as const).map((k) => (
-      <span
-        key={k}
-        className='flex-1'
-        style={{ background: theme.palette[k] }}
-      />
-    ))}
-  </span>
-)
-const sectionTitle = (title: string) => (
-  <h2 className='text-xs font-semibold tracking-wide text-ui-ink-faint uppercase'>
-    {title}
-  </h2>
-)
+const sectionTitle = (title: string) => <SectionTitle title={title} />
 
 const presetsView = (model: Model, dispatch: Dispatcher<Msg>, mode: Mode) => {
   const slot = model[mode]
   return (
     <section className='flex flex-col gap-[8px]'>
       {sectionTitle('Presets')}
-      <div className='flex flex-wrap gap-[6px]'>
-        {allPresets()
-          .filter((t) => t.mode === mode)
-          .map((t) => {
-            const active = slot.enabled && slot.theme.id === t.id
-            return (
-              <button
-                key={t.id}
-                type='button'
-                onClick={() => dispatch({ _tag: 'PickPreset', id: t.id })}
-                aria-pressed={active}
-                className={`flex items-center gap-[6px] rounded-full border py-[4px] pr-[10px] pl-[5px] text-xs transition-colors ${
-                  active
-                    ? 'border-ui-brand bg-ui-field ring-1 ring-ui-brand'
-                    : 'border-ui-line hover:border-ui-ink-faint'
-                }`}
-              >
-                {swatchView(t)}
-                {/* An invisible bold copy keeps the width of the selected
-                    (bold) name, so picking a chip doesn't shift its row */}
-                <span className='grid'>
-                  <span
-                    aria-hidden='true'
-                    className='invisible col-start-1 row-start-1 font-medium'
-                  >
-                    {t.name}
-                  </span>
-                  <span
-                    className={`col-start-1 row-start-1 ${active ? 'font-medium' : ''}`}
-                  >
-                    {t.name}
-                  </span>
-                </span>
-              </button>
-            )
-          })}
-      </div>
+      <PresetChips
+        presets={allPresets().filter((t) => t.mode === mode)}
+        activeId={slot.enabled ? slot.theme.id : undefined}
+        onPick={(id) => dispatch({ _tag: 'PickPreset', id })}
+      />
     </section>
   )
 }
