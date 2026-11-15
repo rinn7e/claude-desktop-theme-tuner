@@ -9,10 +9,12 @@ import {
   fitLook,
   knobsOf,
   lookDefinition,
+  onGlass,
   parseSetup,
   resolveMode,
   resolveSetup,
   sidebarBase,
+  throughGlass,
 } from '../../claude-mod/hooks/look'
 import { makeColors } from '../../claude-mod/hooks/make-colors.js'
 import { type Model } from '../src/screen/legacy-screen/type'
@@ -39,6 +41,36 @@ const model: Model = {
 }
 
 describe('the sidebar of a light look', () => {
+  it('comes out as the frame through the macOS glass when compensated', () => {
+    // Sent so that 72% of it over the light glass is the frame
+    expect(throughGlass('#eee8d5')).toBe('#f0e8cb')
+    expect(onGlass(throughGlass('#eee8d5'))).toBe('#eee8d5')
+    // surface-0 then mixes with the canvas into that color
+    expect(sidebarBase('#eee8d5', '#fdf6e3', { compensateGlass: true })).toBe(
+      '#e3dab3',
+    )
+    for (const t of allPresets().filter((p) => p.mode === 'light')) {
+      const r = resolveMode('light', { preset: t.id })
+      if (!r.ok) throw new Error(r.error)
+      const def = lookDefinition({ light: r.value }, { compensateGlass: true })
+      if (!def.light) continue
+      // Every preset still paints
+      expect(() => fitLook(def, makeColors)).not.toThrow()
+    }
+  })
+
+  it('keeps the setting in the setup, and refuses a wrong one', () => {
+    expect(checkSetup({ compensateGlass: true })).toEqual({
+      ok: true,
+      value: { compensateGlass: true },
+    })
+    expect(checkSetup({ compensateGlass: false })).toEqual({
+      ok: true,
+      value: {},
+    })
+    expect(checkSetup({ compensateGlass: 'yes' }).ok).toBe(false)
+  })
+
   it('mixes with the canvas back into the frame', () => {
     expect(sidebarBase('#eee8d5', '#fdf6e3')).toBe('#dfdac7')
     // Each channel stays within 0 to 255

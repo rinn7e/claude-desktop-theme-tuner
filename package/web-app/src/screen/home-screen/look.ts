@@ -9,14 +9,17 @@
 import {
   type Backdrop,
   type Knob,
+  LIGHT_GLASS,
   type LookDefinition,
   type Mode,
   type Palette,
   type Resolved,
+  SIDEBAR_OPACITY,
   type Setup,
   fitLook,
   knobsOf,
   lookDefinition,
+  lookOptionsOf,
   resolveSetup,
   seedOf,
 } from '../../../../claude-mod/hooks/look'
@@ -77,7 +80,7 @@ const stockLook = (mode: Mode, r: Resolved) => {
 
 export const lookOf = (setup: Setup): Look => {
   const resolved = resolveSetup(setup)
-  const def = lookDefinition(resolved, { contrast: setup.contrast })
+  const def = lookDefinition(resolved, lookOptionsOf(setup))
   let theme: Theme = {}
   let definition = def
   let error: string | null = null
@@ -239,10 +242,13 @@ export const claudeTokens = (
   // Claude's own rules, read from the app: the light sidebar is half
   // surface-0, half surface-1; the dark one is the page (surface-1)
   // darkened by a fifth
+  // On a Mac the light sidebar shows a little of the macOS glass through
+  // (72% of it is Claude's color): the preview lays the same light glass
+  // under it, so it shows what the screen shows
   if (s0 && s1)
     out['--cds-fizzy-lake-color-sidebar'] =
       mode === 'light'
-        ? `color-mix(in srgb, ${s0} 50%, ${s1})`
+        ? `color-mix(in srgb, color-mix(in srgb, ${s0} 50%, ${s1}) ${SIDEBAR_OPACITY * 100}%, ${LIGHT_GLASS})`
         : `color-mix(in srgb, ${s1} 80%, black)`
   if (out['--cds-fill-ghost-selected'])
     out['--df-selected'] = out['--cds-fill-ghost-selected']

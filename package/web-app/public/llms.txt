@@ -57,6 +57,9 @@ What the home page writes, and what the mod takes: in its pane, as
   the preset's name, where Claude has one. `null` sends none, so Claude's own
   code theme picker stays free for that mode.
 - `contrast`: `"more"` for stronger borders and focus rings.
+- `compensateGlass`: `true` aims the light sidebar at the frame as it shows
+  through the translucent macOS sidebar glass (a light glass); leave it out
+  for Reduce transparency, where the sidebar is drawn opaque.
 - `backdrop`: `{ "color": "#rrggbb" }`, or `{ "gradient": { "stops": [2 to
   16 colors], "angle": 0 to 360, "shape": "linear" or "radial" } }`.
 

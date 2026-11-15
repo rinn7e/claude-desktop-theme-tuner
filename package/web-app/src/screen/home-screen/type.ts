@@ -59,6 +59,7 @@ export type Msg =
   // Back to the preset: every knob set over it goes
   | { _tag: 'ResetMode'; mode: Mode }
   | { _tag: 'SetContrast'; isMore: boolean }
+  | { _tag: 'SetCompensateGlass'; isOn: boolean }
   | { _tag: 'SetBackdrop'; backdrop: Backdrop | null }
   | { _tag: 'EditJson'; text: string }
   | { _tag: 'LeaveJson' }

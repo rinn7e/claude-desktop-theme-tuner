@@ -731,6 +731,24 @@ const bothModesView = (setup: Setup, dispatch: Dispatcher<Msg>) => (
           dispatch({ _tag: 'SetContrast', isMore: setup.contrast !== 'more' })
         }
       />
+      <OptionToggle
+        label='Compensate for the macOS sidebar glass'
+        note={
+          <>
+            On a Mac, Claude lets a little of the glass show through its light
+            sidebar. This sends a color that comes out as the frame over a light
+            glass. Leave it off with Reduce transparency on (
+            <code className='font-mono'>compensateGlass: true</code>)
+          </>
+        }
+        isOn={setup.compensateGlass === true}
+        onToggle={() =>
+          dispatch({
+            _tag: 'SetCompensateGlass',
+            isOn: setup.compensateGlass !== true,
+          })
+        }
+      />
     </section>
     {backdropView(setup, dispatch)}
   </div>
@@ -899,14 +917,14 @@ const editorView = (look: Look, props: HomeViewProps) => {
 
 const CODE_TABS: { target: CodeTab; label: string; note: string }[] = [
   {
-    target: 'json',
-    label: 'Theme JSON',
-    note: 'The setup for the mod. Edit it here too: paste a setup, a link or preset ids.',
-  },
-  {
     target: 'command',
     label: '/tuner command',
     note: 'Send it in a Claude Code session with the mod to apply this setup.',
+  },
+  {
+    target: 'json',
+    label: 'Theme JSON',
+    note: 'The setup for the mod. Edit it here too: paste a setup, a link or preset ids.',
   },
 ]
 

@@ -99,6 +99,9 @@ export interface Setup {
   // Stronger borders and focus rings
   contrast?: 'more'
   backdrop?: Backdrop
+  // Send the light sidebar so that it comes out as the frame through the
+  // sidebar glass of macOS (see sidebarBase)
+  compensateGlass?: true
 }
 
 // One mode, resolved: the colors to draw with, what to call them, and the
@@ -332,6 +335,11 @@ export const checkSetup = (raw: unknown): Result<Setup> => {
       return { ok: false, error: 'The contrast is "more" or left out.' }
     setup.contrast = 'more'
   }
+  if (raw.compensateGlass !== undefined) {
+    if (typeof raw.compensateGlass !== 'boolean')
+      return { ok: false, error: 'compensateGlass is true, false or left out.' }
+    if (raw.compensateGlass) setup.compensateGlass = true
+  }
   if (raw.backdrop !== undefined) {
     const backdrop = checkBackdrop(raw.backdrop)
     if (!backdrop.ok) return backdrop
@@ -430,23 +438,58 @@ const luminance = (hex: string): number => {
 // above it, each channel kept to 0 to 255. The dark sidebar is the
 // conversation darkened by a fifth (`color-mix(in srgb, page 80%, black)`),
 // which no anchor moves.
-export const sidebarBase = (frame: string, canvas: string): string => {
+//
+// On a Mac with transparency on, Claude draws that sidebar at 72% over the
+// macOS sidebar glass, so the screen shows a little of the glass: #eee8d5
+// was measured as #ede8dc over a light glass of about #eae8ee. With
+// `compensateGlass` the sidebar is aimed at the color that comes out as the
+// frame through that glass instead. It only holds while the glass looks so
+// (a light wallpaper, light mode).
+export const SIDEBAR_OPACITY = 0.72
+export const LIGHT_GLASS = '#eae8ee'
+
+// The color that shows as `frame` through the glass
+export const throughGlass = (frame: string): string => {
   const f = channels(frame)
-  const c = channels(canvas)
-  return `#${f
-    .map((v, i) =>
-      Math.min(255, Math.max(0, 2 * v - c[i]))
+  const g = channels(LIGHT_GLASS)
+  return toHex(
+    f.map((v, i) => (v - (1 - SIDEBAR_OPACITY) * g[i]) / SIDEBAR_OPACITY),
+  )
+}
+
+// The glass laid over a color, as the screen shows it
+export const onGlass = (color: string): string => {
+  const c = channels(color)
+  const g = channels(LIGHT_GLASS)
+  return toHex(
+    c.map((v, i) => SIDEBAR_OPACITY * v + (1 - SIDEBAR_OPACITY) * g[i]),
+  )
+}
+
+const toHex = (rgb: number[]): string =>
+  `#${rgb
+    .map((v) =>
+      Math.round(Math.min(255, Math.max(0, v)))
         .toString(16)
         .padStart(2, '0'),
     )
     .join('')}`
+
+export const sidebarBase = (
+  frame: string,
+  canvas: string,
+  { compensateGlass = false }: { compensateGlass?: boolean } = {},
+): string => {
+  const f = channels(compensateGlass ? throughGlass(frame) : frame)
+  const c = channels(canvas)
+  return toHex(f.map((v, i) => 2 * v - c[i]))
 }
 
-const anchorsOf = (mode: Mode, p: Palette) => {
+const anchorsOf = (mode: Mode, p: Palette, options: LookOptions) => {
   const frameIsDarker = luminance(p.frame) <= luminance(p.canvas)
   const low =
     mode === 'light' && frameIsDarker
-      ? sidebarBase(p.frame, p.canvas)
+      ? sidebarBase(p.frame, p.canvas, options)
       : frameIsDarker
         ? p.frame
         : p.canvas
@@ -522,10 +565,22 @@ export interface LookDefinition {
 
 // What `makeColors` is given for the resolved modes; a mode left out keeps
 // Claude's own colors. The knobs a mode sets directly win over the palette.
+// What a setup sets for the whole look
+export interface LookOptions {
+  contrast?: 'more'
+  compensateGlass?: boolean
+}
+
+export const lookOptionsOf = (setup: Setup): LookOptions => ({
+  contrast: setup.contrast,
+  compensateGlass: setup.compensateGlass === true,
+})
+
 export const lookDefinition = (
   modes: Partial<Record<Mode, Resolved>>,
-  { contrast }: { contrast?: 'more' } = {},
+  options: LookOptions = {},
 ): LookDefinition => {
+  const { contrast } = options
   const label =
     MODES.flatMap((m) => (modes[m] ? [modes[m].name] : [])).join(' / ') ||
     'Theme Tuner'
@@ -540,7 +595,7 @@ export const lookDefinition = (
     def[mode] = {
       gray: {
         anchors: {
-          ...anchorsOf(mode, resolved.palette),
+          ...anchorsOf(mode, resolved.palette, options),
           ...surfacesFollowing(resolved.anchors),
           ...resolved.anchors,
         },

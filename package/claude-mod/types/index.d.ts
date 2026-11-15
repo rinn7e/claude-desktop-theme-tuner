@@ -35,6 +35,8 @@ export type TunerSetup = {
   /** Stronger borders and focus rings. */
   contrast?: 'more'
   backdrop?: TunerBackdrop
+  /** Aim the light sidebar at the frame through the macOS sidebar glass. */
+  compensateGlass?: true
 }
 
 declare module 'claude-code' {

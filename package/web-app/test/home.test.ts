@@ -172,6 +172,23 @@ describe('editing a mode', () => {
     })
   })
 
+  it('compensates for the sidebar glass when asked', () => {
+    const on = run([{ _tag: 'SetCompensateGlass', isOn: true }])
+    expect(on.setup.compensateGlass).toBe(true)
+    expect(checkSetup(JSON.parse(JSON.stringify(on.setup)))).toEqual({
+      ok: true,
+      value: on.setup,
+    })
+    // The light surface-0 is aimed through the glass
+    expect(
+      lookOf(on.setup).definition.light?.gray.anchors['surface-0'],
+    ).not.toBe(
+      lookOf(DEFAULT_SETUP).definition.light?.gray.anchors['surface-0'],
+    )
+    const off = run([{ _tag: 'SetCompensateGlass', isOn: false }], on)
+    expect(off.setup.compensateGlass).toBeUndefined()
+  })
+
   it('makes only setups the mod accepts', () => {
     const edited = run([
       {
@@ -395,8 +412,9 @@ describe('the look of a setup', () => {
     expect(tokens['--df-selected']).toBe('rgba(83, 78, 117, 0.1)')
     expect(tokens['--df-hover']).toBe('rgba(83, 78, 117, 0.05)')
     expect(tokens['--mock-composer']).toBe('rgba(83, 78, 117, 0.05)')
+    // As the screen shows it: Claude's color at 72% over the light glass
     expect(tokens['--cds-fizzy-lake-color-sidebar']).toBe(
-      'color-mix(in srgb, #faf4ed 50%, #fffaf3)',
+      'color-mix(in srgb, color-mix(in srgb, #faf4ed 50%, #fffaf3) 72%, #eae8ee)',
     )
   })
 

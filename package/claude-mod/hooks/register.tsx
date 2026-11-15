@@ -18,6 +18,7 @@ import {
   isPresetList,
   knobsOf,
   lookDefinition,
+  lookOptionsOf,
   parseSetup,
   presetById,
   resolveMode,
@@ -128,7 +129,7 @@ type Prepared = {
 }
 
 const prepare = (setup: Setup): Prepared => {
-  const def = lookDefinition(resolveSetup(setup), { contrast: setup.contrast })
+  const def = lookDefinition(resolveSetup(setup), lookOptionsOf(setup))
   const backdrop: Pick<ThemeSetArgs, 'backdrop'> = setup.backdrop
     ? { backdrop: setup.backdrop as ThemeSetArgs['backdrop'] }
     : {}
@@ -233,6 +234,11 @@ export const register: Register = (on) => {
             enum: ['more'],
             description: 'Stronger borders and focus rings.',
           },
+          compensateGlass: {
+            type: 'boolean',
+            description:
+              'Aim the light sidebar at the frame color as it shows through the translucent macOS sidebar glass.',
+          },
           backdrop: BACKDROP_SCHEMA,
         },
       },
@@ -265,8 +271,17 @@ export const register: Register = (on) => {
 
   // The tool's input fields arrive on the event itself, beside `tool`
   on('tool.call', { tool: 'mcp__theme-tuner__set_theme' }, async ($, e) => {
-    const { light, dark, contrast, backdrop } = e as Record<string, unknown>
-    const checked = checkSetup({ light, dark, contrast, backdrop })
+    const { light, dark, contrast, backdrop, compensateGlass } = e as Record<
+      string,
+      unknown
+    >
+    const checked = checkSetup({
+      light,
+      dark,
+      contrast,
+      backdrop,
+      compensateGlass,
+    })
     if (!checked.ok) return { result: checked.error }
     const said = await choose($, checked.value)
     return {
@@ -324,9 +339,7 @@ export const register: Register = (on) => {
     // What the mod sends Claude now, after the fit, shown knob by knob
     let sentLook: LookDefinition | null = null
     try {
-      const def = lookDefinition(resolveSetup(setup), {
-        contrast: setup.contrast,
-      })
+      const def = lookDefinition(resolveSetup(setup), lookOptionsOf(setup))
       if (def.light || def.dark) sentLook = fitLook(def, makeColors).definition
     } catch {
       sentLook = null

@@ -200,7 +200,7 @@ export const init = (): [Model, Cmd<Msg>] => {
       jsonError: null,
       copied: null,
       copyFailed: null,
-      shown: 'json',
+      shown: 'command',
       menuOpen: false,
       helpOpen: false,
       swapped: loadSwapped(),
@@ -345,6 +345,12 @@ export const update = (msg: Msg, model: Model): [Model, Cmd<Msg>] => {
       const next = { ...setup }
       if (msg.isMore) next.contrast = 'more'
       else delete next.contrast
+      return withSetup(model, next)
+    }
+    case 'SetCompensateGlass': {
+      const next = { ...setup }
+      if (msg.isOn) next.compensateGlass = true
+      else delete next.compensateGlass
       return withSetup(model, next)
     }
     case 'SetBackdrop': {
