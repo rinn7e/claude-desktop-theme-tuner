@@ -11,8 +11,10 @@ import {
   checkSetup,
   isPresetList,
   parseSetup,
+  tunerLink,
 } from '../../../../claude-mod/hooks/look'
 import { writeClipboard } from '../../common/clipboard'
+import { BASE_URL } from '../../common/env'
 import {
   type CopyTarget,
   type KnobGroup,
@@ -21,8 +23,10 @@ import {
   type Parked,
 } from './type'
 
-// The setup is kept in localStorage, so edits survive a reload
+// The setup is kept in localStorage, so edits survive a reload, and the
+// side the editor is on
 const STORAGE_KEY = 'claude-theme-tuner:home:v1'
+const SWAPPED_KEY = 'claude-theme-tuner:home-swapped:v1'
 // How long a copy button says "Copied"
 const COPIED_MS = 1600
 
@@ -52,6 +56,61 @@ const loadSetup = (): Setup => {
   }
 }
 
+const loadSwapped = (): boolean => {
+  try {
+    return window.localStorage.getItem(SWAPPED_KEY) === 'true'
+  } catch {
+    return false
+  }
+}
+
+const saveSwappedCmd = (swapped: boolean): Cmd<Msg> =>
+  Task.attempt(
+    Task.fromPromise(() => {
+      try {
+        window.localStorage.setItem(SWAPPED_KEY, String(swapped))
+      } catch {
+        // A private window may refuse storage; the page works without it
+      }
+      return Promise.resolve()
+    }),
+    (): Msg => ({ _tag: 'NoOp' }),
+  )
+
+// Offers the setup as a JSON file to download
+const downloadCmd = (fileName: string, text: string): Cmd<Msg> =>
+  Task.attempt(
+    Task.fromPromise(() => {
+      const url = URL.createObjectURL(
+        new Blob([text], { type: 'application/json' }),
+      )
+      const link = document.createElement('a')
+      link.href = url
+      link.download = fileName
+      link.click()
+      setTimeout(() => URL.revokeObjectURL(url), 1000)
+      return Promise.resolve()
+    }),
+    (): Msg => ({ _tag: 'NoOp' }),
+  )
+
+const readFileCmd = (file: File): Cmd<Msg> =>
+  Task.attempt(
+    Task.fromPromise(() => file.text()),
+    (result): Msg =>
+      result.tag === 'Ok'
+        ? { _tag: 'PresetFileRead', fileName: file.name, text: result.value }
+        : { _tag: 'PresetFileUnreadable', fileName: file.name },
+  )
+
+// The file Save Preset writes: the setup JSON, named after its presets
+export const presetFileName = (setup: Setup): string => {
+  const ids = [setup.light?.preset, setup.dark?.preset].filter(
+    (id): id is string => id !== undefined,
+  )
+  return `claude-theme-${ids.length ? ids.join('-') : 'custom'}.json`
+}
+
 const saveCmd = (setup: Setup): Cmd<Msg> =>
   Task.attempt(
     Task.fromPromise(() => {
@@ -74,8 +133,16 @@ export const themeJson = (setup: Setup): string =>
 export const tunerCommand = (setup: Setup): string =>
   `/tuner ${JSON.stringify(setup)}`
 
+// A link that opens the home with this setup
+const shareLink = (setup: Setup): string =>
+  tunerLink(`${window.location.origin}${BASE_URL}`, setup)
+
 const textFor = (setup: Setup, target: CopyTarget): string =>
-  target === 'json' ? themeJson(setup) : tunerCommand(setup)
+  target === 'json'
+    ? themeJson(setup)
+    : target === 'command'
+      ? tunerCommand(setup)
+      : shareLink(setup)
 
 const copyCmd = (text: string, target: CopyTarget): Cmd<Msg> =>
   Task.attempt(
@@ -133,6 +200,10 @@ export const init = (): [Model, Cmd<Msg>] => {
       jsonError: null,
       copied: null,
       copyFailed: null,
+      shown: 'json',
+      menuOpen: false,
+      helpOpen: false,
+      swapped: loadSwapped(),
     },
     linked ? Cmd.batch([saveCmd(linked), dropHashCmd()]) : Cmd.none(),
   ]
@@ -295,7 +366,51 @@ export const update = (msg: Msg, model: Model): [Model, Cmd<Msg>] => {
         ? [{ ...model, jsonDraft: null }, Cmd.none()]
         : [model, Cmd.none()]
     case 'Copy':
-      return [model, copyCmd(textFor(setup, msg.target), msg.target)]
+      // The menu closes once one of its items is picked
+      return [
+        { ...model, menuOpen: false },
+        copyCmd(textFor(setup, msg.target), msg.target),
+      ]
+    case 'ShowCode':
+      return [{ ...model, shown: msg.target }, Cmd.none()]
+    case 'OpenHelp':
+      return [{ ...model, helpOpen: true }, Cmd.none()]
+    case 'CloseHelp':
+      return [{ ...model, helpOpen: false }, Cmd.none()]
+    case 'ToggleMenu':
+      return [{ ...model, menuOpen: !model.menuOpen }, Cmd.none()]
+    case 'CloseMenu':
+      return [{ ...model, menuOpen: false }, Cmd.none()]
+    case 'ToggleSwapped':
+      return [
+        { ...model, swapped: !model.swapped, menuOpen: false },
+        saveSwappedCmd(!model.swapped),
+      ]
+    case 'SavePreset':
+      return [
+        { ...model, menuOpen: false },
+        downloadCmd(presetFileName(setup), themeJson(setup)),
+      ]
+    case 'LoadPresetFile':
+      return [{ ...model, menuOpen: false }, readFileCmd(msg.file)]
+    case 'PresetFileRead': {
+      // The JSON panel says why a file is not a setup
+      const read = readJson(setup, msg.text)
+      return read.error === null
+        ? withSetup(
+            { ...model, jsonDraft: null, jsonError: null, parked: {} },
+            read.setup,
+          )
+        : [
+            { ...model, jsonError: `${msg.fileName}: ${read.error}` },
+            Cmd.none(),
+          ]
+    }
+    case 'PresetFileUnreadable':
+      return [
+        { ...model, jsonError: `${msg.fileName} could not be read.` },
+        Cmd.none(),
+      ]
     case 'Copied':
       return [
         { ...model, copied: msg.target, copyFailed: null },

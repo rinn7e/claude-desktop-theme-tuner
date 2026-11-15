@@ -13,10 +13,17 @@ import shotNewSnippet from '../../asset/how-to-apply/5-new-snippet.webp'
 import shotRun from '../../asset/how-to-apply/6-run.webp'
 import { HexInput } from '../../component/hex-input'
 import {
+  BAR,
+  Dialog,
+  Gear,
+  HeaderLinks,
+  LINK_BUTTON,
+  MENU_ITEM,
   ModeHeader,
   OptionToggle,
   PresetChips,
   SectionTitle,
+  TITLE_BAR,
 } from '../../component/tuner-ui'
 import { claudeMockView } from '../../preview/claude-mock'
 import { contrast } from '../../theme/color'
@@ -46,60 +53,6 @@ const LABELS: Record<PaletteKey, string> = Object.fromEntries(
   PALETTE_GROUPS.flatMap((g) => g.keys.map((k) => [k.key, k.label])),
 ) as Record<PaletteKey, string>
 
-// The two panel bars (the customizer's title bar and the snippet's tab bar)
-// share one shape, so they are the same height
-const BAR =
-  'flex min-h-[56px] flex-wrap items-center justify-between gap-[12px] px-[20px] py-[8px]'
-// The title bar keeps to one line: the subtitle truncates instead of wrapping
-const TITLE_BAR =
-  '@container flex min-h-[56px] items-center justify-between gap-[12px] px-[20px] py-[8px]'
-
-const LINK_BUTTON =
-  'flex items-center gap-[6px] rounded-lg border border-ui-line bg-ui-panel px-[12px] py-[6px] text-xs whitespace-nowrap hover:border-ui-ink-faint'
-
-// The GitHub mark, for the source link
-const githubMarkView = () => (
-  <svg
-    aria-hidden='true'
-    viewBox='0 0 16 16'
-    className='h-[14px] w-[14px] fill-current'
-  >
-    <path d='M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z' />
-  </svg>
-)
-
-// A gear: eight teeth around a ring
-const gearView = () => (
-  <svg
-    aria-hidden='true'
-    viewBox='0 0 16 16'
-    className='h-[14px] w-[14px] fill-current'
-  >
-    {[0, 45, 90, 135, 180, 225, 270, 315].map((angle) => (
-      <rect
-        key={angle}
-        x='6.75'
-        y='0.5'
-        width='2.5'
-        height='3.5'
-        rx='0.75'
-        transform={`rotate(${angle} 8 8)`}
-      />
-    ))}
-    <circle
-      cx='8'
-      cy='8'
-      r='4.25'
-      fill='none'
-      stroke='currentColor'
-      strokeWidth='2.5'
-    />
-  </svg>
-)
-
-const MENU_ITEM =
-  'flex w-full items-center gap-[8px] rounded-md px-[10px] py-[6px] text-left text-xs whitespace-nowrap'
-
 // The settings menu under the gear: saving the setup to a JSON file,
 // loading one, copying a link to it, and swapping the panes (wide screens only: stacked panes have
 // no sides to swap). A click outside or Escape closes it.
@@ -119,7 +72,7 @@ const settingsMenuView = (model: Model, dispatch: Dispatcher<Msg>) => (
       onClick={() => dispatch({ _tag: 'ToggleMenu' })}
       className={LINK_BUTTON}
     >
-      {gearView()}
+      <Gear />
     </button>
     {model.menuOpen ? (
       <>
@@ -227,55 +180,7 @@ const headerView = (model: Model, dispatch: Dispatcher<Msg>) => (
       </span>
     </span>
     <div className='flex shrink-0 items-center gap-[8px]'>
-      {/* A real link on purpose: an agent driving a browser reads the
-          rendered links (not index.html's head), so this is how it finds the
-          guide. Quiet text beside "Built by", but visible at every width:
-          tools that list a page's links skip one with nothing visible */}
-      <span className='flex items-center gap-[6px] text-xs whitespace-nowrap text-ui-ink-faint'>
-        <a
-          href={`${import.meta.env.BASE_URL}llms.txt`}
-          target='_blank'
-          rel='noreferrer'
-          aria-label={AGENT_GUIDE}
-          title={AGENT_GUIDE}
-          className='text-ui-ink-muted hover:text-ui-ink hover:underline'
-        >
-          Agent guide
-        </a>
-        <span className='hidden @4xl:inline'>
-          · Built by{' '}
-          <a
-            href='https://github.com/rinn7e'
-            target='_blank'
-            rel='noreferrer'
-            className='text-ui-ink-muted hover:text-ui-ink hover:underline'
-          >
-            rinn7e
-          </a>
-        </span>
-      </span>
-      <a
-        href='https://github.com/sponsors/rinn7e'
-        target='_blank'
-        rel='noreferrer'
-        title='Like the tuner? Help keep it going by sponsoring rinn7e on GitHub'
-        className={LINK_BUTTON}
-      >
-        <span aria-hidden='true' className='text-[#db2777]'>
-          ♥
-        </span>
-        <span className='hidden @3xl:inline'>Sponsor</span>
-      </a>
-      <a
-        href='https://github.com/rinn7e/claude-desktop-theme-tuner'
-        target='_blank'
-        rel='noreferrer'
-        title='Source code on GitHub'
-        className={LINK_BUTTON}
-      >
-        {githubMarkView()}
-        <span className='hidden @3xl:inline'>Source</span>
-      </a>
+      <HeaderLinks agentGuide={AGENT_GUIDE} />
       {settingsMenuView(model, dispatch)}
     </div>
   </header>
@@ -613,77 +518,52 @@ const HELP_STEPS: { text: React.ReactNode; shot?: string }[] = [
 
 const helpDialogView = (model: Model, dispatch: Dispatcher<Msg>) =>
   model.helpOpen ? (
-    <div
-      className='fixed inset-0 z-10 flex items-center justify-center bg-black/40 p-[16px]'
-      onClick={() => dispatch({ _tag: 'CloseHelp' })}
+    <Dialog
+      title='How to apply the theme'
+      onClose={() => dispatch({ _tag: 'CloseHelp' })}
     >
-      <div
-        role='dialog'
-        aria-modal='true'
-        aria-labelledby='help-title'
-        className='flex max-h-full w-full max-w-[40rem] flex-col gap-[14px] app-scroll overflow-y-auto rounded-xl bg-ui-panel p-[22px] shadow-2xl ring-1 ring-ui-line'
-        onClick={(e) => e.stopPropagation()}
-        onKeyDown={(e) => {
-          if (e.key === 'Escape') dispatch({ _tag: 'CloseHelp' })
-        }}
-      >
-        <div className='flex items-center justify-between'>
-          <h2 id='help-title' className='text-base font-semibold'>
-            How to apply the theme
-          </h2>
-          <button
-            type='button'
-            autoFocus
-            onClick={() => dispatch({ _tag: 'CloseHelp' })}
-            className='rounded-md px-[8px] py-[2px] text-sm text-ui-ink-faint hover:text-ui-ink'
-          >
-            Close
-          </button>
-        </div>
-        {modSectionView(dispatch)}
-        <h3 className='text-sm font-semibold'>
-          With the snippet in DevTools (the whole app)
-        </h3>
-        {/* shrink-0: the dialog scrolls instead of squashing the screenshots.
+      {modSectionView(dispatch)}
+      <h3 className='text-sm font-semibold'>
+        With the snippet in DevTools (the whole app)
+      </h3>
+      {/* shrink-0: the dialog scrolls instead of squashing the screenshots.
             Each step: a numbered badge, its text, and its screenshot on a
             gray tray so the screenshot's white edges don't blend in. */}
-        <ol className='flex shrink-0 flex-col divide-y divide-ui-line text-sm text-ui-ink-muted'>
-          {HELP_STEPS.map(({ text, shot }, i) => (
-            <li key={i} className='flex gap-[12px] py-[16px]'>
-              <span className='flex h-[24px] w-[24px] shrink-0 items-center justify-center rounded-full bg-ui-brand text-xs font-semibold text-ui-brand-ink'>
-                {i + 1}
-              </span>
-              <div className='flex min-w-0 flex-1 flex-col gap-[12px] pt-[2px] leading-relaxed'>
-                <p>{text}</p>
-                {shot ? (
-                  <div className='rounded-lg bg-ui-field p-[10px]'>
-                    <img
-                      src={shot}
-                      alt=''
-                      loading='lazy'
-                      width={1490}
-                      height={1166}
-                      className='h-auto w-full rounded-md shadow-[0_1px_4px_rgba(0,0,0,0.12)] ring-1 ring-black/10'
-                    />
-                  </div>
-                ) : null}
-              </div>
-            </li>
-          ))}
-        </ol>
-        <div className='flex flex-col gap-[6px] rounded-lg bg-ui-field p-[12px] text-xs text-ui-ink-muted'>
-          <span>
-            <b className='text-ui-ink'>Undo it:</b> run the Revert code in the
-            Console, or restart Claude.
-          </span>
-          <span>
-            <b className='text-ui-ink'>An update left parts unthemed?</b> Claude
-            renamed some of its colors; the tuner needs updating for that
-            version.
-          </span>
-        </div>
+      <ol className='flex shrink-0 flex-col divide-y divide-ui-line text-sm text-ui-ink-muted'>
+        {HELP_STEPS.map(({ text, shot }, i) => (
+          <li key={i} className='flex gap-[12px] py-[16px]'>
+            <span className='flex h-[24px] w-[24px] shrink-0 items-center justify-center rounded-full bg-ui-brand text-xs font-semibold text-ui-brand-ink'>
+              {i + 1}
+            </span>
+            <div className='flex min-w-0 flex-1 flex-col gap-[12px] pt-[2px] leading-relaxed'>
+              <p>{text}</p>
+              {shot ? (
+                <div className='rounded-lg bg-ui-field p-[10px]'>
+                  <img
+                    src={shot}
+                    alt=''
+                    loading='lazy'
+                    width={1490}
+                    height={1166}
+                    className='h-auto w-full rounded-md shadow-[0_1px_4px_rgba(0,0,0,0.12)] ring-1 ring-black/10'
+                  />
+                </div>
+              ) : null}
+            </div>
+          </li>
+        ))}
+      </ol>
+      <div className='flex flex-col gap-[6px] rounded-lg bg-ui-field p-[12px] text-xs text-ui-ink-muted'>
+        <span>
+          <b className='text-ui-ink'>Undo it:</b> run the Revert code in the
+          Console, or restart Claude.
+        </span>
+        <span>
+          <b className='text-ui-ink'>An update left parts unthemed?</b> Claude
+          renamed some of its colors; the tuner needs updating for that version.
+        </span>
       </div>
-    </div>
+    </Dialog>
   ) : null
 
 const CODE_TABS: { target: CopyTarget; label: string; note: string }[] = [

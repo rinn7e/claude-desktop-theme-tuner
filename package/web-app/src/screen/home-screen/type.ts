@@ -12,7 +12,10 @@ import {
   type Setup,
 } from '../../../../claude-mod/hooks/look'
 
-export type CopyTarget = 'json' | 'command'
+// What the code panel shows (and its Copy copies), and the share link the
+// settings menu copies
+export type CodeTab = 'json' | 'command'
+export type CopyTarget = CodeTab | 'link'
 
 export type Parked = Partial<Record<Mode, ModeChoice>>
 
@@ -36,6 +39,11 @@ export interface Model {
   jsonError: string | null
   copied: CopyTarget | null
   copyFailed: CopyTarget | null
+  shown: CodeTab
+  menuOpen: boolean
+  helpOpen: boolean
+  // The editor on the right on wide screens, as the first tuner can
+  swapped: boolean
 }
 
 export type Msg =
@@ -56,4 +64,14 @@ export type Msg =
   | { _tag: 'Copied'; target: CopyTarget }
   | { _tag: 'CopyFailed'; target: CopyTarget }
   | { _tag: 'ClearCopied'; target: CopyTarget }
+  | { _tag: 'ShowCode'; target: CodeTab }
+  | { _tag: 'OpenHelp' }
+  | { _tag: 'CloseHelp' }
+  | { _tag: 'ToggleMenu' }
+  | { _tag: 'CloseMenu' }
+  | { _tag: 'ToggleSwapped' }
+  | { _tag: 'SavePreset' }
+  | { _tag: 'LoadPresetFile'; file: File }
+  | { _tag: 'PresetFileRead'; fileName: string; text: string }
+  | { _tag: 'PresetFileUnreadable'; fileName: string }
   | { _tag: 'NoOp' }

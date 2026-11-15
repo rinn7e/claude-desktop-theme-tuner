@@ -19,6 +19,7 @@ import {
   decodeSetup,
   editMode,
   pickPreset,
+  presetFileName,
   readJson,
   resetMode,
   setKnob,
@@ -36,6 +37,10 @@ const model: Model = {
   jsonError: null,
   copied: null,
   copyFailed: null,
+  shown: 'json',
+  menuOpen: false,
+  helpOpen: false,
+  swapped: false,
 }
 
 const run = (msgs: Msg[], from: Model = model): Model =>
@@ -167,6 +172,37 @@ describe('editing a mode', () => {
     )
     expect(off.setup.contrast).toBeUndefined()
     expect(off.setup.backdrop).toBeUndefined()
+  })
+})
+
+describe('the settings menu', () => {
+  it('names a saved file after its presets', () => {
+    expect(presetFileName(DEFAULT_SETUP)).toBe(
+      'claude-theme-solarized-light-dracula.json',
+    )
+    expect(presetFileName({})).toBe('claude-theme-custom.json')
+  })
+
+  it('loads a setup file, and says why one is not a setup', () => {
+    const loaded = run([
+      {
+        _tag: 'PresetFileRead',
+        fileName: 'nord.json',
+        text: '{"dark":{"preset":"nord"}}',
+      },
+    ])
+    expect(loaded.setup).toEqual({ dark: { preset: 'nord' } })
+    const bad = run([
+      { _tag: 'PresetFileRead', fileName: 'x.json', text: '{"dark":1}' },
+    ])
+    expect(bad.setup).toBe(DEFAULT_SETUP)
+    expect(bad.jsonError).toMatch(/^x\.json: /)
+  })
+
+  it('swaps the panes and closes the menu', () => {
+    const swapped = run([{ _tag: 'ToggleMenu' }, { _tag: 'ToggleSwapped' }])
+    expect(swapped.swapped).toBe(true)
+    expect(swapped.menuOpen).toBe(false)
   })
 })
 

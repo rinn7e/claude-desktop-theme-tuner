@@ -138,3 +138,156 @@ export const PresetChips = ({
     })}
   </div>
 )
+
+// The two panel bars (the editor's title bar and the code panel's tab bar)
+// share one shape, so they are the same height
+export const BAR =
+  'flex min-h-[56px] flex-wrap items-center justify-between gap-[12px] px-[20px] py-[8px]'
+// The title bar keeps to one line: the subtitle truncates instead of wrapping
+export const TITLE_BAR =
+  '@container flex min-h-[56px] items-center justify-between gap-[12px] px-[20px] py-[8px]'
+
+export const LINK_BUTTON =
+  'flex items-center gap-[6px] rounded-lg border border-ui-line bg-ui-panel px-[12px] py-[6px] text-xs whitespace-nowrap hover:border-ui-ink-faint'
+
+export const MENU_ITEM =
+  'flex w-full items-center gap-[8px] rounded-md px-[10px] py-[6px] text-left text-xs whitespace-nowrap'
+
+// The GitHub mark, for the source link
+const GithubMark = () => (
+  <svg
+    aria-hidden='true'
+    viewBox='0 0 16 16'
+    className='h-[14px] w-[14px] fill-current'
+  >
+    <path d='M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z' />
+  </svg>
+)
+
+// A gear: eight teeth around a ring
+export const Gear = () => (
+  <svg
+    aria-hidden='true'
+    viewBox='0 0 16 16'
+    className='h-[14px] w-[14px] fill-current'
+  >
+    {[0, 45, 90, 135, 180, 225, 270, 315].map((angle) => (
+      <rect
+        key={angle}
+        x='6.75'
+        y='0.5'
+        width='2.5'
+        height='3.5'
+        rx='0.75'
+        transform={`rotate(${angle} 8 8)`}
+      />
+    ))}
+    <circle
+      cx='8'
+      cy='8'
+      r='4.25'
+      fill='none'
+      stroke='currentColor'
+      strokeWidth='2.5'
+    />
+  </svg>
+)
+
+// At the right of the title bar: the agent guide, who built the tuner, and
+// the sponsor and source links
+export const HeaderLinks = ({ agentGuide }: { agentGuide: string }) => (
+  <>
+    {/* A real link on purpose: an agent driving a browser reads the
+          rendered links (not index.html's head), so this is how it finds the
+          guide. Quiet text beside "Built by", but visible at every width:
+          tools that list a page's links skip one with nothing visible */}
+    <span className='flex items-center gap-[6px] text-xs whitespace-nowrap text-ui-ink-faint'>
+      <a
+        href={`${import.meta.env.BASE_URL}llms.txt`}
+        target='_blank'
+        rel='noreferrer'
+        aria-label={agentGuide}
+        title={agentGuide}
+        className='text-ui-ink-muted hover:text-ui-ink hover:underline'
+      >
+        Agent guide
+      </a>
+      <span className='hidden @4xl:inline'>
+        · Built by{' '}
+        <a
+          href='https://github.com/rinn7e'
+          target='_blank'
+          rel='noreferrer'
+          className='text-ui-ink-muted hover:text-ui-ink hover:underline'
+        >
+          rinn7e
+        </a>
+      </span>
+    </span>
+    <a
+      href='https://github.com/sponsors/rinn7e'
+      target='_blank'
+      rel='noreferrer'
+      title='Like the tuner? Help keep it going by sponsoring rinn7e on GitHub'
+      className={LINK_BUTTON}
+    >
+      <span aria-hidden='true' className='text-[#db2777]'>
+        ♥
+      </span>
+      <span className='hidden @3xl:inline'>Sponsor</span>
+    </a>
+    <a
+      href='https://github.com/rinn7e/claude-desktop-theme-tuner'
+      target='_blank'
+      rel='noreferrer'
+      title='Source code on GitHub'
+      className={LINK_BUTTON}
+    >
+      <GithubMark />
+      <span className='hidden @3xl:inline'>Source</span>
+    </a>
+  </>
+)
+
+// A dialog over a backdrop; closes on the backdrop, the Close button or
+// Escape
+export const Dialog = ({
+  title,
+  onClose,
+  children,
+}: {
+  title: string
+  onClose: () => void
+  children: React.ReactNode
+}) => (
+  <div
+    className='fixed inset-0 z-10 flex items-center justify-center bg-black/40 p-[16px]'
+    onClick={onClose}
+  >
+    <div
+      role='dialog'
+      aria-modal='true'
+      aria-labelledby='dialog-title'
+      className='flex max-h-full w-full max-w-[40rem] flex-col gap-[14px] app-scroll overflow-y-auto rounded-xl bg-ui-panel p-[22px] shadow-2xl ring-1 ring-ui-line'
+      onClick={(e) => e.stopPropagation()}
+      onKeyDown={(e) => {
+        if (e.key === 'Escape') onClose()
+      }}
+    >
+      <div className='flex items-center justify-between'>
+        <h2 id='dialog-title' className='text-base font-semibold'>
+          {title}
+        </h2>
+        <button
+          type='button'
+          autoFocus
+          onClick={onClose}
+          className='rounded-md px-[8px] py-[2px] text-sm text-ui-ink-faint hover:text-ui-ink'
+        >
+          Close
+        </button>
+      </div>
+      {children}
+    </div>
+  </div>
+)

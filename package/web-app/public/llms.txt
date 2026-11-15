@@ -59,6 +59,10 @@ What the home page writes, and what the mod takes: in its pane, as
 - `backdrop`: `{ "color": "#rrggbb" }`, or `{ "gradient": { "stops": [2 to
   16 colors], "angle": 0 to 360, "shape": "linear" or "radial" } }`.
 
+A link opens the home with a setup, for the user to look at or tune:
+
+    https://rinn7e.com/claude-desktop-theme-tuner/#theme=<setup JSON, URI-encoded>
+
 Claude refuses a whole look that breaks its rules, and the tool answers with
 the reason: the surfaces run from `surface-0`, the darkest, each as light
 as the one before it or lighter, in both modes (a `surface-1` set alone takes

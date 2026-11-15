@@ -21,12 +21,21 @@ import { BASE_URL } from '../../common/env'
 import { HexInput } from '../../component/hex-input'
 import { Link } from '../../component/link'
 import {
+  BAR,
+  Dialog,
+  Gear,
+  HeaderLinks,
+  LINK_BUTTON,
+  MENU_ITEM,
   ModeHeader,
   OptionToggle,
   PresetChips,
   SectionTitle,
+  TITLE_BAR,
 } from '../../component/tuner-ui'
 import { claudeMockView } from '../../preview/claude-mock'
+import { contrast } from '../../theme/color'
+import { presetById as webPresetById } from '../../theme/presets'
 import {
   type Look,
   MODES,
@@ -37,8 +46,8 @@ import {
   presetsOf,
   previewPalette,
 } from './look'
-import { type CopyTarget, type KnobGroup, type Model, type Msg } from './type'
-import { canResetMode, themeJson } from './update'
+import { type CodeTab, type KnobGroup, type Model, type Msg } from './type'
+import { canResetMode, themeJson, tunerCommand } from './update'
 
 export interface HomeViewProps {
   model: Model
@@ -48,38 +57,38 @@ export interface HomeViewProps {
 
 const MODE_LABELS: Record<Mode, string> = { light: 'Light', dark: 'Dark' }
 
-const INSTALL =
-  '/plugin install theme-tuner --marketplace rinn7e/claude-desktop-theme-tuner'
-const README =
-  'https://github.com/rinn7e/claude-desktop-theme-tuner#theme-claude-code-with-the-mod'
+// The Theme Tuner mod, installed from this repository, which is its
+// marketplace
+const MARKETPLACE = 'rinn7e/claude-desktop-theme-tuner'
+const INSTALL = `/plugin install theme-tuner --marketplace ${MARKETPLACE}`
 
 // What each knob colors in Claude, by its name in Claude
 const ANCHOR_INFO: Record<AnchorKey, string> = {
-  'surface-0': 'Sidebar and page, the darkest surface',
-  'surface-1': 'Conversation and cards',
-  'surface-2': 'Panels',
-  'surface-3': 'Menus',
-  'text-primary': 'The strongest text',
-  'text-secondary': 'Labels, list rows, thinking',
-  'text-muted': 'Hints, timestamps',
+  'surface-0': 'sidebar, page',
+  'surface-1': 'chat, cards',
+  'surface-2': 'panels',
+  'surface-3': 'menus',
+  'text-primary': 'messages, titles',
+  'text-secondary': 'labels, rows, thinking',
+  'text-muted': 'hints, timestamps',
 }
 
 const ROLE_INFO: Record<RoleKey, string> = {
-  accent: 'Links, buttons, focus; code keywords',
-  danger: 'Errors; code names',
-  success: 'Success marks; code strings',
-  warning: 'Warnings; code variables',
-  pro: 'Plan marks; code literals',
+  accent: 'links, buttons; keywords',
+  danger: 'errors; names',
+  success: 'success; strings',
+  warning: 'warnings; variables',
+  pro: 'plan marks; literals',
 }
 
 const GIT_INFO: Record<GitKey, string> = {
-  added: 'Added lines',
-  removed: 'Removed lines',
-  modified: 'Modified files',
-  merged: 'Merged pull requests',
-  closed: 'Closed pull requests',
-  conflicting: 'Conflicting pull requests',
-  draft: 'Draft pull requests',
+  added: 'added lines',
+  removed: 'removed lines',
+  modified: 'modified files',
+  merged: 'merged pull requests',
+  closed: 'closed pull requests',
+  conflicting: 'conflicting pull requests',
+  draft: 'draft pull requests',
 }
 
 // Where a value comes from, in words, for a knob the mod sends
@@ -144,14 +153,15 @@ interface KnobRow {
   lockedBecause?: string
 }
 
+// A knob as the first tuner draws a color: picker, hex, name and what it
+// colors; a knob set over the preset can go back to it
 const knobRowView = (dispatch: Dispatcher<Msg>, mode: Mode, row: KnobRow) => {
   const set = (value: string | null) =>
     dispatch({ _tag: 'SetKnob', mode, knob: row.knob, value })
-  const id = `${row.knob.group}.${row.knob.key}`
   return (
     <div
-      key={id}
-      className='grid grid-cols-[2rem_5.5rem_1fr_auto] items-center gap-[8px]'
+      key={row.label}
+      className='grid grid-cols-[2rem_5.5rem_1fr] items-center gap-[8px]'
     >
       {row.lockedBecause || row.value === undefined ? (
         <span
@@ -164,13 +174,11 @@ const knobRowView = (dispatch: Dispatcher<Msg>, mode: Mode, row: KnobRow) => {
           aria-label={row.label}
           value={row.value}
           onChange={(e) => set(e.target.value)}
-          className={`h-[28px] w-[32px] cursor-pointer rounded-md border border-ui-line bg-transparent p-0 ${
-            row.isSet ? '' : 'opacity-80'
-          }`}
+          className='h-[28px] w-[32px] cursor-pointer rounded-md border border-ui-line bg-transparent p-0'
         />
       )}
       {row.lockedBecause ? (
-        <span className='text-xs text-ui-ink-faint'>derived</span>
+        <span className='px-[8px] text-xs text-ui-ink-faint'>derived</span>
       ) : (
         <HexInput
           label={`${row.label} hex`}
@@ -180,28 +188,26 @@ const knobRowView = (dispatch: Dispatcher<Msg>, mode: Mode, row: KnobRow) => {
         />
       )}
       <span className='flex min-w-0 flex-col'>
-        <span className='truncate font-mono text-xs text-ui-ink'>
-          {row.label}
+        <span className='flex min-w-0 items-baseline gap-[6px]'>
+          <span className='truncate font-mono text-xs'>{row.label}</span>
+          {row.isSet ? (
+            <button
+              type='button'
+              onClick={() => set(null)}
+              title={`Set here; back to what the preset gives`}
+              className='shrink-0 text-[0.6875rem] text-ui-brand hover:underline'
+            >
+              reset
+            </button>
+          ) : null}
         </span>
         <span
           className='truncate text-[0.6875rem] text-ui-ink-faint'
           title={row.lockedBecause ?? `${row.note}; ${row.from}`}
         >
-          {row.lockedBecause ?? `${row.note}; ${row.from}`}
+          {row.lockedBecause ?? row.note}
         </span>
       </span>
-      {row.isSet ? (
-        <button
-          type='button'
-          onClick={() => set(null)}
-          title='Back to what the preset gives'
-          className='rounded-md px-[6px] py-[2px] text-[0.6875rem] text-ui-ink-faint hover:bg-ui-field hover:text-ui-ink'
-        >
-          Reset
-        </button>
-      ) : (
-        <span />
-      )}
     </div>
   )
 }
@@ -215,7 +221,7 @@ const anchorRows = (look: Look, model: Model, mode: Mode): KnobRow[] => {
     // surface-2 is always sent
     const lockedBecause =
       mode === 'light' && key === 'surface-3' && !isSet
-        ? 'Menus: in light mode Claude draws them with surface-2'
+        ? 'Menus; light mode uses surface-2'
         : undefined
     return {
       knob: { group: 'anchors', key },
@@ -334,30 +340,78 @@ const refusalOf = (look: Look, mode: Mode): string | null =>
     ? look.error
     : null
 
-// What Claude makes of the mode: a refusal, what the fit changed, and the
-// contrast notes it still paints with
-const statusView = (look: Look, mode: Mode) => {
+// The text pairs the first tuner checks, by the knobs that draw them
+const CHECKS: {
+  fg: 'text' | 'textSecondary' | 'textMuted' | 'accent'
+  bg: 'frame' | 'canvas'
+  label: string
+  min: number
+}[] = [
+  { fg: 'text', bg: 'canvas', label: 'text-primary on surface-1', min: 4.5 },
+  { fg: 'text', bg: 'frame', label: 'text-primary on surface-0', min: 4.5 },
+  {
+    fg: 'textSecondary',
+    bg: 'canvas',
+    label: 'text-secondary on surface-1',
+    min: 4.5,
+  },
+  { fg: 'textMuted', bg: 'canvas', label: 'text-muted on surface-1', min: 3 },
+  { fg: 'accent', bg: 'canvas', label: 'roles.accent on surface-1', min: 3 },
+]
+
+// Readability, as on the first tuner: the main text pairs and their
+// contrast, then what Claude itself says of the mode: a refusal, what the fit
+// changed, and the contrast notes it still paints with
+const readabilityView = (look: Look, mode: Mode) => {
+  const palette = previewPalette(look, mode)
   const refusal = refusalOf(look, mode)
   const notes = look.notes[mode]
   const adjusted = look.adjusted.filter((a) => a.startsWith(mode))
-  if (!refusal && !adjusted.length && !notes.length) return null
   return (
-    <div className='flex flex-col gap-[6px] text-xs'>
+    <section className='@container flex flex-col gap-[8px]'>
+      {sectionTitle('Readability (WCAG)')}
+      <div className='grid grid-cols-1 gap-x-[24px] gap-y-[4px] @md:grid-cols-2'>
+        {CHECKS.map(({ fg, bg, label, min }) => {
+          const ratio = contrast(palette[fg], palette[bg])
+          const ok = ratio >= min
+          return (
+            <div
+              key={label}
+              className='flex items-center justify-between gap-[8px] text-xs'
+            >
+              <span className='flex min-w-0 items-center gap-[6px] text-ui-ink-muted'>
+                <span
+                  className='flex h-[18px] w-[26px] shrink-0 items-center justify-center rounded text-[0.625rem] font-semibold ring-1 ring-black/10'
+                  style={{ background: palette[bg], color: palette[fg] }}
+                >
+                  Aa
+                </span>
+                <span className='truncate font-mono'>{label}</span>
+              </span>
+              <span
+                className={`shrink-0 font-mono ${ok ? 'text-ui-good' : 'text-ui-bad'}`}
+              >
+                {ratio.toFixed(1)} {ok ? 'AA' : `below ${min}`}
+              </span>
+            </div>
+          )
+        })}
+      </div>
       {refusal ? (
         <p
           role='alert'
-          className='rounded-md border border-ui-bad px-[10px] py-[6px] text-ui-ink'
+          className='rounded-md border border-ui-bad px-[10px] py-[6px] text-xs text-ui-ink'
         >
           Claude would paint none of this theme. {refusal}
         </p>
       ) : null}
       {adjusted.map((a, i) => (
-        <p key={i} className='text-ui-ink-muted'>
+        <p key={i} className='text-xs text-ui-ink-muted'>
           The {a}.
         </p>
       ))}
       {notes.length ? (
-        <details className='text-ui-ink-faint'>
+        <details className='text-xs text-ui-ink-faint'>
           <summary className='cursor-pointer'>
             {notes.length} contrast {notes.length === 1 ? 'note' : 'notes'} from
             Claude (it still paints)
@@ -369,7 +423,7 @@ const statusView = (look: Look, mode: Mode) => {
           </ul>
         </details>
       ) : null}
-    </div>
+    </section>
   )
 }
 
@@ -381,19 +435,15 @@ const knobsView = (
   dispatch: Dispatcher<Msg>,
   mode: Mode,
 ) => {
-  const group = (title: string, note: string, list: KnobRow[]) => (
-    <div className='flex min-w-0 flex-col gap-[8px]'>
-      <h3 className='flex items-baseline gap-[8px] text-xs text-ui-ink-muted'>
-        <span className='font-mono font-medium'>{title}</span>
-        <span className='truncate text-ui-ink-faint'>{note}</span>
-      </h3>
-      <div className='flex flex-col gap-[6px]'>
-        {list.map((row) => knobRowView(dispatch, mode, row))}
-      </div>
-    </div>
-  )
+  const anchors = anchorRows(look, model, mode)
+  const groups: [string, KnobRow[]][] = [
+    ['Surfaces', anchors.filter((r) => r.label.startsWith('surface'))],
+    ['Text', anchors.filter((r) => r.label.startsWith('text'))],
+    ['Roles', roleRows(look, model, mode)],
+    ['Git', gitRows(look, model, mode)],
+  ]
   return (
-    <section className='flex flex-col gap-[14px]'>
+    <section className='@container flex flex-col gap-[14px]'>
       <div className='flex items-center justify-between gap-[8px]'>
         {sectionTitle('Knobs')}
         {canResetMode(model.setup, mode) ? (
@@ -406,17 +456,16 @@ const knobsView = (
           </button>
         ) : null}
       </div>
-      {group('anchors', 'surfaces and texts', anchorRows(look, model, mode))}
-      {group(
-        'roles',
-        'Claude keeps the hue and sets the lightness; keep the meaning',
-        roleRows(look, model, mode),
-      )}
-      {group(
-        'git',
-        'diffs and pull request states',
-        gitRows(look, model, mode),
-      )}
+      {/* Each group is a column of its own, two side by side (Surfaces next
+          to Text, Roles next to Git), one on narrow screens */}
+      <div className='grid grid-cols-1 gap-x-[16px] gap-y-[18px] @md:grid-cols-2'>
+        {groups.map(([title, rows]) => (
+          <div key={title} className='flex min-w-0 flex-col gap-[8px]'>
+            <h3 className='text-xs font-medium text-ui-ink-muted'>{title}</h3>
+            {rows.map((row) => knobRowView(dispatch, mode, row))}
+          </div>
+        ))}
+      </div>
     </section>
   )
 }
@@ -430,7 +479,10 @@ const modeColumnView = (
 ) => {
   const isOn = model.setup[mode] !== undefined
   return (
-    <div key={mode} className='flex min-w-0 flex-col gap-[20px]'>
+    // Its five parts sit on the rows of the parent grid (subgrid), so each
+    // part lines up with the other mode's, whatever their heights; a mode
+    // left out keeps the rows, empty
+    <div key={mode} className='row-span-5 grid min-w-0 grid-rows-subgrid'>
       <ModeHeader
         label={`${MODE_LABELS[mode]} mode`}
         subtitle={
@@ -444,20 +496,27 @@ const modeColumnView = (
         onToggle={() => dispatch({ _tag: 'SetModeOn', mode, isOn: !isOn })}
       />
       {!isOn ? (
-        // Picking a preset themes the mode again
-        <div className='opacity-50'>{presetView(model, dispatch, mode)}</div>
+        <>
+          {/* Picking a preset themes the mode again */}
+          <div className='opacity-50'>{presetView(model, dispatch, mode)}</div>
+          <div />
+          <div />
+          <div />
+        </>
       ) : (
         <>
-          {statusView(look, mode)}
-          {presetView(model, dispatch, mode)}
-          {look.modes[mode]?.isStock ? (
-            <p className='text-xs text-ui-ink-muted'>
-              Claude&apos;s own colors: the mod leaves this mode to Claude until
-              a knob below changes.
-            </p>
-          ) : null}
+          <div className='flex min-w-0 flex-col gap-[8px]'>
+            {presetView(model, dispatch, mode)}
+            {look.modes[mode]?.isStock ? (
+              <p className='text-xs text-ui-ink-muted'>
+                Claude&apos;s own colors: the mod leaves this mode to Claude
+                until a knob below changes.
+              </p>
+            ) : null}
+          </div>
           {knobsView(look, model, dispatch, mode)}
           {codeThemeView(model, dispatch, mode)}
+          {readabilityView(look, mode)}
         </>
       )}
     </div>
@@ -655,13 +714,113 @@ const bothModesView = (setup: Setup, dispatch: Dispatcher<Msg>) => (
   </div>
 )
 
-// The two panel bars (the editor's title bar and the JSON panel's bar) share
-// one shape, as on the first tuner
-const BAR =
-  'flex min-h-[56px] flex-wrap items-center justify-between gap-[12px] px-[20px] py-[8px]'
+// The mod API the home was built against
+const TESTED_CLAUDE_CODE = '2.1.325'
 
-const headerView = () => (
-  <header className='@container flex min-h-[56px] items-center justify-between gap-[12px] border-b border-ui-line px-[20px] py-[8px]'>
+// The agent guide link's name: what agents listing the page's links read
+const AGENT_GUIDE =
+  'Guide for AI agents (llms.txt): write the setup JSON and apply it with the mod, without filling in the color fields'
+
+// The settings menu under the gear, as on the first tuner: saving the setup
+// to a JSON file, loading one, copying a link to it or the /tuner command,
+// and swapping the panes (wide screens only). A click outside or Escape
+// closes it.
+const settingsMenuView = (model: Model, dispatch: Dispatcher<Msg>) => (
+  <div
+    className='relative'
+    onKeyDown={(e) => {
+      if (e.key === 'Escape') dispatch({ _tag: 'CloseMenu' })
+    }}
+  >
+    <button
+      type='button'
+      title='Settings'
+      aria-label='Settings'
+      aria-haspopup='menu'
+      aria-expanded={model.menuOpen}
+      onClick={() => dispatch({ _tag: 'ToggleMenu' })}
+      className={LINK_BUTTON}
+    >
+      <Gear />
+    </button>
+    {model.menuOpen ? (
+      <>
+        <div
+          className='fixed inset-0 z-10'
+          onClick={() => dispatch({ _tag: 'CloseMenu' })}
+        />
+        <div
+          role='menu'
+          className='absolute top-[calc(100%+6px)] right-0 z-20 flex w-[13rem] flex-col rounded-lg bg-ui-panel p-[4px] shadow-lg ring-1 ring-ui-line'
+        >
+          <button
+            type='button'
+            role='menuitem'
+            title='Download the setup JSON as a file'
+            onClick={() => dispatch({ _tag: 'SavePreset' })}
+            className={`${MENU_ITEM} hover:bg-ui-field`}
+          >
+            <span aria-hidden='true'>↓</span> Save Preset
+          </button>
+          {/* A label opens the hidden file picker; choosing a file loads it */}
+          <label
+            role='menuitem'
+            title='Load a setup JSON file'
+            className={`${MENU_ITEM} cursor-pointer hover:bg-ui-field`}
+          >
+            <span aria-hidden='true'>↑</span> Load Preset
+            <input
+              type='file'
+              accept='.json,application/json'
+              className='hidden'
+              onChange={(e) => {
+                const file = e.currentTarget.files?.[0]
+                e.currentTarget.value = ''
+                if (file) dispatch({ _tag: 'LoadPresetFile', file })
+              }}
+            />
+          </label>
+          <button
+            type='button'
+            role='menuitem'
+            title='Copy a link that opens this page with this setup'
+            onClick={() => dispatch({ _tag: 'Copy', target: 'link' })}
+            className={`${MENU_ITEM} hover:bg-ui-field`}
+          >
+            <span aria-hidden='true'>🔗</span>{' '}
+            {model.copied === 'link' ? 'Copied!' : 'Copy Share Link'}
+          </button>
+          <button
+            type='button'
+            role='menuitem'
+            title='Copy the /tuner command that applies this setup with the Theme Tuner mod in Claude Code'
+            onClick={() => dispatch({ _tag: 'Copy', target: 'command' })}
+            className={`${MENU_ITEM} hover:bg-ui-field`}
+          >
+            <span aria-hidden='true'>⌘</span> Copy /tuner Command
+          </button>
+          <div className='hidden py-[4px] lg:block' role='separator'>
+            <div className='h-px bg-ui-line' />
+          </div>
+          <button
+            type='button'
+            role='menuitem'
+            autoFocus
+            onClick={() => dispatch({ _tag: 'ToggleSwapped' })}
+            className={`${MENU_ITEM} hidden hover:bg-ui-field lg:flex`}
+          >
+            <span aria-hidden='true'>⇄</span> Swap Left/Right Panes
+          </button>
+        </div>
+      </>
+    ) : null}
+  </div>
+)
+
+// The title and what the page does on one line; at the right, who built it,
+// the sponsor and source links, and the settings menu
+const headerView = (model: Model, dispatch: Dispatcher<Msg>) => (
+  <header className={TITLE_BAR}>
     <span className='flex min-w-0 items-center gap-[10px]'>
       {/* The logo lives in public/, served next to the page */}
       <img
@@ -673,36 +832,35 @@ const headerView = () => (
       />
       <span className='flex min-w-0 items-baseline gap-[10px] overflow-hidden'>
         <h1 className='shrink-0 text-base font-semibold tracking-tight'>
-          Claude Theme Mod V2
+          Claude Desktop Theme Tuner V2
         </h1>
+        <span
+          title={`Built against the mod API of Claude Code ${TESTED_CLAUDE_CODE}`}
+          className='hidden shrink-0 rounded-md bg-ui-field px-[6px] py-[1px] font-mono text-[0.6875rem] text-ui-ink-muted @xl:inline'
+        >
+          Claude Code {TESTED_CLAUDE_CODE}
+        </span>
         <span className='truncate text-xs text-ui-ink-faint'>
-          Design a theme for the Theme Tuner mod of Claude Code.
+          Pick a theme, tune its knobs, copy the JSON for the mod.
         </span>
       </span>
     </span>
-    <div className='flex shrink-0 items-center gap-[4px]'>
-      {/* An agent reading the page finds its guide here: tools that list
-          a page's links skip the head of index.html */}
-      <a
-        href={`${BASE_URL}llms.txt`}
-        target='_blank'
-        rel='noreferrer'
-        title='Guide for AI agents (llms.txt): write the setup JSON and apply it with the mod'
-        className='rounded-md px-[8px] py-[4px] text-xs text-ui-ink-muted hover:bg-ui-field hover:text-ui-ink'
-      >
-        Agent guide
-      </a>
+    <div className='flex shrink-0 items-center gap-[8px]'>
+      <HeaderLinks agentGuide={AGENT_GUIDE} />
+      {settingsMenuView(model, dispatch)}
     </div>
   </header>
 )
 
-// The top half of the left: both modes side by side when there is room,
-// then what applies to both
+// The top half of the left: the title bar, the banner, then both modes side
+// by side when there is room, and what applies to both
 const editorView = (look: Look, props: HomeViewProps) => {
   const { model, dispatch } = props
   return (
     <div className='flex flex-col lg:min-h-0 lg:flex-1'>
-      {headerView()}
+      <div className='border-b border-ui-line'>
+        {headerView(model, dispatch)}
+      </div>
       {bannerView(props)}
       <div className='@container app-scroll flex flex-col gap-[20px] p-[20px] lg:min-h-0 lg:flex-1 lg:overflow-y-auto'>
         <div className='grid grid-cols-1 gap-x-[24px] gap-y-[20px] @2xl:grid-cols-2'>
@@ -714,39 +872,55 @@ const editorView = (look: Look, props: HomeViewProps) => {
   )
 }
 
-const copyButton = (
-  model: Model,
-  dispatch: Dispatcher<Msg>,
-  target: CopyTarget,
-  label: string,
-  isPrimary: boolean,
-) => (
-  <button
-    type='button'
-    onClick={() => dispatch({ _tag: 'Copy', target })}
-    className={
-      isPrimary
-        ? 'rounded-lg bg-ui-brand px-[14px] py-[6px] text-xs font-semibold text-ui-brand-ink hover:opacity-90'
-        : 'rounded-lg border border-ui-line bg-[var(--color-panel)] px-[12px] py-[6px] text-xs hover:border-ui-ink-faint'
-    }
-  >
-    {model.copied === target ? 'Copied!' : label}
-  </button>
-)
+// ---------- the code panel ----------
 
-// The bottom half of the left, where the first tuner has its snippet: the
-// Theme JSON, which can be edited too, and how to apply it
-const jsonPanelView = (model: Model, dispatch: Dispatcher<Msg>) => {
+const CODE_TABS: { target: CodeTab; label: string; note: string }[] = [
+  {
+    target: 'json',
+    label: 'Theme JSON',
+    note: 'The setup for the mod. Edit it here too: paste a setup, a link or preset ids.',
+  },
+  {
+    target: 'command',
+    label: '/tuner command',
+    note: 'Send it in a Claude Code session with the mod to apply this setup.',
+  },
+]
+
+// The bottom half of the left, as the snippet panel of the first tuner: the
+// Theme JSON (which can be edited) or the /tuner command, how to apply it,
+// and Copy
+const codePanelView = (model: Model, dispatch: Dispatcher<Msg>) => {
+  const tab = CODE_TABS.find((t) => t.target === model.shown) ?? CODE_TABS[0]
+  const isBad =
+    model.jsonError !== null ||
+    (model.copyFailed !== null && model.copyFailed === tab.target)
   const note = model.jsonError
     ? model.jsonError
-    : model.copyFailed
-      ? 'The browser blocked copying: select the JSON below and copy it.'
-      : 'Edit it here too: paste a setup, a tuner link or preset ids.'
-  const isBad = model.jsonError !== null || model.copyFailed !== null
+    : model.copyFailed === tab.target
+      ? 'The browser blocked copying: select the text below and copy it.'
+      : tab.note
   return (
     <section className='flex max-h-[32rem] flex-col border-t border-ui-line bg-ui-panel lg:max-h-none lg:min-h-0 lg:flex-1'>
       <div className={BAR}>
-        <h2 className='text-sm font-semibold'>Theme JSON</h2>
+        <div className='flex gap-[4px] rounded-lg bg-ui-field p-[3px]'>
+          {CODE_TABS.map(({ target, label }) => (
+            <button
+              key={target}
+              type='button'
+              onClick={() => dispatch({ _tag: 'ShowCode', target })}
+              className={`rounded-md px-[10px] py-[4px] text-xs transition-colors ${
+                model.shown === target
+                  ? 'bg-[var(--color-panel)] font-medium shadow-sm'
+                  : 'text-ui-ink-muted hover:text-ui-ink'
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+        {/* What the shown text is, between the tabs and the buttons;
+            truncated when narrow, in full on hover */}
         <p
           role={model.jsonError ? 'alert' : undefined}
           className={`min-w-0 flex-1 truncate text-xs ${isBad ? 'text-ui-bad' : 'text-ui-ink-faint'}`}
@@ -755,77 +929,166 @@ const jsonPanelView = (model: Model, dispatch: Dispatcher<Msg>) => {
           {note}
         </p>
         <div className='flex items-center gap-[8px]'>
-          {copyButton(model, dispatch, 'command', 'Copy /tuner command', false)}
-          {copyButton(model, dispatch, 'json', 'Copy', true)}
+          <button
+            type='button'
+            onClick={() => dispatch({ _tag: 'OpenHelp' })}
+            className='rounded-lg border border-ui-line bg-[var(--color-panel)] px-[12px] py-[6px] text-xs hover:border-ui-ink-faint'
+          >
+            How to apply
+          </button>
+          <button
+            type='button'
+            onClick={() => dispatch({ _tag: 'Copy', target: tab.target })}
+            className='rounded-lg bg-ui-brand px-[14px] py-[6px] text-xs font-semibold text-ui-brand-ink hover:opacity-90'
+          >
+            {model.copied === tab.target ? 'Copied!' : 'Copy'}
+          </button>
         </div>
       </div>
-      <textarea
-        aria-label='Theme JSON'
-        spellCheck={false}
-        value={model.jsonDraft ?? themeJson(model.setup)}
-        onChange={(e) => dispatch({ _tag: 'EditJson', text: e.target.value })}
-        onBlur={() => dispatch({ _tag: 'LeaveJson' })}
-        className={`app-scroll min-h-[12rem] flex-1 resize-none border-y bg-ui-field px-[20px] py-[12px] font-mono text-xs leading-relaxed outline-none ${
-          model.jsonError ? 'border-ui-bad' : 'border-ui-line'
-        }`}
-      />
-      <div className='flex flex-col gap-[4px] px-[20px] py-[10px] text-xs text-ui-ink-muted'>
-        <p>
-          Apply it in Claude Code: paste it in the Theme JSON box of{' '}
-          <code className='font-mono'>/tuner</code>, run the copied command, or
-          ask Claude to set it (the mod gives Claude a{' '}
-          <code className='font-mono'>set_theme</code> tool).
-        </p>
-        <p className='truncate' title={INSTALL}>
-          No mod yet? <code className='font-mono text-ui-ink'>{INSTALL}</code>{' '}
-          (or see the{' '}
-          <a
-            href={README}
-            target='_blank'
-            rel='noreferrer'
+      {tab.target === 'json' ? (
+        <textarea
+          aria-label='Theme JSON'
+          spellCheck={false}
+          value={model.jsonDraft ?? themeJson(model.setup)}
+          onChange={(e) => dispatch({ _tag: 'EditJson', text: e.target.value })}
+          onBlur={() => dispatch({ _tag: 'LeaveJson' })}
+          className={`app-scroll min-h-[12rem] flex-1 resize-none border-t bg-ui-field px-[16px] py-[12px] font-mono text-[0.75rem] leading-relaxed outline-none ${
+            model.jsonError ? 'border-ui-bad' : 'border-ui-line'
+          }`}
+        />
+      ) : (
+        <pre className='app-scroll min-h-0 flex-1 overflow-auto border-t border-ui-line bg-ui-field px-[16px] py-[12px] font-mono text-[0.75rem] leading-relaxed whitespace-pre-wrap wrap-anywhere'>
+          {tunerCommand(model.setup)}
+        </pre>
+      )}
+    </section>
+  )
+}
+
+// A menu path or key, set apart from the prose around it
+const ui = (text: string) => <b className='font-semibold text-ui-ink'>{text}</b>
+
+const code = (text: string) => (
+  <code className='rounded bg-ui-panel px-[5px] py-[1px] font-mono text-[0.75rem] text-ui-ink wrap-anywhere'>
+    {text}
+  </code>
+)
+
+// How to apply the setup with the mod, as the first tuner's dialog does for
+// its snippet
+const helpDialogView = (props: HomeViewProps) => {
+  const { model, dispatch, navigate } = props
+  if (!model.helpOpen) return null
+  const steps: React.ReactNode[] = [
+    <span key={1}>
+      Install the mod once. In a terminal session run {code(INSTALL)}; in the
+      desktop app click {ui('+')} next to the prompt, then {ui('Plugins')},{' '}
+      {ui('Add marketplace')} with {code(MARKETPLACE)}, then {ui('Add plugin')}.
+    </span>,
+    <span key={2}>
+      {ui('Copy')} the {ui('/tuner command')} tab and send it in a Claude Code
+      session. Or run {code('/tuner')} to open the pane of the mod and paste the{' '}
+      {ui('Theme JSON')} in its box, or hand the JSON to Claude and ask it to
+      set the theme (the mod gives Claude a {code('set_theme')} tool).
+    </span>,
+    <span key={3}>
+      The theme stays across restarts and shows on mobile too.{' '}
+      {code('/tuner off')} goes back to the colors of Claude.
+    </span>,
+  ]
+  return (
+    <Dialog
+      title='How to apply the theme'
+      onClose={() => dispatch({ _tag: 'CloseHelp' })}
+    >
+      <ol className='flex shrink-0 flex-col divide-y divide-ui-line text-sm text-ui-ink-muted'>
+        {steps.map((text, i) => (
+          <li key={i} className='flex gap-[12px] py-[16px]'>
+            <span className='flex h-[24px] w-[24px] shrink-0 items-center justify-center rounded-full bg-ui-brand text-xs font-semibold text-ui-brand-ink'>
+              {i + 1}
+            </span>
+            <p className='min-w-0 flex-1 pt-[2px] leading-relaxed'>{text}</p>
+          </li>
+        ))}
+      </ol>
+      <div className='flex flex-col gap-[6px] rounded-lg bg-ui-field p-[12px] text-xs text-ui-ink-muted'>
+        <span>
+          <b className='text-ui-ink'>The whole app?</b> The mod themes Claude
+          Code sessions. To theme the Chat tab and the full sidebar too, use the
+          DevTools snippet of the{' '}
+          <Link
+            screen={legacyScreen}
+            navigate={navigate}
             className='underline hover:text-ui-ink'
           >
-            README
-          </a>
-          )
-        </p>
+            first tuner
+          </Link>
+          .
+        </span>
       </div>
-    </section>
+    </Dialog>
   )
 }
 
 // ---------- the previews ----------
 
-// One mode's preview: a caption the width of the mock over the mock, which
-// fills the rest, as on the first tuner
+// Where the colors of a preset come from, as the first tuner credits them
+const creditView = (presetId: string | undefined) => {
+  const credit = presetId ? webPresetById(presetId)?.credit : undefined
+  return credit ? (
+    <span>
+      Colors from{' '}
+      <a
+        href={credit.url}
+        target='_blank'
+        rel='noreferrer'
+        className='underline hover:text-ui-ink'
+      >
+        {credit.name}
+      </a>{' '}
+      ({credit.license})
+    </span>
+  ) : null
+}
+
+// One mode's preview: a caption the width of the mock (mode and theme on the
+// left, the colors' credit on the right) over the mock, which fills the rest
 const previewCardView = (look: Look, model: Model, mode: Mode) => {
   const m = look.modes[mode]
-  const name = !m || m.isStock ? "Claude's own colors" : m.resolved.name
+  const isOn = model.setup[mode] !== undefined
+  const name =
+    !m || !isOn
+      ? 'Stock (shown approximately)'
+      : m.isStock
+        ? "Claude's own colors"
+        : m.resolved.name
   return (
-    <div key={mode} className='flex min-h-0 w-full flex-col'>
-      <div className='flex items-center justify-between gap-[12px] px-[16px] text-xs'>
-        <span className='flex min-w-0 items-center gap-[8px]'>
-          <span className='shrink-0 font-semibold text-ui-ink'>
-            {MODE_LABELS[mode]} mode
+    <div key={mode} className='flex min-h-0 w-full flex-col items-center'>
+      <div className='flex h-full min-h-0 w-full flex-col'>
+        <div className='flex items-center justify-between gap-[12px] px-[16px] text-xs'>
+          <span className='flex min-w-0 items-center gap-[8px]'>
+            <span className='shrink-0 font-semibold text-ui-ink'>
+              {MODE_LABELS[mode]} mode
+            </span>
+            <span className='truncate text-ui-ink-faint'>{name}</span>
           </span>
-          <span className='truncate text-ui-ink-faint'>{name}</span>
-        </span>
-        {refusalOf(look, mode) && model.setup[mode] ? (
-          <span className='shrink-0 text-ui-bad'>
-            Claude would not paint it
-          </span>
-        ) : (
-          <span className='shrink-0 text-ui-ink-faint'>
-            Approximate: Claude derives the colors in between
-          </span>
-        )}
-      </div>
-      {/* The mock keeps its desktop proportions; narrow screens scroll it
-          sideways. The padding leaves room for its shadow */}
-      <div className='app-scroll flex min-h-0 w-full flex-1 overflow-x-auto p-[16px]'>
-        {claudeMockView(previewPalette(look, mode), {
-          backdrop: backdropCss(model.setup.backdrop),
-        })}
+          {isOn && refusalOf(look, mode) ? (
+            <span className='shrink-0 text-ui-bad'>
+              Claude would not paint it
+            </span>
+          ) : isOn ? (
+            <span className='shrink-0 text-ui-ink-faint'>
+              {creditView(model.setup[mode]?.preset)}
+            </span>
+          ) : null}
+        </div>
+        {/* The mock keeps its desktop proportions; narrow screens scroll it
+            sideways. The padding leaves room for its shadow */}
+        <div className='app-scroll flex min-h-0 w-full flex-1 overflow-x-auto p-[16px]'>
+          {claudeMockView(previewPalette(look, mode), {
+            backdrop: backdropCss(model.setup.backdrop),
+          })}
+        </div>
       </div>
     </div>
   )
@@ -839,20 +1102,24 @@ const previewsView = (look: Look, model: Model) => (
   </section>
 )
 
-// Four panels, as on the first tuner: the editor over the Theme JSON on the
-// left, the light and dark previews on the right
+// Four panels, as on the first tuner: the editor over the code panel on one
+// side, the light and dark previews on the other; swapped, the editor moves
+// to the right on wide screens
 export const HomeView = (props: HomeViewProps) => {
   const { model, dispatch } = props
   const look = lookOf(model.setup)
   return (
-    <div className='flex min-h-full flex-col bg-ui-page lg:h-full'>
-      <main className='grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-2'>
-        <aside className='flex flex-col border-ui-line bg-ui-panel lg:min-h-0 lg:border-r'>
-          {editorView(look, props)}
-          {jsonPanelView(model, dispatch)}
-        </aside>
-        {previewsView(look, model)}
-      </main>
-    </div>
+    <main className='grid min-h-full grid-cols-1 bg-ui-page lg:h-full lg:grid-cols-2'>
+      <aside
+        className={`flex flex-col border-ui-line bg-ui-panel lg:min-h-0 ${
+          model.swapped ? 'lg:order-last lg:border-l' : 'lg:border-r'
+        }`}
+      >
+        {editorView(look, props)}
+        {codePanelView(model, dispatch)}
+      </aside>
+      {previewsView(look, model)}
+      {helpDialogView(props)}
+    </main>
   )
 }
