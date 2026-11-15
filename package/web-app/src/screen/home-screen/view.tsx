@@ -866,10 +866,10 @@ const headerView = (model: Model, dispatch: Dispatcher<Msg>) => (
       {/* Not overflow-hidden, so the badge can sit above the title;
           the subtitle truncates on its own */}
       <span className='flex min-w-0 items-baseline gap-[10px]'>
-        <h1 className='shrink-0 text-base font-semibold tracking-tight'>
+        <h1 className='relative shrink-0 text-base font-semibold tracking-tight'>
           Claude Desktop Theme Tuner
+          <VersionBadge label='V2' tone='new' />
         </h1>
-        <VersionBadge label='V2' tone='new' />
         <span
           title={`Built against the mod API of Claude Code ${TESTED_CLAUDE_CODE}`}
           className='hidden shrink-0 rounded-md bg-ui-field px-[6px] py-[1px] font-mono text-[0.6875rem] text-ui-ink-muted @xl:inline'

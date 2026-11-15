@@ -310,9 +310,10 @@ const BADGE_TONES = {
   old: 'bg-amber-300 text-amber-950',
 }
 
-// A badge that names the version, tilted at the bottom right corner of the
-// title and over its last letters a little, like a sticker (V2 on the home,
-// legacy on the first tuner)
+// A badge that names the version, tilted under the end of the title and
+// over it a little, like a sticker (V2 on the home, legacy on the first
+// tuner). Placed inside the title, out of the flow, so the title keeps its
+// place next to the logo
 export const VersionBadge = ({
   label,
   tone,
@@ -321,7 +322,7 @@ export const VersionBadge = ({
   tone: keyof typeof BADGE_TONES
 }) => (
   <span
-    className={`relative top-[7px] z-10 -ml-[16px] shrink-0 -rotate-[10deg] rounded-full px-[7px] py-[2px] text-[0.625rem] leading-none font-bold tracking-wide shadow-sm ${BADGE_TONES[tone]}`}
+    className={`absolute -right-[10px] -bottom-[12px] z-10 -rotate-[8deg] whitespace-nowrap rounded-full px-[7px] py-[2px] text-[0.625rem] leading-none font-bold tracking-wide shadow-sm ${BADGE_TONES[tone]}`}
   >
     {label}
   </span>
