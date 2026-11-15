@@ -13,6 +13,7 @@ import {
   parseSetup,
   tunerLink,
 } from '../../../../claude-mod/hooks/look'
+import { isBannerDismissed, rememberBannerDismissed } from '../../common/banner'
 import { writeClipboard } from '../../common/clipboard'
 import { BASE_URL } from '../../common/env'
 import {
@@ -194,7 +195,7 @@ export const init = (): [Model, Cmd<Msg>] => {
   const linked = linkedSetup()
   return [
     {
-      isBannerShown: true,
+      isBannerShown: !isBannerDismissed('home'),
       setup: linked ?? loadSetup(),
       parked: {},
       jsonDraft: null,
@@ -313,7 +314,13 @@ export const update = (msg: Msg, model: Model): [Model, Cmd<Msg>] => {
   const { setup } = model
   switch (msg._tag) {
     case 'DismissBanner':
-      return [{ ...model, isBannerShown: false }, Cmd.none()]
+      return [
+        { ...model, isBannerShown: false },
+        Task.attempt(
+          Task.fromPromise(() => rememberBannerDismissed('home')),
+          (): Msg => ({ _tag: 'NoOp' }),
+        ),
+      ]
     case 'SetModeOn': {
       const next = setModeOn(setup, model.parked, msg.mode, msg.isOn)
       return withSetup({ ...model, parked: next.parked }, next.setup)

@@ -4,6 +4,7 @@
  */
 import { Cmd, Task } from 'tea-cup-fp'
 
+import { isBannerDismissed, rememberBannerDismissed } from '../../common/banner'
 import { writeClipboard } from '../../common/clipboard'
 import {
   type PresetFile,
@@ -133,7 +134,7 @@ export const init = (): [Model, Cmd<Msg>] =>
       menuOpen: false,
       presetNotice: null,
       previewOnly: false,
-      isBannerShown: true,
+      isBannerShown: !isBannerDismissed('legacy'),
     },
     window.location.hash,
   )
@@ -386,7 +387,13 @@ export const update = (msg: Msg, model: Model): [Model, Cmd<Msg>] => {
     case 'CloseMenu':
       return [{ ...model, menuOpen: false }, Cmd.none()]
     case 'DismissBanner':
-      return [{ ...model, isBannerShown: false }, Cmd.none()]
+      return [
+        { ...model, isBannerShown: false },
+        Task.attempt(
+          Task.fromPromise(() => rememberBannerDismissed('legacy')),
+          (): Msg => ({ _tag: 'NoOp' }),
+        ),
+      ]
     case 'SavePreset':
       return [
         { ...model, menuOpen: false },
