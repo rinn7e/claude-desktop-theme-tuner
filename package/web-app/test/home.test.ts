@@ -323,8 +323,8 @@ describe('the Theme JSON box', () => {
       contrast: 'more',
     }
     const command = tunerCommand(setup)
-    expect(command.startsWith('/tuner {')).toBe(true)
-    expect(parseSetup(command.slice('/tuner '.length))).toEqual({
+    expect(command.startsWith('/theme-tuner {')).toBe(true)
+    expect(parseSetup(command.slice('/theme-tuner '.length))).toEqual({
       ok: true,
       value: setup,
     })

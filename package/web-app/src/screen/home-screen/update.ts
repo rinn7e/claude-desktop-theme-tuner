@@ -133,7 +133,7 @@ export const themeJson = (setup: Setup): string =>
   JSON.stringify(setup, null, 2)
 
 export const tunerCommand = (setup: Setup): string =>
-  `/tuner ${JSON.stringify(setup)}`
+  `/theme-tuner ${JSON.stringify(setup)}`
 
 // A link that opens the home with this setup
 const shareLink = (setup: Setup): string =>
@@ -289,7 +289,7 @@ export const canResetMode = (setup: Setup, mode: Mode): boolean => {
 export const resetMode = (setup: Setup, mode: Mode): Setup =>
   editMode(setup, mode, (c) => ({ preset: c.preset, name: c.name }))
 
-// Preset ids name only the modes they change, as with `/tuner <ids>`;
+// Preset ids name only the modes they change, as with `/theme-tuner <ids>`;
 // JSON or a link replaces the whole setup
 export const readJson = (
   setup: Setup,

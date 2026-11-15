@@ -3,7 +3,7 @@
 Everything a mod look can set through `$.theme.set({ colors, backdrop, overrideColorScheme })`,
 and which of it the Theme Tuner mod (`package/claude-mod/`) sets. The home page of the web app
 edits every knob the mod sets and writes them in the setup JSON, which the
-mod takes in its pane, as `/tuner <JSON>` or through its `set_theme` tool.
+mod takes in its pane, as `/theme-tuner <JSON>` or through its `set_theme` tool.
 
 Read from the mod API of Claude Code 2.1.325 (`look.md`, `make-colors.d.ts` and
 the `ThemeSetArgs` types of the mod-authoring skill). The API is early access:

@@ -30,12 +30,15 @@ import { PRESETS } from './presets'
 
 // The Theme Tuner as a mod: the setup a person picks (a preset and colors
 // per mode, the JSON of a web tuner share link) is kept in the store and
-// sent as Claude's look at every session start. /tuner opens the pane,
-// /tuner <link or preset ids> applies one, and the model can set one with
-// the set_theme tool.
+// sent as Claude's look at every session start. /theme-tuner opens the
+// pane, /theme-tuner <setup, link or preset ids> applies one, and the model
+// can set one with the set_theme tool. /tuner is a short alias: command
+// names have no namespace, so if another plugin takes /tuner, /theme-tuner
+// still works.
 
-// The command (tuner) and the tool (set_theme) are written as literals where
-// they are registered and matched, so `claude plugin validate` reads them
+// The commands (theme-tuner, tuner) and the tool (set_theme) are written as
+// literals where they are registered and matched, so `claude plugin
+// validate` reads them
 const PANE = 'rinn7e-theme-tuner'
 // The store key of the setup, the same in every session
 const SETUP_KEY = 'setup'
@@ -201,6 +204,19 @@ const chooseText = async (
   return choose($, setup)
 }
 
+// What /theme-tuner (or its alias /tuner) does with its arguments: none opens
+// the pane
+const runCommand = async ($: EngineInterface, raw: string): Promise<string> => {
+  const args = raw.trim()
+  if (args === '') {
+    await $.ui.open({ id: PANE, title: 'Theme Tuner' })
+    return 'Theme Tuner opened.'
+  }
+  if (args === 'list') return presetList()
+  if (args === 'off' || args === 'reset') return turnOff($)
+  return chooseText($, args)
+}
+
 const presetList = (): string =>
   (['light', 'dark'] as const)
     .map(
@@ -216,10 +232,15 @@ const presetList = (): string =>
 export const register: Register = (on) => {
   on('session.start', async ($, e, next) => {
     await $.command.register({
-      name: 'tuner',
+      name: 'theme-tuner',
       description:
-        'Theme Claude: open the Theme Tuner, or apply a tuner link or presets (/tuner solarized-light dracula), /tuner off',
-      argumentHint: '[link | presets | list | off]',
+        'Theme Claude: open the Theme Tuner, or apply a setup, link or presets (/theme-tuner solarized-light dracula), /theme-tuner off',
+      argumentHint: '[setup | link | presets | list | off]',
+    })
+    await $.command.register({
+      name: 'tuner',
+      description: 'Short for /theme-tuner',
+      argumentHint: '[setup | link | presets | list | off]',
     })
     await $.tool.register({
       name: 'set_theme',
@@ -258,16 +279,12 @@ export const register: Register = (on) => {
     return next(e)
   })
 
-  on('command.run', { command: 'tuner' }, async ($, e) => {
-    const args = e.args.trim()
-    if (args === '') {
-      await $.ui.open({ id: PANE, title: 'Theme Tuner' })
-      return { text: 'Theme Tuner opened.' }
-    }
-    if (args === 'list') return { text: presetList() }
-    if (args === 'off' || args === 'reset') return { text: await turnOff($) }
-    return { text: await chooseText($, args) }
-  })
+  on('command.run', { command: 'theme-tuner' }, async ($, e) => ({
+    text: await runCommand($, e.args),
+  }))
+  on('command.run', { command: 'tuner' }, async ($, e) => ({
+    text: await runCommand($, e.args),
+  }))
 
   // The tool's input fields arrive on the event itself, beside `tool`
   on(
@@ -292,7 +309,8 @@ export const register: Register = (on) => {
       }
     },
   ).catch(() => ({
-    result: 'The Theme Tuner could not set the theme. Try `/tuner` instead.',
+    result:
+      'The Theme Tuner could not set the theme. Try `/theme-tuner` instead.',
   }))
 
   on('ui.render', { component: 'Pane', requestId: PANE }, async ($, e) => {

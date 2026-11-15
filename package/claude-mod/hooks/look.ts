@@ -380,7 +380,7 @@ export const parseSetup = (text: string): Result<Setup> => {
     if (!preset)
       return {
         ok: false,
-        error: `No preset "${id}". \`/tuner list\` names them.`,
+        error: `No preset "${id}". \`/theme-tuner list\` names them.`,
       }
     if (setup[preset.mode])
       return {

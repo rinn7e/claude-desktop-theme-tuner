@@ -764,7 +764,7 @@ const AGENT_GUIDE =
   'Guide for AI agents (llms.txt): write the setup JSON and apply it with the mod, without filling in the color fields'
 
 // The settings menu under the gear, as on the first tuner: saving the setup
-// to a JSON file, loading one, copying a link to it or the /tuner command,
+// to a JSON file, loading one, copying a link to it or the /theme-tuner command,
 // and swapping the panes (wide screens only). A click outside or Escape
 // closes it.
 const settingsMenuView = (model: Model, dispatch: Dispatcher<Msg>) => (
@@ -835,11 +835,11 @@ const settingsMenuView = (model: Model, dispatch: Dispatcher<Msg>) => (
           <button
             type='button'
             role='menuitem'
-            title='Copy the /tuner command that applies this setup with the Theme Tuner mod in Claude Code'
+            title='Copy the /theme-tuner command that applies this setup with the Theme Tuner mod in Claude Code'
             onClick={() => dispatch({ _tag: 'Copy', target: 'command' })}
             className={`${MENU_ITEM} hover:bg-ui-field`}
           >
-            <span aria-hidden='true'>⌘</span> Copy /tuner Command
+            <span aria-hidden='true'>⌘</span> Copy /theme-tuner Command
           </button>
           <div className='hidden py-[4px] lg:block' role='separator'>
             <div className='h-px bg-ui-line' />
@@ -916,7 +916,7 @@ const editorView = (look: Look, props: HomeViewProps) => {
 const CODE_TABS: { target: CodeTab; label: string; note: string }[] = [
   {
     target: 'command',
-    label: '/tuner command',
+    label: '/theme-tuner command',
     note: 'Send it in a Claude Code session with the mod to apply this setup.',
   },
   {
@@ -927,7 +927,7 @@ const CODE_TABS: { target: CodeTab; label: string; note: string }[] = [
 ]
 
 // The bottom half of the left, as the snippet panel of the first tuner: the
-// Theme JSON (which can be edited) or the /tuner command, how to apply it,
+// Theme JSON (which can be edited) or the /theme-tuner command, how to apply it,
 // and Copy
 const codePanelView = (model: Model, dispatch: Dispatcher<Msg>) => {
   const tab = CODE_TABS.find((t) => t.target === model.shown) ?? CODE_TABS[0]
@@ -1025,14 +1025,15 @@ const helpDialogView = (props: HomeViewProps) => {
       {ui('Add marketplace')} with {code(MARKETPLACE)}, then {ui('Add plugin')}.
     </span>,
     <span key={2}>
-      {ui('Copy')} the {ui('/tuner command')} tab and send it in a Claude Code
-      session. Or run {code('/tuner')} to open the pane of the mod and paste the{' '}
-      {ui('Theme JSON')} in its box, or hand the JSON to Claude and ask it to
-      set the theme (the mod gives Claude a {code('set_theme')} tool).
+      {ui('Copy')} the {ui('/theme-tuner command')} tab and send it in a Claude
+      Code session. Or run {code('/theme-tuner')} to open the pane of the mod
+      and paste the {ui('Theme JSON')} in its box, or hand the JSON to Claude
+      and ask it to set the theme (the mod gives Claude a {code('set_theme')}{' '}
+      tool).
     </span>,
     <span key={3}>
       The theme stays across restarts and shows on mobile too.{' '}
-      {code('/tuner off')} goes back to the colors of Claude.
+      {code('/theme-tuner off')} goes back to the colors of Claude.
     </span>,
   ]
   return (

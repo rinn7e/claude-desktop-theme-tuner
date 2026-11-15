@@ -21,8 +21,9 @@ Every knob of the mod: https://github.com/rinn7e/claude-desktop-theme-tuner/blob
 ## The mod setup JSON
 
 What the home page writes, and what the mod takes: in its pane, as
-`/tuner <JSON>`, or from an agent through its `set_theme` tool (full name
-`mcp__rinn7e-theme-tuner__set_theme`), whose input is this JSON.
+`/theme-tuner <JSON>` (or the short alias `/tuner <JSON>`), or from an agent
+through its `set_theme` tool (full name `mcp__rinn7e-theme-tuner__set_theme`),
+whose input is this JSON.
 
     {
       "light": {
@@ -215,8 +216,8 @@ DevTools, and keeps it across restarts. The user installs it once:
 
 Then, in a Claude Code session:
 
-- The user sends `/tuner <link>` with any link above (or `/tuner
-  solarized-light dracula`, preset ids per mode), or `/tuner` to open its
+- The user sends `/theme-tuner <link>` with any link above (or `/theme-tuner
+  solarized-light dracula`, preset ids per mode), or `/theme-tuner` to open its
   pane.
 - An agent in that session calls the mod's tool, `set_theme`, with the setup
   JSON above (the link's JSON is a setup too).

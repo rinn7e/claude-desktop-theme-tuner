@@ -73,6 +73,17 @@ test('nothing is sent, or cleared, when no setup was kept', async ($, on) => {
   expect(sent.clears).toBe(0)
 })
 
+test('/theme-tuner applies presets by id, as its alias /tuner does', async ($, on) => {
+  const sent = engine(on)
+  await start($)
+  const { text } = await $.command.run({
+    command: 'theme-tuner',
+    args: 'nord',
+  })
+  expect(text).toBe('Theme set: Nord.')
+  expect(sent.store.get('setup')).toEqual({ dark: { preset: 'nord' } })
+})
+
 test('/tuner applies presets by id and keeps them', async ($, on) => {
   const sent = engine(on)
   await start($)

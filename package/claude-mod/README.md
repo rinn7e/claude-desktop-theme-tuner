@@ -17,16 +17,17 @@ marketplace** with `rinn7e/claude-desktop-theme-tuner`, then **Add plugin**.
 
 ## Use
 
-- `/tuner` opens the pane: a preset per mode, the colors of each with their
+- `/theme-tuner` opens the pane: a preset per mode, the colors of each with their
   keys, a **Theme JSON** box (edit or paste a setup, a link or preset ids,
   then Enter), and **Turn off**.
-- `/tuner solarized-light dracula` applies presets by id, and changes only
-  the modes it names; `/tuner list` names them.
-- `/tuner <JSON>` applies a setup designed on the home page of the web tuner
-  (**Copy /tuner command**), and `/tuner <link>` one from its first tuner at
+- `/theme-tuner solarized-light dracula` applies presets by id, and changes only
+  the modes it names; `/theme-tuner list` names them.
+- `/theme-tuner <JSON>` applies a setup designed on the home page of the web tuner
+  (**Copy /theme-tuner command**), and `/theme-tuner <link>` one from its first tuner at
   `/legacy`.
 - Ask Claude for a theme: the mod gives it a `set_theme` tool.
-- `/tuner off` goes back to Claude's own colors.
+- `/theme-tuner off` goes back to Claude's own colors.
+- `/tuner` is a short alias of `/theme-tuner`.
 
 ## What it does
 
@@ -36,7 +37,7 @@ The mod runs in Claude Code and only themes it. Its hooks module
 - `$.theme.set` and `$.theme.clear`, to apply the look and to turn it off
 - its own state and store (`$.state`, `$.store`), to keep the setup across
   sessions
-- `$.command.register` for `/tuner`, `$.tool.register` for the `set_theme`
+- `$.command.register` for `/theme-tuner` and its short alias `/tuner`, `$.tool.register` for the `set_theme`
   tool, and `$.ui` for its pane and its status line
 
 It reads no files, runs no processes, reads no environment variables and
