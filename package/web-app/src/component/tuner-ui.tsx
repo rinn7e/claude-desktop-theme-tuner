@@ -303,9 +303,13 @@ export const Logo = () => (
   />
 )
 
+// The colors of the new version (the home, for the mods of Claude): its
+// badge, and the links to it from the first tuner
+export const NEW_VERSION_TONE =
+  'bg-linear-to-r from-violet-600 to-fuchsia-500 text-white'
+
 const BADGE_TONES = {
-  // The home: the version for the mods of Claude
-  new: 'bg-linear-to-r from-violet-600 to-fuchsia-500 text-white',
+  new: NEW_VERSION_TONE,
   // The first tuner, in the amber of its banner
   old: 'bg-amber-300 text-amber-950',
 }

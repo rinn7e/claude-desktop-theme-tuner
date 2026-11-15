@@ -23,6 +23,7 @@ import {
   Logo,
   MENU_ITEM,
   ModeHeader,
+  NEW_VERSION_TONE,
   OptionToggle,
   PresetChips,
   SectionTitle,
@@ -701,7 +702,7 @@ const bannerView = ({ model, dispatch, navigate }: AppProps) =>
         <Link
           screen={homeScreen}
           navigate={navigate}
-          className='font-semibold underline underline-offset-2 hover:text-amber-800'
+          className={`${NEW_VERSION_TONE} rounded-full px-[8px] py-[1px] font-semibold whitespace-nowrap hover:opacity-90`}
         >
           the new version
         </Link>
