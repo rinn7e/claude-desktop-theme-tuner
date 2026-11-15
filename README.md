@@ -44,9 +44,12 @@ Code sessions with no DevTools, or
   knob of Claude: the four surfaces, the three texts, the five roles, the
   seven git colors and the code theme; for both modes more contrast and a
   backdrop (a color or a gradient). Each knob shows the value sent and where
-  it comes from. The page runs Claude's own `makeColors`, so it says when
-  Claude would refuse the theme and why, and it copies the **Theme JSON** or
-  a `/tuner` command. Edits are kept in your browser.
+  it comes from. The page runs Claude's own `makeColors` and the graph of
+  its design system, so the preview draws what Claude draws (a diff and pull
+  request states for the git colors, status marks for the roles, code in
+  the code theme) and says when Claude would refuse the theme and why. It
+  copies the **Theme JSON** or a `/tuner` command. Edits are kept in your
+  browser.
 
 The first tuner, at `/legacy`:
 

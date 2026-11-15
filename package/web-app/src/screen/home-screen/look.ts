@@ -25,7 +25,9 @@ import {
 } from '../../../../claude-mod/hooks/look'
 import { makeColors } from '../../../../claude-mod/hooks/make-colors.js'
 import { PRESETS } from '../../../../claude-mod/hooks/presets'
+import type { Showcase } from '../../preview/claude-mock'
 import { THEME_GRAPH, evaluator } from '../../theme/claude-graph'
+import { CODE_SYNTAX } from '../../theme/code-syntax'
 
 export const MODES: Mode[] = ['light', 'dark']
 
@@ -223,7 +225,11 @@ export const claudeTokens = (
       : stockInputsOf(mode)
   if (!Object.keys(inputs).length) return {}
   const tokenOf = evaluator(THEME_GRAPH, inputs, mode === 'dark')
-  const out: Record<string, string> = {}
+  // The inputs of the look (its ramps, the git colors) are variables of
+  // Claude too, such as --cds-text-git-added
+  const out: Record<string, string> = Object.fromEntries(
+    Object.entries(inputs).map(([name, value]) => [`--cds-${name}`, value]),
+  )
   for (const name of Object.keys(THEME_GRAPH)) {
     try {
       const value = tokenOf(name)
@@ -256,4 +262,32 @@ export const claudeTokens = (
     out['--df-hover'] = out['--cds-fill-ghost-hover']
   if (out['--cds-bg-neutral']) out['--mock-composer'] = out['--cds-bg-neutral']
   return out
+}
+
+// The code block of preview v2: in the colors of the code theme the look
+// sets, or, for Claude's own code theme (claude-light, claude-dark, or none
+// set), in the roles of the look, as Claude draws it: keywords in the
+// accent, names in danger, strings in success, variables in warning and
+// literals in pro
+export const showcaseOf = (look: Look, mode: Mode): Showcase => {
+  const id = look.definition.codeTheme?.[mode]
+  const syntax = id ? CODE_SYNTAX[id] : undefined
+  if (syntax) return { code: syntax, codeTheme: id ?? '' }
+  const t = claudeTokens(look, mode)
+  const v = (name: string, fallback: string) => t[`--cds-${name}`] ?? fallback
+  const fg = v('text-primary', 'currentColor')
+  return {
+    code: {
+      fg,
+      comment: v('text-muted', fg),
+      keyword: v('text-accent', fg),
+      storage: v('text-accent', fg),
+      string: v('text-success', fg),
+      number: v('text-pro', fg),
+      func: v('text-danger', fg),
+      type: v('text-danger', fg),
+      variable: v('text-warning', fg),
+    },
+    codeTheme: id ?? `claude-${mode}`,
+  }
 }

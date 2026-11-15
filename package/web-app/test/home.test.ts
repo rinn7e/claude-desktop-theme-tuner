@@ -12,6 +12,7 @@ import {
   lookOf,
   presetsOf,
   previewPalette,
+  showcaseOf,
 } from '../src/screen/home-screen/look'
 import { type Model, type Msg } from '../src/screen/home-screen/type'
 import {
@@ -428,6 +429,29 @@ describe('the look of a setup', () => {
     )
     expect(Object.keys(tokens).length).toBeGreaterThan(50)
     expect(tokens['--cds-surface-1']).toMatch(/^#/)
+  })
+
+  it('shows the git colors of the look in the preview', () => {
+    const tokens = claudeTokens(lookOf(DEFAULT_SETUP), 'light')
+    expect(tokens['--cds-text-git-added']).toMatch(/^#/)
+    expect(tokens['--cds-bg-git-removed']).toBeDefined()
+  })
+
+  it('highlights code in the code theme of the look', () => {
+    // Solarized Light sets its own code theme: its keywords are green
+    const solarized = showcaseOf(lookOf(DEFAULT_SETUP), 'light')
+    expect(solarized.codeTheme).toBe('solarized-light')
+    expect(solarized.code.keyword).toBe('#859900')
+  })
+
+  it("highlights code in the roles where Claude's own code theme shows", () => {
+    // Groovy Lambda Black has no code theme of Claude
+    const look = lookOf({ dark: { preset: 'groovy-lambda-black' } })
+    const groovy = showcaseOf(look, 'dark')
+    expect(groovy.codeTheme).toBe('claude-dark')
+    expect(groovy.code.keyword).toBe(
+      claudeTokens(look, 'dark')['--cds-text-accent'],
+    )
   })
 
   it('draws the backdrop in the preview as CSS', () => {

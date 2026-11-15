@@ -47,6 +47,7 @@ import {
   lookOf,
   presetsOf,
   previewPalette,
+  showcaseOf,
 } from './look'
 import { type CodeTab, type KnobGroup, type Model, type Msg } from './type'
 import { canResetMode, themeJson, tunerCommand } from './update'
@@ -1125,6 +1126,7 @@ const previewCardView = (look: Look, model: Model, mode: Mode) => {
           {claudeMockView(previewPalette(look, mode), {
             backdrop: backdropCss(model.setup.backdrop),
             tokens: claudeTokens(look, mode),
+            showcase: showcaseOf(look, mode),
           })}
         </div>
       </div>

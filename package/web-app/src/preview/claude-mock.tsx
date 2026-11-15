@@ -22,6 +22,27 @@ const tokenStyle = (
   return { ...root, ...frame, ...tokens } as CSSProperties
 }
 
+// Preview v2 (the home) shows every knob a mod look sets: a diff and pull
+// request states for the git colors, status marks for the roles, a Pro chip,
+// and code in the colors of the code theme
+export interface CodeColors {
+  fg: string
+  comment: string
+  keyword: string
+  storage: string
+  string: string
+  number: string
+  func: string
+  type: string
+  variable: string
+}
+
+export interface Showcase {
+  code: CodeColors
+  // The name of the code theme, shown on the code block
+  codeTheme: string
+}
+
 const SESSIONS = [
   'api-refactor',
   'theme-tuner',
@@ -95,7 +116,7 @@ const caretView = (open: boolean, thin: boolean) =>
     <span aria-hidden='true'>{open ? '▾' : '▸'}</span>
   )
 
-const sidebarView = (thin: boolean) => (
+const sidebarView = (thin: boolean, showcase?: Showcase) => (
   <aside className='flex w-[11rem] shrink-0 flex-col gap-[14px] p-[12px] bg-[var(--cds-fizzy-lake-color-sidebar)] border-r border-[var(--cds-border)]'>
     {trafficLightsView()}
     <div className='flex flex-col gap-[2px]'>
@@ -115,6 +136,11 @@ const sidebarView = (thin: boolean) => (
           Y
         </span>
         You · Max
+        {showcase ? (
+          <span className='rounded px-[4px] text-[0.5625rem] font-semibold bg-[var(--cds-bg-pro)] text-[var(--cds-text-pro)]'>
+            Pro
+          </span>
+        ) : null}
       </div>
     </div>
   </aside>
@@ -133,7 +159,64 @@ const topBarView = () => (
   </div>
 )
 
-const chatView = (thin: boolean) => (
+// An edit, as Claude shows one: the file, its counts, and the lines
+const diffView = () => {
+  const line = (kind: 'added' | 'removed', text: string) => (
+    <div
+      key={text}
+      className='flex gap-[8px] px-[12px] text-[var(--cds-text-primary)]'
+      style={{ background: `var(--cds-bg-git-${kind})` }}
+    >
+      <span style={{ color: `var(--cds-text-git-${kind})` }}>
+        {kind === 'added' ? '+' : '-'}
+      </span>
+      {text}
+    </div>
+  )
+  return (
+    <div className='overflow-hidden rounded-lg border border-[var(--cds-border)] text-[0.75rem]'>
+      <div className='flex justify-between px-[12px] py-[6px] text-[var(--cds-text-secondary)]'>
+        <span className='font-mono text-[0.6875rem]'>src/sidebar.css</span>
+        <span className='font-mono text-[0.6875rem]'>
+          <span className='text-[var(--cds-text-git-added)]'>+1</span>{' '}
+          <span className='text-[var(--cds-text-git-removed)]'>-1</span>
+        </span>
+      </div>
+      <div className='flex flex-col border-t border-[var(--cds-border)] py-[4px] font-mono text-[0.6875rem]'>
+        {line('removed', 'background: var(--df-sidebar-tint);')}
+        {line('added', 'background: var(--df-sidebar-bg);')}
+      </div>
+    </div>
+  )
+}
+
+// Code in the colors of the code theme of the look
+const codeBlockView = ({ code, codeTheme }: Showcase) => {
+  const t = (color: keyof CodeColors, text: string) => (
+    <span style={{ color: code[color] }}>{text}</span>
+  )
+  return (
+    <div className='rounded-lg border border-[var(--cds-border)] bg-[var(--cds-surface-3)] px-[12px] py-[6px] font-mono text-[0.6875rem] leading-relaxed'>
+      {/* Two lines with every kind of code the code theme colors; the name
+          of the code theme on the right of the comment */}
+      <div style={{ color: code.fg }}>
+        <div className='flex justify-between gap-[8px]'>
+          {t('comment', '// Mix the frame into the sidebar')}
+          <span className='truncate font-sans text-[0.625rem] text-[var(--cds-text-muted)]'>
+            {codeTheme}
+          </span>
+        </div>
+        <div className='truncate'>
+          {t('keyword', 'export')} {t('storage', 'const')} {t('variable', 'bg')}
+          : {t('type', 'Color')} = {t('func', 'mix')}({t('variable', 'fg')},{' '}
+          {t('string', "'#eee'")}, {t('number', '0.5')})
+        </div>
+      </div>
+    </div>
+  )
+}
+
+const legacyChatView = (thin: boolean) => (
   <div className='mock-scroll flex min-h-0 flex-1 flex-col gap-[14px] overflow-y-auto px-[24px] py-[18px] text-[0.8125rem] leading-relaxed'>
     <div className='flex justify-end'>
       <div className='max-w-[80%] rounded-xl px-[12px] py-[8px] bg-[var(--cds-bg-user-message)] text-[var(--cds-text-primary)]'>
@@ -191,6 +274,36 @@ const chatView = (thin: boolean) => (
   </div>
 )
 
+// Preview v2: the same session, shorter, with an edit (the git colors) and
+// code (the code theme), so every knob shows without scrolling
+const showcaseChatView = (showcase: Showcase) => (
+  <div className='mock-scroll flex min-h-0 flex-1 flex-col gap-[10px] overflow-y-auto px-[24px] py-[12px] text-[0.8125rem] leading-relaxed'>
+    <div className='flex justify-end'>
+      <div className='max-w-[80%] rounded-xl px-[12px] py-[6px] bg-[var(--cds-bg-user-message)] text-[var(--cds-text-primary)]'>
+        the docked sidebar is still white, can you fix it?
+      </div>
+    </div>
+    <div className='flex flex-col gap-[8px] text-[var(--cds-text-primary)]'>
+      <p className='text-[var(--cds-text-secondary)]'>
+        It mixes{' '}
+        <code className='rounded px-[4px] py-[1px] text-[0.75rem] bg-[var(--cds-bg-neutral)] text-[var(--cds-text-primary)]'>
+          --df-sidebar-tint
+        </code>{' '}
+        in, see the{' '}
+        <span className='underline text-[var(--cds-text-accent)]'>
+          Chromium source
+        </span>
+        .
+      </p>
+      {diffView()}
+      {codeBlockView(showcase)}
+    </div>
+  </div>
+)
+
+const chatView = (thin: boolean, showcase?: Showcase) =>
+  showcase ? showcaseChatView(showcase) : legacyChatView(thin)
+
 const composerView = () => (
   <div className='px-[24px] pb-[16px]'>
     <div className='flex flex-col gap-[10px] rounded-2xl border border-[var(--cds-border-strong)] bg-[var(--mock-composer,var(--cds-surface-3))] px-[14px] py-[10px]'>
@@ -221,17 +334,88 @@ const panelCardView = (title: string, body: React.ReactNode, thin: boolean) => (
   </div>
 )
 
-const sidePanelView = (thin: boolean) => (
+// The changes of the session and the state of its pull request, in the git
+// colors
+const changesCardView = (thin: boolean) =>
+  panelCardView(
+    'Changes',
+    <div className='flex flex-col gap-[6px] text-[0.6875rem] text-[var(--cds-text-secondary)]'>
+      <span className='font-mono'>
+        <span className='text-[var(--cds-text-git-added)]'>+12</span>{' '}
+        <span className='text-[var(--cds-text-git-removed)]'>-3</span>
+      </span>
+      <span>
+        <span className='font-mono text-[var(--cds-text-git-modified)]'>M</span>{' '}
+        sidebar.css
+      </span>
+      <div className='flex flex-wrap gap-[4px]'>
+        {(
+          [
+            ['added', 'Open'],
+            ['merged', 'Merged'],
+            ['closed', 'Closed'],
+            ['draft', 'Draft'],
+            ['conflicting', 'Conflict'],
+          ] as const
+        ).map(([state, label]) => (
+          <span
+            key={state}
+            className='rounded px-[4px] text-[0.5625rem]'
+            style={{
+              background: `var(--cds-bg-git-${state})`,
+              color: `var(--cds-text-git-${state})`,
+            }}
+          >
+            {label}
+          </span>
+        ))}
+      </div>
+    </div>,
+    thin,
+  )
+
+// What a run ended with, in the role colors
+const checksCardView = (thin: boolean) =>
+  panelCardView(
+    'Checks',
+    <div className='flex flex-col items-start gap-[4px] text-[0.6875rem]'>
+      {(
+        [
+          ['success', '✓ 12 passed'],
+          ['danger', '✕ 1 failed'],
+          ['warning', '! 2 warnings'],
+        ] as const
+      ).map(([role, text]) => (
+        <span
+          key={role}
+          className='rounded px-[5px]'
+          style={{
+            background: `var(--cds-bg-${role})`,
+            color: `var(--cds-text-${role})`,
+          }}
+        >
+          {text}
+        </span>
+      ))}
+    </div>,
+    thin,
+  )
+
+const sidePanelView = (thin: boolean, showcase?: Showcase) => (
   <div className='flex w-[9.5rem] shrink-0 flex-col gap-[10px] border-l border-[var(--cds-border)] p-[10px]'>
-    {panelCardView(
-      'Environment',
-      <div className='flex flex-col gap-[4px] text-[0.6875rem] text-[var(--cds-text-secondary)]'>
-        <span>This computer</span>
-        <span>theme-tuner</span>
-        <span>master</span>
-      </div>,
-      thin,
-    )}
+    {showcase ? changesCardView(thin) : null}
+    {showcase ? checksCardView(thin) : null}
+    {showcase
+      ? null
+      : panelCardView(
+          'Environment',
+          <div className='flex flex-col gap-[4px] text-[0.6875rem] text-[var(--cds-text-secondary)]'>
+            <span>This computer</span>
+            <span>theme-tuner</span>
+            <span>master</span>
+          </div>,
+          thin,
+        )}
     {panelCardView(
       'Context',
       <div className='flex flex-col gap-[6px] text-[0.6875rem] text-[var(--cds-text-secondary)]'>
@@ -251,7 +435,8 @@ const sidePanelView = (thin: boolean) => (
 // `thinArrows` draws the arrows the way the Thin arrows option does.
 // `backdrop` (a CSS background) is drawn behind the conversation, where a
 // mod look's backdrop shows. `tokens` (CSS variables) win over the ones the
-// palette gives
+// palette gives. `showcase` (preview v2) swaps parts of the session for ones
+// that show the git colors, the roles and the code theme
 export const claudeMockView = (
   palette: Palette,
   {
@@ -259,18 +444,20 @@ export const claudeMockView = (
     thinArrows = false,
     backdrop,
     tokens,
+    showcase,
   }: {
     fill?: boolean
     thinArrows?: boolean
     backdrop?: string
     tokens?: Record<string, string>
+    showcase?: Showcase
   } = {},
 ) => (
   <div
     className={`flex ${fill ? 'h-full' : 'h-[28rem] lg:h-full'} w-full min-w-[38rem] shrink-0 overflow-hidden rounded-xl shadow-[0_2px_12px_rgba(0,0,0,0.10),0_1px_3px_rgba(0,0,0,0.06)] ring-1 ring-black/10 bg-[var(--cds-surface-1)]`}
     style={tokenStyle(palette, tokens)}
   >
-    {sidebarView(thinArrows)}
+    {sidebarView(thinArrows, showcase)}
     {/* A div, not <main>: the page's main content is the tuner, and text
         readers (and agents) that pick <main> should land there */}
     <div
@@ -278,9 +465,9 @@ export const claudeMockView = (
       style={backdrop ? { background: backdrop } : undefined}
     >
       {topBarView()}
-      {chatView(thinArrows)}
+      {chatView(thinArrows, showcase)}
       {composerView()}
     </div>
-    {sidePanelView(thinArrows)}
+    {sidePanelView(thinArrows, showcase)}
   </div>
 )

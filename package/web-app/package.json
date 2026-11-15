@@ -12,7 +12,8 @@
     "check": "tsc --noEmit",
     "lint": "eslint .",
     "test": "vitest run",
-    "code-themes": "node scripts/code-themes.mjs && prettier --write src/theme/code-themes.ts"
+    "code-themes": "node scripts/code-themes.mjs && prettier --write src/theme/code-themes.ts",
+    "code-syntax": "node scripts/code-syntax.mjs && prettier --write src/theme/code-syntax.ts"
   },
   "dependencies": {
     "@rinn7e/fp-ts-routing": "github:rinn7e/fp-ts-routing#0d9ec901639572171d6ada5b75aeee6ff945dc43",
