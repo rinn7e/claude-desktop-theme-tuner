@@ -879,7 +879,8 @@ const headerView = (model: Model, dispatch: Dispatcher<Msg>) => (
 const editorView = (look: Look, props: HomeViewProps) => {
   const { model, dispatch } = props
   return (
-    <div className='flex flex-col lg:min-h-0 lg:flex-1'>
+    // Three quarters of the left column; the code panel takes the rest
+    <div className='flex flex-col lg:min-h-0 lg:flex-[3]'>
       <div className='border-b border-ui-line'>
         {headerView(model, dispatch)}
       </div>
