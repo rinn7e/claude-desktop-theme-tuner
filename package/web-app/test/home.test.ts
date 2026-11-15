@@ -431,6 +431,26 @@ describe('the look of a setup', () => {
     expect(tokens['--cds-surface-1']).toMatch(/^#/)
   })
 
+  it('draws more contrast as Claude does: stronger borders and rings', () => {
+    // Measured in Claude with Solarized Light and contrast more
+    const tokens = claudeTokens(
+      lookOf({ light: { preset: 'solarized-light' }, contrast: 'more' }),
+      'light',
+    )
+    expect(tokens['--cds-border']).toBe('rgba(7, 54, 66, 0.55)')
+    expect(tokens['--cds-border-strong']).toBe('rgba(7, 54, 66, 0.7)')
+    expect(tokens['--cds-border-stronger']).toBe('rgba(7, 54, 66, 0.85)')
+    expect(tokens['--cds-ring-color']).toBe('rgba(7, 54, 66, 0.55)')
+    // The page is surface-1, as the layout of Claude sets it
+    expect(tokens['--cds-page-bg']).toBe('#fdf6e3')
+    // Without it, the borders keep a tenth of the text color
+    expect(
+      claudeTokens(lookOf({ light: { preset: 'solarized-light' } }), 'light')[
+        '--cds-border'
+      ],
+    ).toBe('rgba(7, 54, 66, 0.1)')
+  })
+
   it('shows the git colors of the look in the preview', () => {
     const tokens = claudeTokens(lookOf(DEFAULT_SETUP), 'light')
     expect(tokens['--cds-text-git-added']).toMatch(/^#/)

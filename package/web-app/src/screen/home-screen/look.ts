@@ -210,6 +210,18 @@ const stockInputsOf = (mode: Mode): Record<string, string> => {
   return stockInputs[mode] ?? {}
 }
 
+// What `contrast: "more"` changes, measured in Claude 5.11492: the share of
+// the text color (neutral-900) these tokens take; 10%, 20% and 40% without it
+const MORE_CONTRAST: Record<string, number> = {
+  border: 0.55,
+  'ring-color': 0.55,
+  'fill-field-ring': 0.55,
+  'fill-secondary-ring': 0.55,
+  'fill-secondary-pressed-ring': 0.55,
+  'border-strong': 0.7,
+  'border-stronger': 0.85,
+}
+
 // Preview v2: the design system tokens Claude computes for the mode, as CSS
 // variables (--cds-surface-1, --cds-bg-user-message, ...), from the ramps of
 // the look, or Claude's own ramps for a mode the look leaves out. A token
@@ -261,6 +273,19 @@ export const claudeTokens = (
   if (out['--cds-fill-ghost-hover'])
     out['--df-hover'] = out['--cds-fill-ghost-hover']
   if (out['--cds-bg-neutral']) out['--mock-composer'] = out['--cds-bg-neutral']
+  // The layout of Claude sets the page to surface-1 over what the graph
+  // gives (`--cds-page-bg: var(--cds-surface-1)`, read from the app)
+  if (s1) out['--cds-page-bg'] = s1
+  // More contrast (measured in the app with `contrast: "more"`): the borders
+  // and focus rings take far more of the text color; the rest of the graph
+  // is the same
+  const ink = out['--cds-neutral-900']
+  if (look.definition.contrast === 'more' && ink?.startsWith('#')) {
+    const at = (alpha: number) =>
+      `rgba(${[1, 3, 5].map((i) => parseInt(ink.slice(i, i + 2), 16)).join(', ')}, ${alpha})`
+    for (const [token, alpha] of Object.entries(MORE_CONTRAST))
+      out[`--cds-${token}`] = at(alpha)
+  }
   return out
 }
 
