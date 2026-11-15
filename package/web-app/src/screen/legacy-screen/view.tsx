@@ -20,13 +20,14 @@ import {
   Gear,
   HeaderLinks,
   LINK_BUTTON,
-  LogoBadge,
+  Logo,
   MENU_ITEM,
   ModeHeader,
   OptionToggle,
   PresetChips,
   SectionTitle,
   TITLE_BAR,
+  VersionBadge,
 } from '../../component/tuner-ui'
 import { claudeMockView } from '../../preview/claude-mock'
 import { contrast } from '../../theme/color'
@@ -160,18 +161,21 @@ const AGENT_GUIDE =
 const headerView = (model: Model, dispatch: Dispatcher<Msg>) => (
   <header className={TITLE_BAR}>
     <span className='flex min-w-0 items-center gap-[10px]'>
-      <LogoBadge badge='legacy' />
-      <span className='flex min-w-0 items-baseline gap-[10px] overflow-hidden'>
+      <Logo />
+      {/* Not overflow-hidden, so the badge can sit above the title;
+          the subtitle truncates on its own */}
+      <span className='flex min-w-0 items-baseline gap-[10px]'>
         <h1 className='shrink-0 text-base font-semibold tracking-tight'>
           Claude Desktop Theme Tuner
         </h1>
+        <VersionBadge label='legacy' tone='old' />
         <span
           title={`Tested against Claude desktop ${TESTED_CLAUDE_VERSION} on macOS`}
           className='hidden shrink-0 rounded-md bg-ui-field px-[6px] py-[1px] font-mono text-[0.6875rem] text-ui-ink-muted @xl:inline'
         >
           Claude Desktop {TESTED_CLAUDE_VERSION}
         </span>
-        <span className='truncate text-xs text-ui-ink-faint'>
+        <span className='min-w-0 truncate text-xs text-ui-ink-faint'>
           Pick a theme, tune its colors, copy the snippet.
         </span>
       </span>
@@ -793,7 +797,7 @@ const previewCardView = (
 // screens, stacked at a fixed height on narrow ones. The same space on every
 // side and between the two, so the mocks sit evenly in the pane
 const previewView = (model: Model) => (
-  <section className='preview-dots flex flex-col gap-[8px] p-[8px] lg:grid lg:min-h-0 lg:grid-rows-2 lg:gap-[24px] lg:p-[24px]'>
+  <section className='preview-dots flex flex-col gap-[8px] p-[8px] lg:grid lg:min-h-0 lg:grid-cols-[minmax(0,1fr)] lg:grid-rows-2 lg:gap-[24px] lg:p-[24px]'>
     {MODES.map(({ mode, label }) => previewCardView(model, mode, label))}
   </section>
 )

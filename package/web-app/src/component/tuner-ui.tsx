@@ -292,20 +292,37 @@ export const Dialog = ({
   </div>
 )
 
-// The logo of the tuner with a badge on its corner that names the version
-// (V2 on the home, legacy on the first tuner). The logo lives in public/,
-// served next to the page
-export const LogoBadge = ({ badge }: { badge: string }) => (
-  <span className='relative shrink-0'>
-    <img
-      src={`${import.meta.env.BASE_URL}logo.svg`}
-      alt=''
-      width={32}
-      height={32}
-      className='h-[32px] w-[32px]'
-    />
-    <span className='absolute -right-[6px] -bottom-[4px] rounded-full bg-ui-ink px-[4px] py-px text-[0.5625rem] leading-none font-semibold text-ui-page ring-2 ring-ui-panel'>
-      {badge}
-    </span>
+// The logo of the tuner; it lives in public/, served next to the page
+export const Logo = () => (
+  <img
+    src={`${import.meta.env.BASE_URL}logo.svg`}
+    alt=''
+    width={32}
+    height={32}
+    className='h-[32px] w-[32px] shrink-0'
+  />
+)
+
+const BADGE_TONES = {
+  // The home: the version for the mods of Claude
+  new: 'bg-linear-to-r from-violet-600 to-fuchsia-500 text-white',
+  // The first tuner, in the amber of its banner
+  old: 'bg-amber-300 text-amber-950',
+}
+
+// A badge that names the version, tilted at the bottom right corner of the
+// title and over its last letters a little, like a sticker (V2 on the home,
+// legacy on the first tuner)
+export const VersionBadge = ({
+  label,
+  tone,
+}: {
+  label: string
+  tone: keyof typeof BADGE_TONES
+}) => (
+  <span
+    className={`relative top-[7px] z-10 -ml-[16px] shrink-0 -rotate-[10deg] rounded-full px-[7px] py-[2px] text-[0.625rem] leading-none font-bold tracking-wide shadow-sm ${BADGE_TONES[tone]}`}
+  >
+    {label}
   </span>
 )
