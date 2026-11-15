@@ -122,3 +122,14 @@ translucent values were turned into solid ones, are in the `STOCK` comments in
   preset ids, except `vscode-light`, `vscode-dark` and `one-dark-pro`
   (`package/web-app/src/theme/mod-presets.ts`), read from the strings of the Claude Code
   script in Claude's web cache (`Code Cache/js`).
+- For a mod look, Claude computes its design system tokens from the ramps
+  `makeColors` returns, through a graph (`THEME_GRAPH` in `make-colors.js`):
+  the message bubble, hovers and borders are grays and alphas of that graph,
+  not the colors of a preset. The home preview (preview v2) paints its mock
+  with the same graph, cut from `make-colors.js` into
+  `package/web-app/src/theme/claude-graph.js` by a snapshot test.
+- `package/web-app/snippets/mod-look.snippet.js` reports, for every visible
+  element of the window, the colors it paints and the `--cds-*` and `--df-*`
+  variables that hold each of them. Run it with a mod look on and no theme
+  snippet, to see which token paints the sidebar, the selected row or the
+  composer; DevTools undocked, as above.

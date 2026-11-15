@@ -11,9 +11,15 @@ import { deriveTokens } from '../theme/tokens'
 // panel), painted only with Claude's own variables, set from the same tokens
 // the snippet writes. What it shows is what the snippet does, as far as a
 // mock can.
-const tokenStyle = (palette: Palette): CSSProperties => {
+// The variables the mock paints with: derived from the palette (as the
+// snippet sets them), with any design system tokens given on top (preview v2
+// passes the ones Claude computes for a mod look)
+const tokenStyle = (
+  palette: Palette,
+  tokens: Record<string, string> = {},
+): CSSProperties => {
   const { root, frame } = deriveTokens(palette)
-  return { ...root, ...frame } as CSSProperties
+  return { ...root, ...frame, ...tokens } as CSSProperties
 }
 
 const SESSIONS = [
@@ -244,18 +250,25 @@ const sidePanelView = (thin: boolean) => (
 // otherwise a fixed height on narrow screens, where the panes stack.
 // `thinArrows` draws the arrows the way the Thin arrows option does.
 // `backdrop` (a CSS background) is drawn behind the conversation, where a
-// mod look's backdrop shows
+// mod look's backdrop shows. `tokens` (CSS variables) win over the ones the
+// palette gives
 export const claudeMockView = (
   palette: Palette,
   {
     fill = false,
     thinArrows = false,
     backdrop,
-  }: { fill?: boolean; thinArrows?: boolean; backdrop?: string } = {},
+    tokens,
+  }: {
+    fill?: boolean
+    thinArrows?: boolean
+    backdrop?: string
+    tokens?: Record<string, string>
+  } = {},
 ) => (
   <div
     className={`flex ${fill ? 'h-full' : 'h-[28rem] lg:h-full'} w-full min-w-[38rem] shrink-0 overflow-hidden rounded-xl shadow-[0_2px_12px_rgba(0,0,0,0.10),0_1px_3px_rgba(0,0,0,0.06)] ring-1 ring-black/10 bg-[var(--cds-surface-1)]`}
-    style={tokenStyle(palette)}
+    style={tokenStyle(palette, tokens)}
   >
     {sidebarView(thinArrows)}
     {/* A div, not <main>: the page's main content is the tuner, and text

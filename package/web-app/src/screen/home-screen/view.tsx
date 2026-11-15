@@ -40,6 +40,7 @@ import {
   type Look,
   MODES,
   backdropCss,
+  claudeTokens,
   codeThemesOf,
   knobValue,
   lookOf,
@@ -1101,6 +1102,7 @@ const previewCardView = (look: Look, model: Model, mode: Mode) => {
         <div className='app-scroll flex min-h-0 w-full flex-1 overflow-x-auto p-[16px]'>
           {claudeMockView(previewPalette(look, mode), {
             backdrop: backdropCss(model.setup.backdrop),
+            tokens: claudeTokens(look, mode),
           })}
         </div>
       </div>

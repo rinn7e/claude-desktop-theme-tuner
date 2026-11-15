@@ -7,6 +7,7 @@ import { describe, expect, it } from 'vitest'
 import { type Setup, checkSetup, parseSetup } from '../../claude-mod/hooks/look'
 import {
   backdropCss,
+  claudeTokens,
   codeThemesOf,
   lookOf,
   presetsOf,
@@ -367,6 +368,28 @@ describe('the look of a setup', () => {
     expect(look.definition.light).toBeUndefined()
     expect(look.definition.codeTheme).toBeUndefined()
     expect(look.modes.light?.knobs.map((k) => k.knob)).toContain('surface-0')
+  })
+
+  it('paints preview v2 with the tokens Claude computes for the look', () => {
+    const look = lookOf(DEFAULT_SETUP)
+    const light = claudeTokens(look, 'light')
+    // The surfaces are the anchors sent; the rest comes from Claude's graph
+    expect(light['--cds-surface-0']).toBe(
+      look.definition.light?.gray.anchors['surface-0'],
+    )
+    expect(light['--cds-bg-user-message']).toMatch(/^rgba\(/)
+    expect(light['--cds-text-primary']).toBe(
+      look.definition.light?.gray.anchors['text-primary'],
+    )
+  })
+
+  it("paints a mode the look leaves out with Claude's own tokens", () => {
+    const tokens = claudeTokens(
+      lookOf({ light: { preset: 'solarized-light' } }),
+      'dark',
+    )
+    expect(Object.keys(tokens).length).toBeGreaterThan(50)
+    expect(tokens['--cds-surface-1']).toMatch(/^#/)
   })
 
   it('draws the backdrop in the preview as CSS', () => {

@@ -2,3 +2,4 @@ pnpm-lock.yaml
 package/claude-mod/hooks/make-colors.js
 package/claude-mod/hooks/make-colors.d.ts
 package/claude-mod/hooks/presets.ts
+package/web-app/src/theme/claude-graph.js

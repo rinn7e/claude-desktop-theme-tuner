@@ -21,6 +21,7 @@ import {
 } from '../../../../claude-mod/hooks/look'
 import { makeColors } from '../../../../claude-mod/hooks/make-colors.js'
 import { PRESETS } from '../../../../claude-mod/hooks/presets'
+import { THEME_GRAPH, evaluator } from '../../theme/claude-graph'
 
 export const MODES: Mode[] = ['light', 'dark']
 
@@ -169,4 +170,59 @@ export const backdropCss = (
   return shape === 'radial'
     ? `radial-gradient(circle, ${stops.join(', ')})`
     : `linear-gradient(${angle ?? 180}deg, ${stops.join(', ')})`
+}
+
+// Claude's own inputs of a mode (its stock ramps): what makeColors gives a
+// mode a look leaves out
+let stockInputs: Partial<Record<Mode, Record<string, string>>> | undefined
+const stockInputsOf = (mode: Mode): Record<string, string> => {
+  if (!stockInputs) {
+    const other = (m: Mode): Mode => (m === 'light' ? 'dark' : 'light')
+    stockInputs = {}
+    for (const m of MODES) {
+      const preset = PRESETS.find((p) => p.id === `claude-${other(m)}`)
+      if (!preset) continue
+      const half = lookDefinition(
+        resolveSetup({
+          [other(m)]: {
+            preset: preset.id,
+            roles: { accent: preset.palette.accent },
+          },
+        }),
+      )
+      try {
+        stockInputs[m] = (makeColors(half).theme as Theme).inputs?.[m] ?? {}
+      } catch {
+        stockInputs[m] = {}
+      }
+    }
+  }
+  return stockInputs[mode] ?? {}
+}
+
+// Preview v2: the design system tokens Claude computes for the mode, as CSS
+// variables (--cds-surface-1, --cds-bg-user-message, ...), from the ramps of
+// the look, or Claude's own ramps for a mode the look leaves out. A token
+// the graph cannot resolve is left to the palette.
+export const claudeTokens = (
+  look: Look,
+  mode: Mode,
+): Record<string, string> => {
+  const m = look.modes[mode]
+  const inputs =
+    m && !m.isStock && Object.keys(m.derived).length
+      ? m.derived
+      : stockInputsOf(mode)
+  if (!Object.keys(inputs).length) return {}
+  const tokenOf = evaluator(THEME_GRAPH, inputs, mode === 'dark')
+  const out: Record<string, string> = {}
+  for (const name of Object.keys(THEME_GRAPH)) {
+    try {
+      const value = tokenOf(name)
+      if (value !== undefined) out[`--cds-${name}`] = value
+    } catch {
+      // A token that needs an input the look lacks
+    }
+  }
+  return out
 }
