@@ -2,8 +2,8 @@
 
 Bug reports and ideas are welcome as
 [GitHub issues](https://github.com/rinn7e/claude-desktop-theme-tuner/issues).
-How to build and check the project is in the
-[README](README.md#development), and the code follows
+How to build and check the project is in
+[doc/development.md](doc/development.md), and the code follows
 [doc/code-convention.md](doc/code-convention.md).
 
 ## Picking up an issue

@@ -70,7 +70,7 @@ the mod-authoring skill of Claude Code ships it, copied unchanged.
 
 Checks: `claude plugin validate package/claude-mod` and
 `claude plugin test package/claude-mod`, from the
-repository root. See the [main README](../../README.md#theme-claude-code-with-the-mod).
+repository root. See the [main README](../../README.md#quick-start).
 
 Types for the editor and `tsc -p package/claude-mod`: `tsconfig.json` uses the
 options the typings of Claude Code ask for, and reads the types from
