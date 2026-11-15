@@ -164,13 +164,14 @@ const diffView = () => {
   const line = (kind: 'added' | 'removed', text: string) => (
     <div
       key={text}
-      className='flex gap-[8px] px-[12px] text-[var(--cds-text-primary)]'
+      className='flex gap-[8px] px-[12px] whitespace-nowrap text-[var(--cds-text-primary)]'
       style={{ background: `var(--cds-bg-git-${kind})` }}
     >
       <span style={{ color: `var(--cds-text-git-${kind})` }}>
         {kind === 'added' ? '+' : '-'}
       </span>
-      {text}
+      {/* One line each, cut on a narrow mock as an editor cuts it */}
+      <span className='min-w-0 truncate'>{text}</span>
     </div>
   )
   return (
@@ -200,8 +201,8 @@ const codeBlockView = ({ code, codeTheme }: Showcase) => {
       {/* Two lines with every kind of code the code theme colors; the name
           of the code theme on the right of the comment */}
       <div style={{ color: code.fg }}>
-        <div className='flex justify-between gap-[8px]'>
-          {t('comment', '// Mix the frame into the sidebar')}
+        <div className='flex justify-between gap-[8px] whitespace-nowrap'>
+          {t('comment', '// Mix the frame in')}
           <span className='truncate font-sans text-[0.625rem] text-[var(--cds-text-muted)]'>
             {codeTheme}
           </span>
