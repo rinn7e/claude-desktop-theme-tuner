@@ -64,9 +64,21 @@ describe('the Theme Tuner mod look', () => {
       expect(
         problems.filter((l) => l.startsWith("Desktop won't paint")),
       ).toEqual([])
-      // Only these two presets' text is too dim for one of Claude's highlights
-      expect(adjusted.length > 0).toBe(
-        ['github-dark-dimmed', 'min-dark'].includes(theme.id),
+      // Only these presets need a fit: two have text too dim for one of
+      // Claude's highlights, two an accent step Claude refuses
+      expect(adjusted).toEqual(
+        {
+          'github-dark-dimmed': [
+            'dark text made stronger so Claude paints the theme',
+          ],
+          'min-dark': ['dark text made stronger so Claude paints the theme'],
+          'one-light': [
+            "light accent links left to Claude's ramp so Claude paints the theme",
+          ],
+          'catppuccin-latte': [
+            "light accent button hover left to Claude's ramp so Claude paints the theme",
+          ],
+        }[theme.id] ?? [],
       )
     },
   )
@@ -123,7 +135,15 @@ describe('the Theme Tuner mod look', () => {
       'text-primary': '#002b36',
     })
     expect(def.dark?.gray.anchors['surface-3']).toBe('#353c4a')
-    expect(def.light?.roles).toEqual({ accent: '#ad461b', danger: '#dc322f' })
+    // The accent of the palette, with the steps Claude paints links (600),
+    // buttons (450) and their hover (400) with pinned to the palette's
+    expect(def.light?.roles).toEqual({
+      accent: {
+        seed: '#ad461b',
+        stops: { '600': '#ad461b', '450': '#ad461b', '400': '#94421f' },
+      },
+      danger: '#dc322f',
+    })
     expect(def.light?.git).toEqual({ added: '#859900' })
     expect(def.codeTheme).toEqual({ light: 'github-light', dark: 'nord' })
     expect(def.contrast).toBe('more')

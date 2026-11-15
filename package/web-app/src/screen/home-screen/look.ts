@@ -18,6 +18,7 @@ import {
   knobsOf,
   lookDefinition,
   resolveSetup,
+  seedOf,
 } from '../../../../claude-mod/hooks/look'
 import { makeColors } from '../../../../claude-mod/hooks/make-colors.js'
 import { PRESETS } from '../../../../claude-mod/hooks/presets'
@@ -149,8 +150,12 @@ export const previewPalette = (look: Look, mode: Mode): Palette => {
     text: a['text-primary'],
     textSecondary: a['text-secondary'] ?? base.textSecondary,
     textMuted: a['text-muted'] ?? base.textMuted,
-    accent: d['role-accent-400'] ?? half.roles.accent,
-    accentHover: d['role-accent-450'] ?? base.accentHover,
+    // The step Claude draws links with (text-accent), and the hover of its
+    // filled buttons
+    accent:
+      d[mode === 'light' ? 'role-accent-600' : 'role-accent-300'] ??
+      seedOf(half.roles.accent),
+    accentHover: d['role-accent-fill-hover'] ?? base.accentHover,
     onAccent: d['role-accent-on'] ?? base.onAccent,
   }
 }

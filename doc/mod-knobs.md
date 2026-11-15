@@ -135,10 +135,10 @@ The 13 palette roles of a preset map to the knobs above as follows, under the
 knobs a mode sets directly; the rest are derived by `makeColors` or left to
 Claude:
 
-| Palette role                                                               | Knob                                                                                                             |
-| -------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| `frame`, `canvas`                                                          | `surface-1`/`surface-2` the lighter; `surface-0` the darker, in light mode set so the sidebar mixes to the frame |
-| `text`, `textSecondary`, `textMuted`                                       | `text-primary`, `text-secondary`, `text-muted`                                                                   |
-| `accent`                                                                   | `roles.accent` of the mode                                                                                       |
-| `raised`, `pressed`, `line`, `accentHover`, `onAccent`, `selected`, `wash` | not sent: derived by `makeColors`                                                                                |
-| the preset id                                                              | `codeTheme`, where Claude has a code theme of that name, unless the setup sets one (`null` for none)             |
+| Palette role                                                | Knob                                                                                                                                                                                                                             |
+| ----------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `frame`, `canvas`                                           | `surface-1`/`surface-2` the lighter; `surface-0` the darker, in light mode set so the sidebar mixes to the frame                                                                                                                 |
+| `text`, `textSecondary`, `textMuted`                        | `text-primary`, `text-secondary`, `text-muted`                                                                                                                                                                                   |
+| `accent`, `accentHover`                                     | `roles.accent` of the mode: the seed, with the steps Claude paints links (600 in light mode, 300 in dark), buttons (450) and their hover (400) set to the accent and the hover accent; a step Claude refuses is left to its ramp |
+| `raised`, `pressed`, `line`, `onAccent`, `selected`, `wash` | not sent: derived by `makeColors` (Claude draws a selected row and the message bubble from the text color)                                                                                                                       |
+| the preset id                                               | `codeTheme`, where Claude has a code theme of that name, unless the setup sets one (`null` for none)                                                                                                                             |

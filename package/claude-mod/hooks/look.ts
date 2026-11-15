@@ -478,6 +478,27 @@ const surfacesFollowing = (
     ? { 'surface-2': set['surface-1'] }
     : {}
 
+// A role as makeColors takes it: a seed, or a seed with steps of its ramp
+// set by hand
+export type RoleSeed = string | { seed: string; stops: Record<string, string> }
+
+export const seedOf = (role: RoleSeed): string =>
+  typeof role === 'string' ? role : role.seed
+
+// The accent of a palette, with the steps of its ramp that Claude paints
+// with set to the palette's own colors, so Claude draws them as the first
+// tuner does: links (step 600 in light mode, 300 in dark) and filled
+// buttons (step 450) in the accent, and their hover (the step beside, 400)
+// in the hover accent. Claude derives the rest of the ramp from the seed.
+export const accentOf = (mode: Mode, p: Palette): RoleSeed => ({
+  seed: p.accent,
+  stops: {
+    [mode === 'light' ? '600' : '300']: p.accent,
+    '450': p.accent,
+    '400': p.accentHover,
+  },
+})
+
 // A mode of the definition: its gray anchors (surface-0 and text-primary
 // always), its roles (the accent always) and any git colors
 export interface LookMode {
@@ -486,7 +507,7 @@ export interface LookMode {
       Record<AnchorKey, string>
     >
   }
-  roles: { accent: string } & Partial<Record<RoleKey, string>>
+  roles: { accent: RoleSeed } & Partial<Record<RoleKey, RoleSeed>>
   git?: Partial<Record<GitKey, string>>
 }
 
@@ -524,7 +545,10 @@ export const lookDefinition = (
           ...resolved.anchors,
         },
       },
-      roles: { accent: resolved.palette.accent, ...resolved.roles },
+      roles: {
+        ...resolved.roles,
+        accent: resolved.roles.accent ?? accentOf(mode, resolved.palette),
+      },
       ...(Object.keys(resolved.git).length ? { git: resolved.git } : {}),
     }
   }
@@ -562,13 +586,12 @@ export interface FittedLook<T> {
   adjusted: string[]
 }
 
-// Runs `makeColors` (passed in: the mod has its own copy, the web tests
-// theirs) and, where Desktop would paint nothing because of the primary
-// text, lifts it toward white (dark) or black (light) a step at a time: some
-// palettes' text is too dim for one of Claude's highlights. Throws what
-// `makeColors` throws, Claude's own reason where another color fails, or
-// when no step paints.
-export const fitLook = <T>(
+// Where Desktop would paint nothing because of the primary text, lifts it
+// toward white (dark) or black (light) a step at a time: some palettes'
+// text is too dim for one of Claude's highlights. Throws what `makeColors`
+// throws, Claude's own reason where another color fails, or when no step
+// paints.
+const fitText = <T>(
   def: LookDefinition,
   makeColors: MakeColors<T>,
 ): FittedLook<T> => {
@@ -600,6 +623,82 @@ export const fitLook = <T>(
   throw new Error(
     "Claude won't paint this theme: its text is too close to its backgrounds.",
   )
+}
+
+// The steps of the accent a palette pins, by what Claude paints with them
+type AccentPart = 'link' | 'fill' | 'hover'
+const partOf = (mode: Mode, stop: string): AccentPart =>
+  stop === '450' ? 'fill' : stop === '400' ? 'hover' : 'link'
+
+// The look with only some of the pinned accent steps: the others go back
+// to Claude's own ramp
+const pinning = (def: LookDefinition, keep: AccentPart[]): LookDefinition => {
+  const next: LookDefinition = JSON.parse(JSON.stringify(def))
+  for (const mode of MODES) {
+    const half = next[mode]
+    const accent = half?.roles.accent
+    if (!half || typeof accent !== 'object') continue
+    const stops = Object.fromEntries(
+      Object.entries(accent.stops).filter(([stop]) =>
+        keep.includes(partOf(mode, stop)),
+      ),
+    )
+    half.roles.accent = Object.keys(stops).length
+      ? { seed: accent.seed, stops }
+      : accent.seed
+  }
+  return next
+}
+
+const isPinned = (def: LookDefinition): boolean =>
+  MODES.some((m) => typeof def[m]?.roles.accent === 'object')
+
+// The pinned steps to try, most first: a step can fail a contrast check of
+// Claude the seed alone passes (a light link color, a pale hover)
+const PINNINGS: AccentPart[][] = [
+  ['link', 'fill', 'hover'],
+  ['fill', 'hover'],
+  ['link', 'fill'],
+  ['fill'],
+  ['link'],
+  [],
+]
+
+const PART_WORDS: Record<AccentPart, string> = {
+  link: 'links',
+  fill: 'buttons',
+  hover: 'button hover',
+}
+
+// Runs `makeColors` (passed in: the mod has its own copy, the web tests
+// theirs) and fits the look until Claude paints it: the primary text is
+// lifted where it is too dim, and the accent steps of the palette go back
+// to Claude's ramp where they fail. Throws what `makeColors` throws, or
+// Claude's own reason when nothing paints.
+export const fitLook = <T>(
+  def: LookDefinition,
+  makeColors: MakeColors<T>,
+): FittedLook<T> => {
+  if (!isPinned(def)) return fitText(def, makeColors)
+  let lastError: unknown
+  for (const keep of PINNINGS) {
+    try {
+      const fitted = fitText(pinning(def, keep), makeColors)
+      const dropped = PINNINGS[0].filter((part) => !keep.includes(part))
+      if (!dropped.length) return fitted
+      const what = dropped.map((part) => PART_WORDS[part]).join(' and ')
+      const notes = MODES.filter(
+        (m) => typeof def[m]?.roles.accent === 'object',
+      ).map(
+        (m) =>
+          `${m} accent ${what} left to Claude's ramp so Claude paints the theme`,
+      )
+      return { ...fitted, adjusted: [...fitted.adjusted, ...notes] }
+    } catch (error) {
+      lastError = error
+    }
+  }
+  throw lastError
 }
 
 // ---------- what the pane shows ----------
@@ -657,7 +756,8 @@ export const knobsOf = (
     knobs.push({ knob: key, value, from })
   }
   for (const key of ROLE_KEYS) {
-    const value = half.roles[key]
+    const role = half.roles[key]
+    const value = role === undefined ? undefined : seedOf(role)
     if (value === undefined) continue
     knobs.push({
       knob: `roles.${key}`,
