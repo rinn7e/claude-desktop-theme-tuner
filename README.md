@@ -160,7 +160,8 @@ Claude's own, copied unchanged from the mod-authoring skill: copy it again
 when Claude updates. `pnpm run build` writes a static site to `package/web-app/dist/`; every push
 to `master` deploys it to GitHub Pages (`.github/workflows/pages.yml`). Follow the
 [code convention](doc/code-convention.md). Open work is in the
-[future plan](doc/future-plan.md).
+[issues](https://github.com/rinn7e/claude-desktop-theme-tuner/issues); see
+[CONTRIBUTING.md](CONTRIBUTING.md) for how to pick one up.
 
 ## Support
 
