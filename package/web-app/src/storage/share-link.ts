@@ -2,10 +2,10 @@
  * Copyright (C) 2026 Moremi Vannak
  * SPDX-License-Identifier: MIT
  */
+import { type Slot } from '../screen/legacy-screen/type'
 import { isHex } from '../theme/color'
 import { type Mode, type Palette, type PaletteKey } from '../theme/palette'
 import { presetById } from '../theme/presets'
-import { type Slot } from '../type'
 import { type PresetFile, safeName } from './preset-file'
 
 // A setup carried in the page's hash, so a link (from a person or an AI

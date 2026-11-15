@@ -5,6 +5,15 @@
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 
+import { type Model } from '../src/screen/legacy-screen/type'
+import {
+  defaultStored,
+  handleLinkSetup,
+  handlePickPreset,
+  handleSetColor,
+  presetOf,
+  shareLinkOf,
+} from '../src/screen/legacy-screen/update'
 import { type PresetFile } from '../src/storage/preset-file'
 import {
   decodeLinkSetup,
@@ -14,15 +23,6 @@ import {
 } from '../src/storage/share-link'
 import { themeCss } from '../src/theme/css'
 import { allPresets, presetById } from '../src/theme/presets'
-import { type Model } from '../src/type'
-import {
-  defaultStored,
-  handleLinkSetup,
-  handlePickPreset,
-  handleSetColor,
-  presetOf,
-  shareLinkOf,
-} from '../src/update'
 
 const model: Model = {
   ...defaultStored,

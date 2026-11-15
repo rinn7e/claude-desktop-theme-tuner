@@ -4,6 +4,14 @@
  */
 import { describe, expect, it } from 'vitest'
 
+import { type Model } from '../src/screen/legacy-screen/type'
+import {
+  canReset,
+  defaultStored,
+  handlePresetFileRead,
+  handleSetColor,
+  presetOf,
+} from '../src/screen/legacy-screen/update'
 import {
   type PresetFile,
   decodePresetFile,
@@ -12,14 +20,6 @@ import {
 } from '../src/storage/preset-file'
 import { themeCss } from '../src/theme/css'
 import { presetById } from '../src/theme/presets'
-import { type Model } from '../src/type'
-import {
-  canReset,
-  defaultStored,
-  handlePresetFileRead,
-  handleSetColor,
-  presetOf,
-} from '../src/update'
 
 const model: Model = {
   ...defaultStored,

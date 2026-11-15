@@ -8,3 +8,9 @@ packageExtensions:
   react-tea-cup:
     peerDependencies:
       react-dom: '*'
+
+# fp-ts-routing is installed from GitHub and builds itself on install
+allowBuilds:
+  fp-ts-routing: true
+  'fp-ts-routing@https://codeload.github.com/rinn7e/fp-ts-routing/tar.gz/0d9ec901639572171d6ada5b75aeee6ff945dc43': true
+  'fp-ts-routing@https://codeload.github.com/rinn7e/fp-ts-routing/tar.gz/0d9ec901639572171d6ada5b75aeee6ff945dc43(fp-ts@2.16.11)(io-ts@2.2.22(fp-ts@2.16.11))': true

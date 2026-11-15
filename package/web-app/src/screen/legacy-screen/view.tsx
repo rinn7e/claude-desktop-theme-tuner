@@ -5,23 +5,23 @@
 import React, { useEffect, useState } from 'react'
 import { type Dispatcher } from 'tea-cup-fp'
 
-import shotDeveloperMode from './asset/how-to-apply/1-enable-developer-mode.webp'
-import shotDevTools from './asset/how-to-apply/2-show-dev-tools.webp'
-import shotSources from './asset/how-to-apply/3-sources.webp'
-import shotSnippets from './asset/how-to-apply/4-snippets.webp'
-import shotNewSnippet from './asset/how-to-apply/5-new-snippet.webp'
-import shotRun from './asset/how-to-apply/6-run.webp'
-import { codeView } from './code-view'
-import { claudeMockView } from './preview/claude-mock'
-import { contrast, isHex } from './theme/color'
+import shotDeveloperMode from '../../asset/how-to-apply/1-enable-developer-mode.webp'
+import shotDevTools from '../../asset/how-to-apply/2-show-dev-tools.webp'
+import shotSources from '../../asset/how-to-apply/3-sources.webp'
+import shotSnippets from '../../asset/how-to-apply/4-snippets.webp'
+import shotNewSnippet from '../../asset/how-to-apply/5-new-snippet.webp'
+import shotRun from '../../asset/how-to-apply/6-run.webp'
+import { claudeMockView } from '../../preview/claude-mock'
+import { contrast, isHex } from '../../theme/color'
 import {
   CONTRAST_CHECKS,
   type Mode,
   PALETTE_GROUPS,
   type PaletteKey,
   type Theme,
-} from './theme/palette'
-import { STOCK, TESTED_CLAUDE_VERSION, allPresets } from './theme/presets'
+} from '../../theme/palette'
+import { STOCK, TESTED_CLAUDE_VERSION, allPresets } from '../../theme/presets'
+import { codeView } from './code-view'
 import { type CopyTarget, type Model, type Msg } from './type'
 import { canReset, snippetDoesSomething, textFor } from './update'
 

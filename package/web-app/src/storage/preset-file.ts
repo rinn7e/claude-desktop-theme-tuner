@@ -5,9 +5,9 @@
 import { isRight } from 'fp-ts/Either'
 import * as t from 'io-ts'
 
+import { type Slot } from '../screen/legacy-screen/type'
 import { type Mode, type Palette, type Theme } from '../theme/palette'
 import { TESTED_CLAUDE_VERSION } from '../theme/presets'
-import { type Slot } from '../type'
 import { SlotCodec } from './storage'
 
 // A saved setup, as a JSON file: both modes and the options (reduce motion,

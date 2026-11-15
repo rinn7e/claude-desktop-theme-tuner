@@ -5,9 +5,9 @@
 import { isRight } from 'fp-ts/Either'
 import * as t from 'io-ts'
 
+import { type Slot } from '../screen/legacy-screen/type'
 import { isHex } from '../theme/color'
 import { type Palette } from '../theme/palette'
-import { type Slot } from '../type'
 
 // The two slots are kept in localStorage, so edits survive a reload
 const STORAGE_KEY = 'claude-theme-tuner:v1'

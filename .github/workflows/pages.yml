@@ -32,8 +32,11 @@ jobs:
       - run: pnpm run lint
       - run: pnpm run format:check
       - run: pnpm run test
-      # build runs the type check too
+      # build runs the type check too; the app is served under the project
+      # path, which its path routing (/, /legacy) needs to know
       - run: pnpm run build
+        env:
+          VITE_BASE_URL: /claude-desktop-theme-tuner/
       - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
       - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:

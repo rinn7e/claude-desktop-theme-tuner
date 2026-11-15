@@ -13,16 +13,16 @@ import {
   resolveSetup,
 } from '../../claude-mod/hooks/look'
 import { makeColors } from '../../claude-mod/hooks/make-colors.js'
-import { linkHash } from '../src/storage/share-link'
-import { allPresets } from '../src/theme/presets'
-import { type Model } from '../src/type'
+import { type Model } from '../src/screen/legacy-screen/type'
 import {
   defaultStored,
   handlePickPreset,
   handleSetColor,
   modCommandOf,
   presetOf,
-} from '../src/update'
+} from '../src/screen/legacy-screen/update'
+import { linkHash } from '../src/storage/share-link'
+import { allPresets } from '../src/theme/presets'
 
 const model: Model = {
   ...defaultStored,

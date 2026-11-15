@@ -4,8 +4,7 @@
  */
 import { describe, expect, it } from 'vitest'
 
-import { decodeStored } from '../src/storage/storage'
-import { type Model } from '../src/type'
+import { type Model } from '../src/screen/legacy-screen/type'
 import {
   defaultStored,
   handlePickPreset,
@@ -19,7 +18,8 @@ import {
   snippetDoesSomething,
   snippetOf,
   update,
-} from '../src/update'
+} from '../src/screen/legacy-screen/update'
+import { decodeStored } from '../src/storage/storage'
 
 const model: Model = {
   ...defaultStored,

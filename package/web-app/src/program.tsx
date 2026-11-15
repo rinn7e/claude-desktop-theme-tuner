@@ -3,31 +3,36 @@
  * SPDX-License-Identifier: MIT
  */
 import React from 'react'
-import { Program } from 'react-tea-cup'
-import { type Dispatcher, Port } from 'tea-cup-fp'
+import { ProgramWithNav } from 'react-tea-cup'
+import { type Dispatcher, Sub } from 'tea-cup-fp'
 
-import { App } from './app'
+import { parseScreen } from './common/destination'
+import { subscriptions as legacySubscriptions } from './screen/legacy-screen/subscription'
 import { type Model, type Msg } from './type'
 import { init, update } from './update'
-
-// A link opened in a tab that already has the tuner only changes the hash,
-// which reloads nothing; the port passes it on
-const hashChanges = new Port<string>()
-window.addEventListener('hashchange', () =>
-  hashChanges.send(window.location.hash),
-)
+import { RootView } from './view'
 
 const appView = (dispatch: Dispatcher<Msg>, model: Model) => (
-  <App model={model} dispatch={dispatch} />
+  <RootView model={model} dispatch={dispatch} />
 )
 
+// Only the screen shown listens: the legacy screen to its hash
+const subscriptions = (model: Model): Sub<Msg> =>
+  model.screen._tag === 'LegacyScreen'
+    ? legacySubscriptions().map((msg): Msg => ({ _tag: 'LegacyMsg', msg }))
+    : Sub.none()
+
 export const AppProgram = () => (
-  <Program<Model, Msg>
+  <ProgramWithNav<Model, Msg>
+    // The browser's back and forward (the app's own URL writes fire no
+    // `popstate`)
+    onUrlChange={(location): Msg => ({
+      _tag: 'UrlChanged',
+      screen: parseScreen(location.href),
+    })}
     init={init}
     update={update}
     view={appView}
-    subscriptions={() =>
-      hashChanges.subscribe((hash): Msg => ({ _tag: 'HashChanged', hash }))
-    }
+    subscriptions={subscriptions}
   />
 )

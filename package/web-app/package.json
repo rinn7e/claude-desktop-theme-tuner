@@ -15,6 +15,7 @@
     "code-themes": "node scripts/code-themes.mjs && prettier --write src/theme/code-themes.ts"
   },
   "dependencies": {
+    "@rinn7e/fp-ts-routing": "github:rinn7e/fp-ts-routing#0d9ec901639572171d6ada5b75aeee6ff945dc43",
     "fp-ts": "^2.16.0",
     "highlight.js": "^11.12.0",
     "io-ts": "^2.2.21",
