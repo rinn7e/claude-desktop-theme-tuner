@@ -1,8 +1,12 @@
 <p align="center">
-  <img src="public/logo.svg" alt="Claude Desktop Theme Tuner logo" width="128" height="128">
+  <img src="package/web-app/public/logo.svg" alt="Claude Desktop Theme Tuner logo" width="128" height="128">
 </p>
 
-<h1 align="center">Claude Desktop Theme Tuner</h1>
+<h1 align="center">Claude Desktop Theme Tuner V2</h1>
+
+<p align="center">
+  <a href="https://rinn7e.com/claude-desktop-theme-tuner/"><b>rinn7e.com/claude-desktop-theme-tuner</b></a>
+</p>
 
 <p align="center">
   Pick, tune and copy a color theme for the Claude desktop app, in light and dark mode.
